@@ -12,12 +12,14 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.codice.test</groupId>
     <artifactId>codice-test</artifactId>
-    <version>1.0-SNAPSHOT0</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Codice Test</name>
     <description>Codice Generic Test Utilities and Classes</description>
@@ -37,9 +39,9 @@
 
     <properties>
         <!--  default URL properties -->
-        <codice.scm.connection.url />
-        <snapshots.repository.url />
-        <reports.repository.url />
+        <codice.scm.connection.url/>
+        <snapshots.repository.url/>
+        <reports.repository.url/>
 
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -50,6 +52,7 @@
         <jsr305.version>3.0.2_1</jsr305.version>
 
         <junit.version>4.12</junit.version>
+        <spock.version>1.1-groovy-2.4</spock.version>
         <groovy.version>2.4.7</groovy.version>
     </properties>
 
@@ -86,6 +89,7 @@
                 <version>${jsr305.version}</version>
                 <scope>provided</scope>
             </dependency>
+
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
@@ -96,33 +100,6 @@
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ow2.asm</groupId>
-                <artifactId>asm</artifactId>
-                <version>5.0.4</version>
-            </dependency>
-            <dependency>
-                <groupId>cglib</groupId>
-                <artifactId>cglib-nodep</artifactId>
-                <version>3.2.6</version>
-            </dependency>
-            <dependency>
-                <groupId>org.objenesis</groupId>
-                <artifactId>objenesis</artifactId>
-                <version>2.6</version>
-            </dependency>
-            <dependency>
-                <groupId>org.spockframework</groupId>
-                <artifactId>spock-core</artifactId>
-                <version>1.1-groovy-2.4</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.codehaus.groovy</groupId>
-                        <artifactId>groovy-all</artifactId>
-                    </exclusion>
-                </exclusions>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.groovy</groupId>
@@ -169,6 +146,11 @@
                             <include>**/*Spec.class</include>
                         </includes>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>2.4.3</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -244,5 +226,6 @@
     </profiles>
 
     <modules>
+        <module>spock-shaded</module>
     </modules>
 </project>
