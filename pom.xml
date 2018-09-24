@@ -17,10 +17,10 @@
 
     <groupId>org.codice.test</groupId>
     <artifactId>codice-test</artifactId>
-    <version>1.4</version>
+    <version>1.0-SNAPSHOT0</version>
     <packaging>pom</packaging>
     <name>Codice Test</name>
-    <description>Codice Test Generic Utilities and Classes</description>
+    <description>Codice Generic Test Utilities and Classes</description>
 
     <inceptionYear>2018</inceptionYear>
     <organization>
