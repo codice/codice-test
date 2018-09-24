@@ -84,10 +84,10 @@ public class DeFinalizeClassLoader extends ClassLoader {
    *
    * <p>The class will always be loaded first from its parent classloader. It will be returned as is
    * if the class is from one of the reserved packages (see above). Otherwise, the class will be
-   * reloaded and optionally definalize if the class match a requested class or package from one of
-   * the {@link DeFinalize} annotations of the Spock test specification class. The protection domain
-   * from the version of the class loaded by the parent classloader will be re-used when defining
-   * the reloaded class.
+   * reloaded and optionally definalized if the class matches a requested class or package from one
+   * of the {@link DeFinalize} annotations of the Spock test specification class. The protection
+   * domain from the version of the class loaded by the parent classloader will be re-used when
+   * defining the reloaded class.
    *
    * @param name the binary name of the class to load
    * @param resolve <code>true</code> to resolve the class; <code>false</code> otherwise

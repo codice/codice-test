@@ -34,7 +34,7 @@ import spock.lang.Specification;
 /**
  * The <code>Definalizer</code> test runner is designed as a generic proxy test runner for another
  * JUnit test runner by indirectly instantiating that runner in order to add support for
- * de-finalizing (i.e. removing the final constraint) 3rd party Java classes that needs to be mocked
+ * de-finalizing (i.e. removing the final constraint) 3rd party Java classes that need to be mocked
  * or stubbed during testing. It does so by creating a classloader designed with an aggressive
  * strategy where it will load all classes first before delegating to its parent. This classloader
  * will therefore reload all classes while definalizing those that are requested except for all

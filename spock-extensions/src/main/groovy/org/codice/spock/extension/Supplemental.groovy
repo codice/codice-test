@@ -62,10 +62,10 @@ import java.lang.annotation.*
  *       <p>Sets the system property indicated by the specified key only if the specified value is
  *          not <code>null</code> otherwise remove any mappings to the specified key.
  *
- *   <li><code>&lt;T&gt; T MockingApi.Dummy(Class<T> type)</code>
+ *   <li><code>&lt;T&gt; T MockingApi.Dummy(Class&lt;T&gt; type)</code>
  *       <p>Creates a dummy value or stub for the specified type.</li>
  *
- *   <li><code>Object[] MockingApi.Dummies(Class<?>... types)</code>
+ *   <li><code>Object[] MockingApi.Dummies(Class&lt;?&gt;... types)</code>
  *       <p>Creates dummy values or stubs for the specified types.</li>
  * </ul>
  */
