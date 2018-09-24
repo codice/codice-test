@@ -11,12 +11,12 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.spock.extension.builtin;
+package org.codice.junit.extension.builtin;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
-import org.codice.spock.extension.DeFinalizeWith;
+import org.codice.junit.extension.DeFinalizeWith;
 import org.junit.runner.Describable;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
