@@ -48,8 +48,13 @@
 
         <maven-jacoco-plugin.version>0.8.1</maven-jacoco-plugin.version>
 
+        <commons-lang.version>2.6</commons-lang.version>
         <guava.version>23.0</guava.version>
         <jsr305.version>3.0.2_1</jsr305.version>
+        <org.slf4j.version>1.7.1</org.slf4j.version>
+        <jodah-failsafe.version>0.9.5</jodah-failsafe.version>
+        <logback.version>1.2.3</logback.version>
+        <logback.classic.version>1.2.3</logback.classic.version>
 
         <junit.version>4.12</junit.version>
         <spock.version>1.1-groovy-2.4</spock.version>
@@ -93,9 +98,34 @@
             </dependency>
 
             <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>${commons-lang.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${org.slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.jodah</groupId>
+                <artifactId>failsafe</artifactId>
+                <version>${jodah-failsafe.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.classic.version}</version>
             </dependency>
 
             <dependency>
@@ -248,5 +278,6 @@
         <module>spock-shaded</module>
         <module>spock-extensions</module>
         <module>definalizer</module>
+        <module>failsafe-controller</module>
     </modules>
 </project>

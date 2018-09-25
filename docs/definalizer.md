@@ -17,3 +17,24 @@ This runner is especially useful with Spock where it is not possible to mock fin
 The `@Definalize` annotation should be added to the test class to specify which classes and/or packages to definalize.
 
 The `@DefinalizeWith` annotation can be added to specify which actual test runner should be used to run the test case. By default, it will either use the standard JUnit or Sputnik test runner.
+
+#### Examples
+```
+  @RunWith(DeFinalizer)
+  @DeFinalize(SolrCore)
+  class EmbeddedSolrFactorySpec extends Specification {
+    ...
+  }
+```
+The above test specification replaces the test runner with this new Definalizer test runner which will internally instantiate the actual Sputnik test runner and delegate to it. Then the class is annotated with DeFinalize to list the classes that should be manipulated to remove all final keywords from these classes and their methods,  One can also specify packages to be definalize instead of classes if needed but typically, just specifying the classes directly is enough.
+ That's it!
+ The Definalizer is not just useful for Spock as it can actually wrap around any test runners. By default it will either internally instantiate Sputnik or the standard JUnit test runner based on the test class it is associated with. However, one could use the DeFinalizeWith annotation to specify your own test runner to be internally instantiated. For example:
+```
+  @RunWith(DeFinalizer.class)
+  @DefinalizeWith(Parameterized.class)
+  @DeFinalize(packages="org.xml.sax")
+  public class MyParameterizedTest {
+    ...
+  }
+```
+The above test class will run the Parameterized test runner normally and definalize all classes loaded from the `org.xml.sax` package.
