@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.junit.extension.builtin;
+package org.codice.junit.impl;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,7 +23,8 @@ import javassist.CtMethod;
 import javassist.LoaderClassPath;
 import javassist.Modifier;
 import javassist.NotFoundException;
-import org.codice.junit.extension.DeFinalize;
+import org.codice.junit.DeFinalize;
+import org.codice.junit.DeFinalizer;
 
 /**
  * Defines the classloader used by the {@link DeFinalizer} test runner. This classloader is designed

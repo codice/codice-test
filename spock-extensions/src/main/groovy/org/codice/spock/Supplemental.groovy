@@ -11,9 +11,9 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.spock.extension
+package org.codice.spock
 
-import org.codice.spock.extension.builtin.SupplementalExtension
+import org.codice.spock.builtin.SupplementalExtension
 import org.spockframework.runtime.extension.ExtensionAnnotation
 
 import java.lang.annotation.*
