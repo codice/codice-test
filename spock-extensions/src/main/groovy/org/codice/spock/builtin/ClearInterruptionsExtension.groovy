@@ -11,9 +11,10 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.spock.extension.builtin
+package org.codice.spock.builtin
 
-import org.codice.spock.extension.ClearInterruptions
+
+import org.codice.spock.ClearInterruptions
 import org.spockframework.runtime.extension.AbstractAnnotationDrivenExtension
 import org.spockframework.runtime.extension.IMethodInterceptor
 import org.spockframework.runtime.extension.IMethodInvocation
@@ -23,7 +24,7 @@ import org.spockframework.runtime.model.SpecInfo
 /**
  * Provides the extension point for the {@link ClearInterruptions} annotation.
  */
-public class ClearInterruptionsExtension extends AbstractAnnotationDrivenExtension<ClearInterruptions> {
+public class ClearInterruptionsExtension extends AbstractAnnotationDrivenExtension<org.codice.spock.ClearInterruptions> {
   private static def LISTENER = new IMethodInterceptor() {
     @Override
     void intercept(IMethodInvocation invocation) throws Throwable {
@@ -36,7 +37,7 @@ public class ClearInterruptionsExtension extends AbstractAnnotationDrivenExtensi
   }
 
   @Override
-  void visitSpecAnnotation(ClearInterruptions annotation, SpecInfo spec) {
+  void visitSpecAnnotation(org.codice.spock.ClearInterruptions annotation, SpecInfo spec) {
     spec.features.each {
       it.addInterceptor(LISTENER)
       it.addIterationInterceptor(LISTENER)
@@ -44,7 +45,7 @@ public class ClearInterruptionsExtension extends AbstractAnnotationDrivenExtensi
   }
 
   @Override
-  void visitFeatureAnnotation(ClearInterruptions annotation, FeatureInfo feature) {
+  void visitFeatureAnnotation(org.codice.spock.ClearInterruptions annotation, FeatureInfo feature) {
     feature.addInterceptor(LISTENER);
     feature.addIterationInterceptor(LISTENER)
   }

@@ -11,14 +11,14 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.spock.extension;
+package org.codice.spock;
 
 import java.lang.annotation.ElementType
 import java.lang.annotation.Inherited
 import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
 import java.lang.annotation.Target
-import org.codice.spock.extension.builtin.ClearInterruptionsExtension
+import org.codice.spock.builtin.ClearInterruptionsExtension
 import org.spockframework.runtime.extension.ExtensionAnnotation
 
 /**

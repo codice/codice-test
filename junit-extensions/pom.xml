@@ -23,8 +23,8 @@
         <version>0.1-SNAPSHOT</version>
     </parent>
 
-    <name>Codice Test :: Definalizer</name>
-    <artifactId>definalizer</artifactId>
+    <name>Codice Test :: JUnit Extensions</name>
+    <artifactId>junit-extensions</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>

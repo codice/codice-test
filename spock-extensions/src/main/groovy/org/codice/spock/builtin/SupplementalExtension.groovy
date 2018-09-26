@@ -11,9 +11,10 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.spock.extension.builtin
+package org.codice.spock.builtin
 
-import org.codice.spock.extension.Supplemental
+
+import org.codice.spock.Supplemental
 import org.spockframework.mock.IMockMethod
 import org.spockframework.mock.MockImplementation
 import org.spockframework.mock.MockNature
@@ -36,7 +37,7 @@ import java.lang.reflect.Modifier
 /**
  * Provides the extension point for the {@link Supplemental} annotation.
  */
-class SupplementalExtension extends AbstractAnnotationDrivenExtension<Supplemental> {
+class SupplementalExtension extends AbstractAnnotationDrivenExtension<org.codice.spock.Supplemental> {
   private static
   def DEFAULT_VALUES = [
       (null): null,
@@ -80,7 +81,7 @@ class SupplementalExtension extends AbstractAnnotationDrivenExtension<Supplement
   private def mockFactory = new DetachedMockFactory()
 
   @Override
-  void visitSpecAnnotation(Supplemental annotation, SpecInfo spec) {
+  void visitSpecAnnotation(org.codice.spock.Supplemental annotation, SpecInfo spec) {
     // register the {@link ConfineMetaClassChanges} interceptor first to restore all metaclass changes
     // done by our own interceptor
     spec.bottomSpec.addInterceptor(new ConfineMetaClassChangesInterceptor([Class, Method, System, MockingApi]))

@@ -1,5 +1,5 @@
 # Definalizer
-The Definalizer JUnit test runner is designed as a generic proxy test runner for another JUnit test runner by indirectly instantiating that runner in order to add support for de-finalizing (i.e. removing the final constraint) 3rd party Java classes that need to be mocked or stubbed during testing. 
+The [Definalizer JUnit test runner](../junit-extensions/src/main/java/org/codice/junit/DeFinalizer.java) is designed as a generic proxy test runner for another JUnit test runner by indirectly instantiating that runner in order to add support for de-finalizing (i.e. removing the final constraint) 3rd party Java classes that need to be mocked or stubbed during testing. 
 It does so by creating a classloader designed with an aggressive strategy where it will load all classes first before delegating to its parent. This classloader will therefore reload all classes while definalizing those that are requested except for all classes in the following packages:
 * java
 * javax
@@ -14,9 +14,9 @@ This is to ensure that everything the test class, the test runner, and everythin
 
 This runner is especially useful with Spock where it is not possible to mock final methods as can be done with Mockito.
 
-The [`@Definalize`](../definalizer/src/main/java/org/codice/junit/extension/Definalize.java) annotation should be added to the test class to specify which classes and/or packages to definalize.
+The [`@Definalize`](../junit-extensions/src/main/java/org/codice/junit/Definalize.java) annotation should be added to the test class to specify which classes and/or packages to definalize.
 
-The [`@DefinalizeWith`](../definalizer/src/main/java/org/codice/junit/extension/DefinalizeWith.java) annotation can be added to specify which actual test runner should be used to run the test case. By default, it will either use the standard JUnit or Sputnik test runner.
+The [`@DefinalizeWith`](../junit-extensions/src/main/java/org/codice/junit/DefinalizeWith.java) annotation can be added to specify which actual test runner should be used to run the test case. By default, it will either use the standard JUnit or Sputnik test runner.
 
 #### Examples
 ```

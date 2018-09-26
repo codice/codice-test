@@ -276,8 +276,8 @@
 
     <modules>
         <module>spock-shaded</module>
+        <module>junit-extensions</module>
         <module>spock-extensions</module>
-        <module>definalizer</module>
         <module>failsafe-controller</module>
     </modules>
 </project>
