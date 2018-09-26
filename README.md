@@ -18,7 +18,7 @@ Defines a set of [extensions](docs/spock-extensions.md) that can be used when de
 The [Definalizer](docs/definalizer.md) defines a JUnit test runner that supports de-finalizing Java classes.
 
 #### failsafe-controller
-The [Failsafe Controller](doscs/failsafe-controller.md) provides a testing framework to test code that uses Failsafe (from `net.johah.failsafe`). 
+The [Failsafe Controller](doscs/failsafe-controller.md) provides a testing framework to test code that uses Failsafe (from `net.jodah.failsafe`). 
 
 ### Future iterations
 Future implementations will:
