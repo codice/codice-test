@@ -6,6 +6,8 @@ The following modules are defined:
 * spock-shaded
 * junit-extensions
 * spock-extensions
+* hamcrest-extensions
+* mockito-extensions
 * failsafe-controller
 
 #### spock-shaded
@@ -18,6 +20,12 @@ Among the JUnit extensions, the [Definalizer](docs/definalizer.md) defines a JUn
 
 #### spock-extensions
 Defines a set of [extensions](docs/spock-extensions.md) that can be used when defining Spock specifications.
+
+#### hamcrest-extensions
+Defines a set of extensions that can be used with Hamcrest.
+
+#### mockito-extensions
+Defines a set of extensions that can be used with Mockito.
 
 #### failsafe-controller
 The [Failsafe Controller](doscs/failsafe-controller.md) provides a testing framework to test code that uses Failsafe (from `net.jodah.failsafe`). 

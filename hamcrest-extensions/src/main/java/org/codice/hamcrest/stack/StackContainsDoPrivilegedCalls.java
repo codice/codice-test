@@ -11,12 +11,11 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.test.mockito;
+package org.codice.hamcrest.stack;
 
 import java.security.AccessController;
 import java.util.Arrays;
 import org.hamcrest.CustomMatcher;
-import org.mockito.Incubating;
 
 /**
  * Hamcrest {@link org.hamcrest.CustomMatcher} that can be used to determine a stack contains a
@@ -25,7 +24,6 @@ import org.mockito.Incubating;
  * <p><b> This code is experimental. While this class is functional and tested, it may change or be
  * removed in a future version of the library. </b>
  */
-@Incubating
 public class StackContainsDoPrivilegedCalls extends CustomMatcher<StackTraceElement[]> {
 
   private final int times;
