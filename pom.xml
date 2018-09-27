@@ -17,7 +17,7 @@
 
     <groupId>org.codice.test</groupId>
     <artifactId>codice-test</artifactId>
-    <version>0.1</version>
+    <version>0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Codice Test</name>
     <description>Codice Generic Test Utilities and Classes</description>
