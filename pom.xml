@@ -48,6 +48,8 @@
 
         <maven-jacoco-plugin.version>0.8.1</maven-jacoco-plugin.version>
 
+        <codice-maven.version>0.1</codice-maven.version>
+
         <commons-lang.version>2.6</commons-lang.version>
         <guava.version>23.0</guava.version>
         <jsr305.version>3.0.2_1</jsr305.version>
@@ -69,7 +71,7 @@
         <url>https://github.com/codice/codice-test</url>
         <connection>scm:git:https://github.com/codice/codice-test.git</connection>
         <developerConnection>scm:git:https://github.com/codice/codice-test.git</developerConnection>
-        <tag>codice-test-1.0</tag>
+        <tag>codice-test-0.1</tag>
     </scm>
 
     <distributionManagement>
@@ -89,6 +91,40 @@
             <url>${reports.repository.url}</url>
         </site>
     </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>central</id>
+            <name>Central Repository</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>codice</id>
+            <name>Codice Repository</name>
+            <url>https://artifacts.codice.org/content/groups/public/</url>
+        </repository>
+    </repositories>
+    
+    <pluginRepositories>
+        <pluginRepository>
+            <id>central</id>
+            <name>Central Repository</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>codice</id>
+            <name>Codice Repository</name>
+            <url>https://artifacts.codice.org/content/groups/public/</url>
+        </pluginRepository>
+    </pluginRepositories>
 
     <dependencyManagement>
         <dependencies>
@@ -188,6 +224,13 @@
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
                     <version>${maven-jacoco-plugin.version}</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.codice.maven</groupId>
+                            <artifactId>jacoco</artifactId>
+                            <version>${codice-maven.version}</version>
+                        </dependency>
+                    </dependencies>
                     <executions>
                         <execution>
                             <id>default-prepare-agent</id>
@@ -259,17 +302,17 @@
                                 <rule>
                                     <element>BUNDLE</element>
                                     <limits>
-                                        <limit>
+                                        <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
                                             <minimum>0.75</minimum>
                                         </limit>
-                                        <limit>
+                                        <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
                                             <minimum>0.75</minimum>
                                         </limit>
-                                        <limit>
+                                        <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
                                             <minimum>0.75</minimum>
