@@ -107,9 +107,9 @@ pipeline {
                             }
                         }
                         failure {
-                            catchError{ junit '**/target/surefire-reports/*.xml' }
-                            catchError{ junit '**/target/failsafe-reports/*.xml' }
-                            catchError{ zip zipFile: 'PaxExamRuntimeFolder.zip', archive: true, glob: '**/target/exam/**/*' }
+                            //catchError{ junit '**/target/surefire-reports/*.xml' }
+                            //catchError{ junit '**/target/failsafe-reports/*.xml' }
+                            //catchError{ zip zipFile: 'PaxExamRuntimeFolder.zip', archive: true, glob: '**/target/exam/**/*' }
                             withCredentials([usernameColonPassword(credentialsId: 'cxbot', variable: 'GITHUB_TOKEN')]) {
                                 script {
                                     def jsonBlob = getGithubStatusJsonBlob("failure", "${BUILD_URL}display/redirect", "Windows Build Failed!", "jenkins/build/windows")
