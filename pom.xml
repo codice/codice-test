@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.codice.test</groupId>
@@ -113,7 +115,7 @@
             <url>https://artifacts.codice.org/content/groups/public/</url>
         </repository>
     </repositories>
-    
+
     <pluginRepositories>
         <pluginRepository>
             <id>central</id>
@@ -194,6 +196,17 @@
                 <version>${mockito-core.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.codehaus.groovy</groupId>
+                <artifactId>groovy-all</artifactId>
+                <version>${groovy.version}</version>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.groovy</groupId>
+                <artifactId>groovy-all</artifactId>
+                <version>${groovy.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.spockframework</groupId>
                 <artifactId>spock-core</artifactId>
                 <version>${spock.version}</version>
@@ -203,11 +216,6 @@
                         <artifactId>groovy-all</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.groovy</groupId>
-                <artifactId>groovy-all</artifactId>
-                <version>${groovy.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -220,6 +228,7 @@
                 <version>3.4</version>
             </extension>
         </extensions>
+
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -263,11 +272,6 @@
                             <include>**/*Spec.class</include>
                         </includes>
                     </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-shade-plugin</artifactId>
-                    <version>2.4.3</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -343,10 +347,10 @@
     </profiles>
 
     <modules>
+        <module>spock-all</module>
         <module>junit-extensions</module>
         <module>hamcrest-extensions</module>
         <module>mockito-extensions</module>
-        <module>spock-shaded</module>
         <module>spock-extensions</module>
         <module>failsafe-controller</module>
     </modules>
