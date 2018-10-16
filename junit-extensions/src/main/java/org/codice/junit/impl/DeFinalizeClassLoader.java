@@ -71,10 +71,11 @@ public class DeFinalizeClassLoader extends ClassLoader {
                 Stream.of(testClass.getAnnotationsByType(DeFinalize.class))
                     .map(DeFinalize::value)
                     .flatMap(Stream::of)
-                    .map(Class::getName),
+                    .map(DeFinalizeClassLoader::checkDefinalizedClass),
                 Stream.of(testClass.getAnnotationsByType(DeFinalize.class))
                     .map(DeFinalize::packages)
-                    .flatMap(Stream::of))
+                    .flatMap(Stream::of)
+                    .map(DeFinalizeClassLoader::checkDefinalizedPackage))
             .collect(Collectors.toSet());
   }
 
@@ -175,5 +176,21 @@ public class DeFinalizeClassLoader extends ClassLoader {
         && !name.startsWith("sun.")
         && !name.startsWith("org.xml.")
         && !name.startsWith("org.junit.");
+  }
+
+  private static String checkDefinalizedClass(Class<?> clazz) {
+    final String name = clazz.getName();
+
+    if (!DeFinalizeClassLoader.isNotFromAReservedPackage(name)) {
+      throw new IllegalArgumentException("unable to definalize class: " + name);
+    }
+    return name;
+  }
+
+  private static String checkDefinalizedPackage(String pkg) {
+    if (!DeFinalizeClassLoader.isNotFromAReservedPackage(pkg)) {
+      throw new IllegalArgumentException("unable to definalize package: " + pkg);
+    }
+    return pkg;
   }
 }
