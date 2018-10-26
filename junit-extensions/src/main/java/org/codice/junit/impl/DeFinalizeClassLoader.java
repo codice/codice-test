@@ -47,6 +47,8 @@ import org.codice.junit.DeFinalizer;
  * loaded by the parent classloader.
  */
 public class DeFinalizeClassLoader extends ClassLoader {
+  private static final double VERSION =
+      Double.parseDouble(System.getProperty("java.specification.version"));
 
   private final ClassPool pool;
   private final Set<String> filters;
@@ -103,7 +105,7 @@ public class DeFinalizeClassLoader extends ClassLoader {
 
       if (clazz == null) {
         clazz = super.loadClass(name, resolve); // always load it from our parent first
-        if (DeFinalizeClassLoader.isNotFromAReservedPackage(name)) {
+        if (DeFinalizeClassLoader.isNotFromAReservedPackage(clazz, name)) {
           try {
             clazz = reloadClass(clazz, shouldDefinalize(name));
           } catch (NotFoundException e) {
@@ -170,18 +172,27 @@ public class DeFinalizeClassLoader extends ClassLoader {
     }
   }
 
+  private static boolean isNotFromAReservedPackage(Class<?> clazz, String name) {
+    // with post Java 8, classes loaded by the boot classloader (i.e. null) are reserved
+    if ((DeFinalizeClassLoader.VERSION >= 9.0D) && (clazz.getClassLoader() == null)) {
+      return false;
+    }
+    return DeFinalizeClassLoader.isNotFromAReservedPackage(name);
+  }
+
   private static boolean isNotFromAReservedPackage(String name) {
     return !name.startsWith("java.")
         && !name.startsWith("javax.")
         && !name.startsWith("sun.")
         && !name.startsWith("org.xml.")
-        && !name.startsWith("org.junit.");
+        && !name.startsWith("org.junit.")
+        && !name.startsWith("jdk.");
   }
 
   private static String checkDefinalizedClass(Class<?> clazz) {
     final String name = clazz.getName();
 
-    if (!DeFinalizeClassLoader.isNotFromAReservedPackage(name)) {
+    if (!DeFinalizeClassLoader.isNotFromAReservedPackage(clazz, name)) {
       throw new IllegalArgumentException("unable to definalize class: " + name);
     }
     return name;
