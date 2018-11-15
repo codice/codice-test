@@ -26,10 +26,8 @@ Defines a single pom artifact that contains all dependencies required to develop
 where `codice-test.version` is defined as a property with the latest code-test released version.
 
 #### junit-extensions
-Defines a set of extensions that can be used when defining JUnit test cases or Spock specifications.
-
-Among the JUnit extensions, the [Definalizer](docs/definalizer.md) defines a JUnit test runner that supports de-finalizing Java classes.
-
+Defines a set of [extensions](docs/junit-extensions.md) that can be used when defining JUnit test cases or Spock specifications.
+ 
 #### spock-extensions
 Defines a set of [extensions](docs/spock-extensions.md) that can be used when defining Spock specifications.
 

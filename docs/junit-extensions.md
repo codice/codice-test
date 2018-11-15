@@ -1,4 +1,40 @@
-# Definalizer
+#JUnit Extensions
+
+#### RestoreSystemProperties
+The [RestoreSystemProperties](../junit-extensions/src/main/java/org/codice/junit/rules/RestoreSystemProperties.java) provides a Java version of the Spock annotation which when defined as a JUnit rule will automatically reset the system properties to their initial values after each tests.
+```
+  public class MyTest {
+    @Rule public final RestoreSystemProperties restoreProperties = new RestoreSystemProperties();
+
+    @Test
+    public void testSomething() throws Exception {
+      System.setProperty("ddf.home", "some new location");
+      final MyClass obj = new MyClass(some);
+      
+      obj.doSomething();
+    }
+  }
+```
+
+#### ClearInterruptions
+The [ClearInterruptions](../junit-extensions/src/main/java/org/codice/junit/rules/ClearInterruptions.java) provides a Java version of the Spock annotation which when defined as a JUnit rule will clear interruption states from the current thread after testing. For example:
+```
+  public class MyTest {
+    @Rule public final ClearInterruptions clearInterruptions = new ClearInterruptions();
+
+    @Test
+    public void testThatInterruptionAreThrownBack() throws Exception {
+      final SomethingElse some = mock(SomethingElse.class);
+      final MyClass obj = new MyClass(some);
+      
+      when(some.waitForSomething()).thenThrow(new InterruptedException("testing"));
+      
+      obj.doSomething();
+    }
+  }
+```
+
+#### Definalizer
 The [Definalizer JUnit test runner](../junit-extensions/src/main/java/org/codice/junit/DeFinalizer.java) is designed as a generic proxy test runner for another JUnit test runner by indirectly instantiating that runner in order to add support for de-finalizing (i.e. removing the final constraint) 3rd party Java classes that need to be mocked or stubbed during testing. 
 It does so by creating a classloader designed with an aggressive strategy where it will load all classes first before delegating to its parent. This classloader will therefore reload all classes while definalizing those that are requested except for all classes in the following packages:
 * java
