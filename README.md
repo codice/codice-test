@@ -3,12 +3,16 @@ Repository of re-usable test utilities.
 
 ### Modules
 The following modules are defined:
+* internal
 * spock-all
 * junit-extensions
 * spock-extensions
 * hamcrest-extensions
 * mockito-extensions
 * failsafe-controller
+
+#### internal
+Defines a set of common utilities used internally by all other modules. This module is not meant to be depended on from outside this workspace.
 
 #### spock-all
 Defines a single pom artifact that contains all dependencies required to develop and execute Spock specifications. Simply add the following to your pom file to be able to compile and run Spock specifications:

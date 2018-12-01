@@ -16,12 +16,13 @@ package org.codice.spock
 import org.codice.spock.builtin.SupplementalExtension
 import org.spockframework.runtime.extension.ExtensionAnnotation
 
-import java.lang.annotation.*
+import java.lang.annotation.Documented
+import java.lang.annotation.ElementType
+import java.lang.annotation.Inherited
+import java.lang.annotation.Retention
+import java.lang.annotation.RetentionPolicy
+import java.lang.annotation.Target
 
-@Inherited
-@ExtensionAnnotation(SupplementalExtension)
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
 /**
  * The <code>Supplemental</code> annotation can be added to any Spock specification class in order
  * to get additional methods added to specific classes while testing the specification.
@@ -69,4 +70,9 @@ import java.lang.annotation.*
  *       <p>Creates dummy values or stubs for the specified types.</li>
  * </ul>
  */
+@ExtensionAnnotation(SupplementalExtension)
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Inherited
+@Documented
 public @interface Supplemental {}

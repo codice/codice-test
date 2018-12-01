@@ -19,27 +19,19 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import org.codice.junit.rules.MethodRuleAnnotationProcessor;
 
 /**
- * This annotation is used to indicate to the {@link DeFinalizer} test runner which classes or
- * packages should be definalized.
+ * The <code>ClearInterruptions</code> annotation can be used in conjunction with the {@link
+ * MethodRuleAnnotationProcessor} JUnit method rule to clear any interruption states after a
+ * particular test method.
+ *
+ * <p>Applying this annotation to a JUnit test class has the same effect as applying it to all its
+ * test methods.
  */
-@Target(ElementType.TYPE)
+@ExtensionMethodRuleAnnotation(org.codice.junit.rules.ClearInterruptions.class)
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-public @interface DeFinalize {
-  /**
-   * Specifies the classes to de-finalize.
-   *
-   * @return the classes to de-finalize
-   */
-  public Class<?>[] value() default {};
-
-  /**
-   * Specifies the packages to de-finalize.
-   *
-   * @return the fully qualified names for the packages to de-finalize
-   */
-  public String[] packages() default {};
-}
+public @interface ClearInterruptions {}

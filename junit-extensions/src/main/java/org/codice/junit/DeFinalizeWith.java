@@ -13,6 +13,7 @@
  */
 package org.codice.junit;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
@@ -28,11 +29,11 @@ import org.junit.runner.Runner;
  * org.spockframework.runtime.Sputnik} test runner will be used if the class or the Spock's
  * specification is not annotated with this annotation.
  */
-@Inherited
-@Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Inherited
+@Documented
 public @interface DeFinalizeWith {
-
   /** @return a runner class (must have a constructor that takes a single class to run) */
   public Class<? extends Runner> value();
 }

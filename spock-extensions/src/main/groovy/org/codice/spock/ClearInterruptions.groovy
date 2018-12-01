@@ -11,15 +11,17 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.spock;
+package org.codice.spock
 
+import org.codice.spock.builtin.ClearInterruptionsExtension
+import org.spockframework.runtime.extension.ExtensionAnnotation
+
+import java.lang.annotation.Documented
 import java.lang.annotation.ElementType
 import java.lang.annotation.Inherited
 import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
 import java.lang.annotation.Target
-import org.codice.spock.builtin.ClearInterruptionsExtension
-import org.spockframework.runtime.extension.ExtensionAnnotation
 
 /**
  * The <code>ClearInterruptions</code> annotation can be used to clear any interruption states from
@@ -28,8 +30,9 @@ import org.spockframework.runtime.extension.ExtensionAnnotation
  * <p>Applying this annotation to a Spock specification class has the same effect as applying it to all
  * its feature methods.
  */
-@Inherited
 @ExtensionAnnotation(ClearInterruptionsExtension.class)
-@Retention(RetentionPolicy.RUNTIME)
 @Target([ElementType.TYPE, ElementType.METHOD])
+@Retention(RetentionPolicy.RUNTIME)
+@Inherited
+@Documented
 @interface ClearInterruptions {}
