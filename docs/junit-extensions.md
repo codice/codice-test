@@ -86,7 +86,7 @@ The [MethodRuleChain](../junit-extensions/src/main/java/org/codice/junit/rules/M
   }
 ```
 
-### JUnit Method Rules
+### JUnit Method Rule Annotations
 
 #### RestoreSystemProperties
 The [RestoreSystemProperties](../junit-extensions/src/main/java/org/codice/junit/RestoreSystemProperties.java) annotation can be used in conjunction with the MethodRuleAnnotationProcessor JUnit method rule to indicate all methods of a test class or specific ones where system properties should automatically be reset to their initial values after testing.
@@ -96,7 +96,7 @@ The [ClearInterruptions](../junit-extensions/src/main/java/org/codice/junit/Clea
 
 ### JUnit Test Runners
 
-#### MethodRuleAnnotationProcessor
+#### MethodRuleAnnotationRunner
 The [MethodRuleAnnotationRunner](../junit-extensions/src/main/java/org/codice/junit/MethodRuleAnnotationRunner.java) provides a JUnit4 test runner that supports annotation-based method rules similar support to Spock extensions by allowing specification of simple JUnit method rules via the meta-annotation [ExtensionMethodRuleAnnotation](../junit-extensions/src/main/java/org/codice/junit/ExtensionMethodRuleAnnotation.java).
 
 New annotations created referencing another JUnit method rule can be used to annotate JUnit test class when the method rule should apply to all tests in that class. These annotations can also be used to annotate a particular test method if the method rule should only apply to that test method.
@@ -109,6 +109,68 @@ Method rules referenced in this manner will not retain any states from one test 
   @RestoreSystemProperties // will apply to each test methods
   @RunWith(MethodRuleAnnotationRunner.class)
   public class MyTest {
+    @ClearInterruptions // will only apply to this test method
+    @Test
+    public void testSomething() throws Exception {
+    }
+
+    @Test
+    public void testSomethingElse() throws Exception {
+    }
+  }
+```
+
+Example of a method rule annotation that can be customized:
+
+```
+public MyMethodRule implements MethodRule {
+  private final long timeout;
+  
+  public MyMethodRule(MyAnnotation annotation) {
+    this.timeout = annotation.timeout();  
+  }
+  
+  @Override
+  public Statement apply(Statement statement, FrameworkMethod frameworkMethod, Object o) {
+    ...
+  }
+}
+
+@ExtensionMethodRuleAnnotation(MyMethodRule.class)
+@Target({ElementType.TYPE, ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+@Inherited
+@Documented
+public @interface MyAnnotation {
+  long timeout();
+}
+```
+
+The advantage of using the test runner [MethodRuleAnnotationRunner](../junit-extensions/src/main/java/org/codice/junit/MethodRuleAnnotationRunner.java) over the method rule [MethodRuleAnnotationProcessor](../junit-extensions/src/main/java/org/codice/junit/rules/MethodRuleAnnotationProcessor.java) is that it guarantees that all annotation-based rules will be considered outermost compared to any rules defined within the test class whereas the processor cannot guarantee that since it is at the mercy of JUnit in terms of how the rules are internally initialized.
+
+#### MethodRuleAnnotationRunnerWithParametersFactory
+The [MethodRuleAnnotationRunnerWithParametersFactory](../junit-extensions/src/main/java/org/codice/junit/parameterized/MethodRuleAnnotationRunnerWithParametersFactory.java) provides a JUnit4 parameter factory to create test runners that allows specification of method rules via the meta-annotation [ExtensionMethodRuleAnnotation](../junit-extensions/src/main/java/org/codice/junit/ExtensionMethodRuleAnnotation.java).
+Such a factory can be specified when using the `Parameterized` test runner to run parameterized tests.
+
+New annotations created referencing another JUnit method rule can be used to annotate JUnit test class when the method rule should apply to all tests in that class. These annotations can also be used to annotate a particular test method if the method rule should only apply to that test method.
+
+The order these new annotations are defined in will dictate the order they will be applied from outermost to innermost.
+
+Method rules referenced in this manner will not retain any states from one test method to the next as they will be re-instantiated each time. The method rule class must define either a public constructor with a single argument of the same annotation type as the annotation that is annotated with the meta-annotation [ExtensionMethodRuleAnnotation](../junit-extensions/src/main/java/org/codice/junit/ExtensionMethodRuleAnnotation.java) or a public default constructor. Defining a constructor with the annotation as a parameter allows customization of the method rule using your own annotation.
+
+```
+  @RestoreSystemProperties // will apply to each test methods
+  @RunWith(Parameterized)
+  @UseParametersRunnersFactory(MethodRuleAnnotationRunnerWithParametersFactory.class)
+  public class MyTest {
+    @Parameters
+    public static Object[] data() {
+      return new Object[] { "first test", "second test" };
+    }
+   
+    @Parameter
+    public String input;
+    
     @ClearInterruptions // will only apply to this test method
     @Test
     public void testSomething() throws Exception {
