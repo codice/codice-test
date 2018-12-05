@@ -48,20 +48,6 @@ public class MethodRuleAnnotationRunner extends BlockJUnit4ClassRunner {
 
   @Override
   protected List<MethodRule> rules(Object target) {
-    final List<MethodRule> rules = super.rules(target);
-
-    if (rules
-        .stream()
-        .filter(MethodRuleAnnotationProcessor.class::isInstance)
-        .findAny()
-        .isPresent()) {
-      throw new IllegalStateException(
-          "a method rule annotation processor is already defined in "
-              + target.getClass().getName());
-    }
-    // by adding it last, the annotation processor method rule will have higher priority and be
-    // the outmost rule
-    rules.add(new MethodRuleAnnotationProcessor());
-    return rules;
+    return MethodRuleAnnotationProcessor.around(super.rules(target));
   }
 }

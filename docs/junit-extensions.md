@@ -1,4 +1,4 @@
-##JUnit Extensions
+## JUnit Extensions
 
 JUnit extensions are divided in new method rules, method rule annotations, and test runners.
 

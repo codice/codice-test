@@ -19,12 +19,12 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.codice.junit.rules.MethodRuleAnnotationProcessor;
 
 /**
  * The <code>ClearInterruptions</code> annotation can be used in conjunction with the {@link
- * MethodRuleAnnotationProcessor} JUnit method rule to clear any interruption states after a
- * particular test method.
+ * org.codice.junit.MethodRuleAnnotationRunner} JUnit test runner or the {@link
+ * org.codice.junit.rules.MethodRuleAnnotationProcessor} JUnit method rule to clear any interruption
+ * states after a particular test method.
  *
  * <p>Applying this annotation to a JUnit test class has the same effect as applying it to all its
  * test methods.

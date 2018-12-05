@@ -15,6 +15,7 @@ package org.codice.junit.rules;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.stream.Collectors;
@@ -43,6 +44,34 @@ import org.junit.runners.model.Statement;
  * how these are internally initialized.
  */
 public class MethodRuleAnnotationProcessor implements MethodRule {
+  /**
+   * Adds a method rule annotation processor around a set of other rules. If one is already defined,
+   * it is promoted to the bottom of the list otherwise a new one is added at the bottom of the
+   * list.
+   *
+   * <p>By adding it last, the annotation processor method rule will have higher priority and be the
+   * outer most rule.
+   *
+   * @param rules the rules in which to adda method rule annotation processor around
+   * @return the updated list of rules
+   */
+  public static List<MethodRule> around(List<MethodRule> rules) {
+    MethodRule found = null;
+
+    for (final Iterator<MethodRule> i = rules.iterator(); i.hasNext(); ) {
+      final MethodRule r = i.next();
+
+      if (r instanceof MethodRuleAnnotationProcessor) {
+        found = r;
+        i.remove();
+      }
+    }
+    // by adding it last, the annotation processor method rule will have higher priority and be
+    // the outer most rule
+    rules.add((found != null) ? found : new MethodRuleAnnotationProcessor());
+    return rules;
+  }
+
   @Override
   public Statement apply(Statement base, FrameworkMethod method, Object target) {
     final List<MethodRule> rules =

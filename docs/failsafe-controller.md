@@ -1,4 +1,4 @@
-##Testing Failsafe Code
+## Testing Failsafe Code
 
 Failsafe (from `net.jodah.failsafe`) is a really nice library that is typically used in code to repeatedly execute a given task until it succeeds or aborts. Although it can be used synchronously, it is often used asynchronously using an executor such that the tasks are executed by other threads.
 
