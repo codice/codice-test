@@ -1,4 +1,4 @@
-#Spock Extensions
+## Spock Extensions
 
 #### @ClearInterruptions
 The [`@ClearInterruptions`](../spock-extensions/src/main/groovy/org/codice/spock/ClearInterruptions.groovy) annotation can be used to clear interruption states from the current thread after testing. For example:
