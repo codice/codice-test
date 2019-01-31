@@ -93,7 +93,8 @@ public class MethodRuleAnnotationProcessor implements MethodRule {
     final Class<? extends MethodRule> clazz = entry.getAnnotation().value();
 
     try {
-      return MethodRuleAnnotationProcessor.newInstance(clazz, entry.getEnclosingAnnotation());
+      return MethodRuleAnnotationProcessor.newInstance(
+          clazz, entry.getEnclosingAnnotation().getAnnotation());
     } catch (IllegalAccessException | InstantiationException e) {
       throw new AssertionError("failed to instantiate method rule: " + clazz.getName(), e);
     } catch (InvocationTargetException e) {

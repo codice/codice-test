@@ -49,12 +49,24 @@
         <codice-maven.version>0.1</codice-maven.version>
 
         <commons-lang.version>2.6</commons-lang.version>
+        <commons-lang3.version>3.8</commons-lang3.version>
+        <commons-io.version>2.6</commons-io.version>
+        <commons-text.version>1.6</commons-text.version>
+        <commons-compress.version>1.18</commons-compress.version>
         <guava.version>23.0</guava.version>
+        <gson.version>2.8.5</gson.version>
         <jsr305.version>3.0.2_1</jsr305.version>
         <org.slf4j.version>1.7.1</org.slf4j.version>
         <jodah-failsafe.version>0.9.5</jodah-failsafe.version>
         <logback.version>1.2.3</logback.version>
         <logback.classic.version>1.2.3</logback.classic.version>
+
+        <osgi.version>5.0.0</osgi.version>
+        <felix.configadmin.version>1.9.4</felix.configadmin.version>
+        <pax.exam.version>4.12.0</pax.exam.version>
+        <pax.swissbox.version>1.8.2</pax.swissbox.version>
+        <pax.tinybundles.version>3.0.0</pax.tinybundles.version>
+        <bndlib.version>3.5.0</bndlib.version>
 
         <junit.version>4.12</junit.version>
         <spock.version>1.1-groovy-2.4</spock.version>
@@ -72,6 +84,7 @@
 
         <!-- Maven Plugin Version Properties -->
         <maven-jacoco-plugin.version>0.8.1</maven-jacoco-plugin.version>
+        <maven-servicemix-depends.version>1.4.0</maven-servicemix-depends.version>
     </properties>
 
     <scm>
@@ -148,9 +161,34 @@
                 <version>${commons-lang.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-text</artifactId>
+                <version>${commons-text.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>${commons-compress.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>${gson.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -173,6 +211,78 @@
                 <version>${logback.classic.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.compendium</artifactId>
+                <version>${osgi.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.core</artifactId>
+                <version>${osgi.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.configadmin</artifactId>
+                <version>${felix.configadmin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.exam</groupId>
+                <artifactId>pax-exam</artifactId>
+                <version>${pax.exam.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.exam</groupId>
+                <artifactId>pax-exam-invoker-junit</artifactId>
+                <version>${pax.exam.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.exam</groupId>
+                <artifactId>pax-exam-spi</artifactId>
+                <version>${pax.exam.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.exam</groupId>
+                <artifactId>pax-exam-container-karaf</artifactId>
+                <version>${pax.exam.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.exam</groupId>
+                <artifactId>pax-exam-container-remote</artifactId>
+                <version>${pax.exam.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.exam</groupId>
+                <artifactId>pax-exam-junit4</artifactId>
+                <version>${pax.exam.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.swissbox</groupId>
+                <artifactId>pax-swissbox-tracker</artifactId>
+                <version>${pax.swissbox.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.tinybundles</groupId>
+                <artifactId>tinybundles</artifactId>
+                <version>${pax.tinybundles.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.url</groupId>
+                <artifactId>pax-url-aether</artifactId>
+                <version>1.6.0</version>
+            </dependency>
+            <dependency>
+                <groupId>z.aQute.bnd</groupId>
+                <artifactId>biz.aQute.bndlib</artifactId>
+                <version>${bndlib.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.inject</groupId>
+                <artifactId>javax.inject</artifactId>
+                <version>1</version>
+            </dependency>
             <dependency>
                 <groupId>org.javassist</groupId>
                 <artifactId>javassist</artifactId>
@@ -273,10 +383,51 @@
                         </includes>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.servicemix.tooling</groupId>
+                    <artifactId>depends-maven-plugin</artifactId>
+                    <version>${maven-servicemix-depends.version}</version>
+                    <executions>
+                        <execution>
+                            <id>generate-depends-file</id>
+                            <goals>
+                                <goal>generate-depends-file</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
 
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.0.2</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>3.3.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <!-- Disabled OBR to increase build speed -->
+                    <obrRepository>NONE</obrRepository>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                    </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.0.0</version>
+            </plugin>
             <plugin>
                 <groupId>com.coveo</groupId>
                 <artifactId>fmt-maven-plugin</artifactId>
@@ -354,5 +505,11 @@
         <module>mockito-extensions</module>
         <module>spock-extensions</module>
         <module>failsafe-controller</module>
+        <module>pax-exam-extensions</module>
+        <module>dominion</module>
+        <module>dominion-pax-exam</module>
+        <module>dominion-pax-exam-driver</module>
+        <module>dominion-pax-exam-invokers</module>
+        <module>dominion-pax-exam-feature</module>
     </modules>
 </project>
