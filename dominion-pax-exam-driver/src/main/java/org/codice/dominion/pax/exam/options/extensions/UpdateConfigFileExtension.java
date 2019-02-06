@@ -14,6 +14,7 @@
 package org.codice.dominion.pax.exam.options.extensions;
 
 import org.codice.dominion.options.Options.UpdateConfigFile;
+import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
 
@@ -21,15 +22,25 @@ import org.ops4j.pax.exam.Option;
 public class UpdateConfigFileExtension extends AbstractFileExtension<UpdateConfigFile> {
   @Override
   public Option[] options(
-      UpdateConfigFile annotation, Class<?> testClass, ResourceLoader resourceLoader) {
+      UpdateConfigFile annotation,
+      PaxExamInterpolator interpolator,
+      ResourceLoader resourceLoader) {
+    final Option option;
+
     switch (annotation.operation()) {
       case ADD:
-        return addOptions(annotation.target(), annotation.key(), annotation.value());
+        option = addOption(annotation.target(), annotation.key(), annotation.value());
+        break;
       case SET_ABSOLUTE_PATH:
-        return setAbsolutePathOptions(annotation.target(), annotation.key(), annotation.value());
+        option = setAbsolutePathOption(annotation.target(), annotation.key(), annotation.value());
+        break;
+      case REMOVE:
+        option = removeOption(annotation.target(), annotation.key(), annotation.value());
+        break;
       case SET:
       default:
-        return setOptions(annotation.target(), annotation.key(), annotation.value());
+        option = setOption(annotation.target(), annotation.key(), annotation.value());
     }
+    return new Option[] {option};
   }
 }

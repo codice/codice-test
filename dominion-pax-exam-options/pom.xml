@@ -23,22 +23,11 @@
         <version>0.4-SNAPSHOT</version>
     </parent>
 
-    <name>Codice Test :: Dominion :: API</name>
-    <artifactId>dominion</artifactId>
-    <packaging>bundle</packaging>
+    <name>Codice Test :: Dominion :: Pax Exam Options</name>
+    <artifactId>dominion-pax-exam-options</artifactId>
+    <packaging>jar</packaging>
 
     <dependencies>
-        <dependency>
-            <groupId>org.codice.test</groupId>
-            <artifactId>internal</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.test</groupId>
-            <artifactId>junit-extensions</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.jsr305</artifactId>
@@ -53,12 +42,17 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-text</artifactId>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.ops4j.pax.exam</groupId>
+            <artifactId>pax-exam</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
+            <groupId>org.ops4j.pax.exam</groupId>
+            <artifactId>pax-exam-container-karaf</artifactId>
         </dependency>
 
         <dependency>
@@ -87,37 +81,12 @@
                 <artifactId>depends-maven-plugin</artifactId>
             </plugin>
             <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <configuration>
-                    <instructions>
-                        <Bundle-Category>osgi</Bundle-Category>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Bundle-Vendor>Codice</Bundle-Vendor>
-                        <Embed-Dependency>
-                            internal
-                        </Embed-Dependency>
-                        <Import-Package>
-                            javax.annotation;version="[1.1,2)",
-                            *
-                        </Import-Package>
-                        <Export-Package>
-                            org.codice.dominion,
-                            org.codice.dominion.conditions,
-                            org.codice.dominion.interpolate,
-                            org.codice.dominion.options,
-                            org.codice.dominion.options.karaf,
-                            org.codice.dominion.resources
-                        </Export-Package>
-                        <!-- This ensures that the maven bundle plugin properly includes the
-                             dependencies file created by the depends-bundle-plugin which it
-                             does not by default -->
-                        <Include-Resource>
-                            META-INF/maven/dependencies.properties=${project.build.directory}/classes/META-INF/maven/dependencies.properties,
-                            {maven-resources}
-                        </Include-Resource>
-                    </instructions>
-                </configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>

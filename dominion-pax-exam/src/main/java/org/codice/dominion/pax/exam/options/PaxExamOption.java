@@ -14,6 +14,7 @@
 package org.codice.dominion.pax.exam.options;
 
 import javax.annotation.Nullable;
+import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.resources.ResourceLoader;
 
 /**
@@ -35,7 +36,7 @@ public class PaxExamOption {
      * PaxExam container.
      *
      * @param annotation the annotation where this extension was specified
-     * @param testClass the class for test for which a test container will be staged
+     * @param interpolator the interpolator associated with the current container
      * @param resourceLoader a resource loader capable of loading resources associated with where
      *     the annotation is used
      * @return an array of PaxExam options to be combined together when staging the test container
@@ -45,7 +46,8 @@ public class PaxExamOption {
     @SuppressWarnings("squid:S00112" /* the framework will handle any exceptions thrown out */)
     @Nullable
     public org.ops4j.pax.exam.Option[] options(
-        T annotation, Class<?> testClass, ResourceLoader resourceLoader) throws Throwable;
+        T annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader)
+        throws Throwable;
   }
 
   private PaxExamOption() {}

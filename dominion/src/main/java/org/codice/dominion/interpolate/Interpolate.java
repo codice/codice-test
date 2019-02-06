@@ -52,6 +52,8 @@ import java.lang.annotation.Target;
  *       resources are laid down by Maven.
  *   <li><code>"/"</code> which represents the system default system file name separator (see {@link
  *       java.io.File#separator}).
+ *   <li><code>"%n</code> which represents the platform-specific line separator (see {@link
+ *       {@link System#lineSeparator()}).
  *   <li><code>"system-property"</code> a system property key. When used inside Dominion's driver,
  *       the system property must be defined in Dominion. When used in a container, the system
  *       property must be defined using Dominion's options or be already provided by the JVM.

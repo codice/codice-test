@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Nullable;
 import org.codice.dominion.interpolate.InterpolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,7 @@ public class PortFinder implements Closeable {
   private static final Logger LOGGER = LoggerFactory.getLogger(PortFinder.class);
 
   @SuppressWarnings("squid:S2065" /* transient used by Gson to skip the field */)
+  @Nullable
   private final transient ServerSocket placeHolderSocket;
 
   private final int basePort;

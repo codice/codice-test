@@ -18,6 +18,7 @@ import org.codice.dominion.options.Options.Install;
 import org.codice.dominion.options.Options.MavenUrl;
 import org.codice.dominion.options.Options.UpdateConfigFile;
 import org.codice.dominion.options.karaf.KarafOptions;
+import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
@@ -52,7 +53,8 @@ import org.ops4j.pax.exam.Option;
 @Options.SetSystemProperty(key = "pax.exam.invoker", value = "junit")
 public class InstallExtension implements Extension<Install> {
   @Override
-  public Option[] options(Install annotation, Class<?> testClass, ResourceLoader resourceLoader) {
+  public Option[] options(
+      Install annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader) {
     return new Option[0];
   }
 }

@@ -23,7 +23,7 @@
         <version>0.4-SNAPSHOT</version>
     </parent>
 
-    <name>Codice Test :: Dominion :: Pax Exam</name>
+    <name>Codice Test :: Dominion :: Pax Exam API</name>
     <artifactId>dominion-pax-exam</artifactId>
     <packaging>bundle</packaging>
 

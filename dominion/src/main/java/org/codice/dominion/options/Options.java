@@ -24,7 +24,6 @@ import java.util.concurrent.TimeUnit;
 import org.codice.dominion.conditions.Conditions;
 import org.codice.dominion.interpolate.Interpolate;
 import org.codice.dominion.options.Option.Annotation;
-import org.codice.dominion.options.Options.Repeatables.UpdateConfigFiles;
 
 /**
  * This class defines annotations that can be used to configure containers. It is solely used for
@@ -102,6 +101,84 @@ public class Options {
   @Documented
   public @interface Install {}
 
+  /** This option allows to update a file with the content provided. */
+  @Option.Annotation
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Inherited
+  @Documented
+  @Repeatable(Options.Repeatables.UpdateFiles.class)
+  public @interface UpdateFile {
+    /**
+     * Specifies the target file to update relative from the home directory where the distribution
+     * was expanded (e.g. <code>"{karaf.home}"</code>).
+     *
+     * @return the relative target file to update
+     */
+    @Interpolate
+    String target();
+
+    /**
+     * Specifies the location in the target file where to append the content (defaults to append).
+     *
+     * @return the location where to insert the content
+     */
+    Location location() default Location.APPEND;
+
+    /**
+     * Specifies the filename to copy its content to the target file.
+     *
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
+     * must be specified.
+     *
+     * @return the source filename to copy
+     */
+    @Interpolate
+    String file() default NOT_DEFINED;
+
+    /**
+     * Specifies the url to copy its content to the target file.
+     *
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
+     * must be specified.
+     *
+     * @return the source url to copy
+     */
+    @Interpolate
+    String url() default NOT_DEFINED;
+
+    /**
+     * Specifies the text to copy to the target file.
+     *
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
+     * must be specified.
+     *
+     * @return the content text to copy
+     */
+    @Interpolate
+    String content() default NOT_DEFINED;
+
+    /**
+     * Specifies the resource name to copy to the target file.
+     *
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
+     * must be specified.
+     *
+     * @return the resource name to copy
+     */
+    @Interpolate
+    String resource() default NOT_DEFINED;
+
+    /** Sets of possible locations in the target file where to insert the content. */
+    public enum Location {
+      /** Prepends the content at the beginning of the existing file. */
+      PREPEND,
+
+      /** Appends the content at the end of the existing file. */
+      APPEND
+    }
+  }
+
   /**
    * If you do not want to replace (or extend) values in a file but rather simply want to replace a
    * configuration file "brute force" this option is the one. It simply removes the original file
@@ -115,8 +192,8 @@ public class Options {
   @Repeatable(Options.Repeatables.ReplaceFiles.class)
   public @interface ReplaceFile {
     /**
-     * Specifies the target file relative from the home directory where the distribution was
-     * expanded (e.g. <code>karaf.home</code>) to replace.
+     * Specifies the target file to replace relative from the home directory where the distribution
+     * was expanded (e.g. <code>"{karaf.home}"</code>).
      *
      * @return the relative target file to replace
      */
@@ -124,7 +201,7 @@ public class Options {
     String target();
 
     /**
-     * Specifies the filename to copy its content to the target target.
+     * Specifies the filename to copy its content to the target file.
      *
      * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
      * must be specified.
@@ -135,7 +212,7 @@ public class Options {
     String file() default NOT_DEFINED;
 
     /**
-     * Specifies the url to copy its content to the target target.
+     * Specifies the url to copy its content to the target file.
      *
      * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
      * must be specified.
@@ -146,7 +223,7 @@ public class Options {
     String url() default NOT_DEFINED;
 
     /**
-     * Specifies the text to copy to the target target.
+     * Specifies the text to copy to the target file.
      *
      * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
      * must be specified.
@@ -157,7 +234,7 @@ public class Options {
     String content() default NOT_DEFINED;
 
     /**
-     * Specifies the resource name to copy to the target target.
+     * Specifies the resource name to copy to the target file.
      *
      * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
      * must be specified.
@@ -169,20 +246,20 @@ public class Options {
   }
 
   /**
-   * This option allows to set a specific key in a config file with a given value or to add a value
-   * to the set of values associated with a specific key in a config file. If the key doesn't exist,
-   * one is added with the specified value.
+   * This option allows to set a specific key in a configuration file with a given value or to add a
+   * value to the set of values associated with a specific key in a configuration file. If the key
+   * doesn't exist, one is added with the specified value.
    */
   @Option.Annotation
   @Target(ElementType.TYPE)
   @Retention(RetentionPolicy.RUNTIME)
   @Inherited
   @Documented
-  @Repeatable(UpdateConfigFiles.class)
+  @Repeatable(Options.Repeatables.UpdateConfigFiles.class)
   public @interface UpdateConfigFile {
     /**
-     * Specifies the target file relative from the home directory where the distribution was
-     * expanded (e.g. <code>karaf.home</code>) to update.
+     * Specifies the target configuration file to update relative from the home directory where the
+     * distribution was expanded (e.g. <code>"{karaf.home}"</code>).
      *
      * @return the relative target config file to update
      */
@@ -214,14 +291,21 @@ public class Options {
 
     /** Sets of possible operations to perform while updating the key. */
     public enum Operation {
-      /** Replaces the complete value with the one specified */
+      /** Replaces the complete value with the one specified. */
       SET,
 
       /** Replaces the complete value with the absolute path of the one specified. */
       SET_ABSOLUTE_PATH,
 
       /** Adds the specified value to the end of those already defined for the specified key. */
-      ADD
+      ADD,
+
+      /**
+       * Removes the specified value from those defined for the specified key.
+       *
+       * <p><i>Note:</i> Removals will actually be processed after all other updates.
+       */
+      REMOVE
     }
   }
 
@@ -534,8 +618,26 @@ public class Options {
     public static final String PROPERTY_KEY = "waitForDebug";
   }
 
+  /** Defines several {@link UpdateFile} annotations. */
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Inherited
+  @Documented
+  @interface UpdateFiles {
+    UpdateFile[] value();
+  }
+
   /** This interface is defined purely to provide scoping. */
   public interface Repeatables {
+    /** Defines several {@link UpdateFile} annotations. */
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Inherited
+    @Documented
+    @interface UpdateFiles {
+      UpdateFile[] value();
+    }
+
     /** Defines several {@link ReplaceFile} annotations. */
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.RUNTIME)

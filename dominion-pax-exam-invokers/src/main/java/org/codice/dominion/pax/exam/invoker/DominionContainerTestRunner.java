@@ -25,6 +25,10 @@ import org.ops4j.pax.exam.util.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Enhancement on PaxExam's container test runner which support <code>@BeforeClass</code> and <code>
+ * @AfterClass</code>.
+ */
 public class DominionContainerTestRunner extends ContainerTestRunner implements DominionRunner {
   private static final Logger LOGGER = LoggerFactory.getLogger(DominionContainerTestRunner.class);
 

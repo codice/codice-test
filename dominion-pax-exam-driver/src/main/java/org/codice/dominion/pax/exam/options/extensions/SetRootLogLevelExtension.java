@@ -15,6 +15,7 @@ package org.codice.dominion.pax.exam.options.extensions;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codice.dominion.options.Options.SetRootLogLevel;
+import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
@@ -27,7 +28,7 @@ public class SetRootLogLevelExtension implements Extension<SetRootLogLevel> {
 
   @Override
   public Option[] options(
-      SetRootLogLevel annotation, Class<?> testClass, ResourceLoader resourceLoader) {
+      SetRootLogLevel annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader) {
     final String level = annotation.value();
 
     if (StringUtils.isEmpty(level)) {

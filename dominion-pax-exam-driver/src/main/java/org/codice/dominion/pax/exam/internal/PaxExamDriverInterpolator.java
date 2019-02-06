@@ -45,31 +45,30 @@ public class PaxExamDriverInterpolator extends PaxExamInterpolator {
   private static final String UNABLE_TO_DETERMINE_EXAM_DIR_ERROR =
       "Unable to determine current exam directory";
 
-  // only used to represent karaf.home in the driver; ignored in the container
-  private volatile Path karafHome = null;
-
   private volatile KarafDistributionBaseConfigurationOption distribution = null;
 
   /**
    * Initializes a new interpolator inside a driver with the specified test run id and container
    * name.
    *
-   * @param uuid a unique id for this the corresponding test run
+   * @param testClass the current test class
+   * @param id a unique id for this the corresponding test run
    */
-  public PaxExamDriverInterpolator(String uuid) {
-    this(uuid, PaxExamDriverInterpolator.DEFAULT_CONTAINER);
+  public PaxExamDriverInterpolator(Class<?> testClass, String id) {
+    this(testClass, id, PaxExamDriverInterpolator.DEFAULT_CONTAINER);
   }
 
   /**
    * Initializes a new interpolator inside a driver with the specified test run id and container
    * name.
    *
-   * @param uuid a unique id for this the corresponding test run
+   * @param testClass the current test class
+   * @param id a unique id for this the corresponding test run
    * @param container the name of the container for which to create an interpolator
    */
-  public PaxExamDriverInterpolator(String uuid, String container) {
-    super(uuid, container);
-    LOGGER.debug("PaxExamDriverInterpolator({}, {})", uuid, container);
+  public PaxExamDriverInterpolator(Class<?> testClass, String id, String container) {
+    super(testClass, id, container);
+    LOGGER.debug("PaxExamDriverInterpolator({}, {}, {})", testClass, id, container);
   }
 
   @Override
@@ -113,13 +112,19 @@ public class PaxExamDriverInterpolator extends PaxExamInterpolator {
     };
   }
 
+  @Override
+  public Path getKarafHome() {
+    initKaraf();
+    return super.getKarafHome();
+  }
+
   /**
    * This method should be called as soon as the Karaf distribution configuration has been
    * discovered by the PaxExam driver.
    *
    * @param distro the Karaf distribution configuration which will be used to stage the container
    */
-  public void setDistribution(KarafDistributionBaseConfigurationOption distro) {
+  void setDistribution(KarafDistributionBaseConfigurationOption distro) {
     if (distribution == null) {
       this.distribution = distro;
       LOGGER.info(
@@ -149,13 +154,19 @@ public class PaxExamDriverInterpolator extends PaxExamInterpolator {
       final File targetFolder = retrieveFinalTargetFolder(distro);
       final Path path = searchKarafBase(targetFolder).toPath();
       final String home = initPath("karaf.home", path);
+      final Path bin = path.resolve("bin"); // bin location cannot be customized
+      final Path data = path.resolve(distro.getKarafData());
+      final Path etc = path.resolve(distro.getKarafEtc());
 
       LOGGER.info("Target folder for '{}' container: {}", container, targetFolder);
       LOGGER.info("{karaf.home} for '{}' container: {}", container, home);
-      initPath("karaf.bin", path.resolve("bin")); // bin location cannot be customized
-      initPath("karaf.data", path.resolve(distro.getKarafData()));
-      initPath("karaf.etc", path.resolve(distro.getKarafEtc()));
-      this.karafHome = path;
+      initPath("karaf.bin", bin); // bin location cannot be customized
+      initPath("karaf.data", data);
+      initPath("karaf.etc", etc);
+      super.karafHome = path;
+      super.karafBin = bin;
+      super.karafData = data;
+      super.karafEtc = etc;
     }
   }
 

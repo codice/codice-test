@@ -508,6 +508,7 @@
         <module>pax-exam-extensions</module>
         <module>dominion</module>
         <module>dominion-pax-exam</module>
+        <module>dominion-pax-exam-options</module>
         <module>dominion-pax-exam-driver</module>
         <module>dominion-pax-exam-invokers</module>
         <module>dominion-pax-exam-feature</module>

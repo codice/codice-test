@@ -48,6 +48,8 @@ public class Interpolator implements Closeable, StringLookup {
   private static final int BASE_PORT = 20000;
   private static final int BLOCK_SIZE = 20;
 
+  protected final Class<?> testClass;
+
   protected final String id;
 
   protected final String container;
@@ -65,27 +67,30 @@ public class Interpolator implements Closeable, StringLookup {
    * Initializes a new interpolator inside a driver with the specified test run id and container
    * name.
    *
+   * @param testClass the current test class
    * @param id a unique id for this the corresponding test run
    */
-  public Interpolator(String id) {
-    this(id, Interpolator.DEFAULT_CONTAINER);
+  public Interpolator(Class<?> testClass, String id) {
+    this(testClass, id, Interpolator.DEFAULT_CONTAINER);
   }
 
   /**
    * Initializes a new interpolator inside a driver with the specified test run id and container
    * name.
    *
+   * @param testClass the current test class
    * @param id a unique id for this the corresponding test run
    * @param container the name of the container for which to create an interpolator
    */
-  public Interpolator(String id, String container) {
-    LOGGER.debug("Interpolator({}, {})", id, container);
+  public Interpolator(Class<?> testClass, String id, String container) {
+    LOGGER.debug("Interpolator({}, {}, {})", testClass, id, container);
+    this.testClass = testClass;
     this.id = id;
     this.container = container;
     this.replacements = new HashMap<>();
     replacements.put("test.id", id);
     replacements.put("container.name", container);
-    replacements.put("/", File.separator);
+    initSystemReplacements();
     String path = Paths.get("target", "classes").toAbsolutePath().toString();
 
     replacements.put("classes.path", path);
@@ -100,34 +105,44 @@ public class Interpolator implements Closeable, StringLookup {
    * Initializes a new interpolator with all the specified information already computed (typically
    * from inside a container).
    *
+   * @param testClass the current test class
    * @param id a unique id for this the corresponding test run
    * @param container the name of the container for which to create an interpolator
    * @param replacements the set of replacements strings to use when interpolating
    * @param ports the ports information already allocated from the driver
    */
   public Interpolator(
-      String id, String container, Map<String, String> replacements, PortFinder ports) {
-    LOGGER.debug("Interpolator({}, {}, {}, {})", id, container, replacements, ports);
+      Class<?> testClass,
+      String id,
+      String container,
+      Map<String, String> replacements,
+      PortFinder ports) {
+    LOGGER.debug("Interpolator({}, {}, {}, {}, {})", testClass, id, container, replacements, ports);
+    this.testClass = testClass;
     this.id = id;
     this.container = container;
     this.replacements = replacements;
     this.ports = ports;
+    initSystemReplacements();
   }
 
   /**
    * Initializes a new interpolator with all the specified information already computed (typically
    * from inside a container).
    *
+   * @param testClass the current test class
    * @param properties properties from which to retrieve the replacement and port info
    */
-  public Interpolator(Properties properties) {
-    LOGGER.debug("Interpolator(Properties)");
+  public Interpolator(Class<?> testClass, Properties properties) {
+    LOGGER.debug("Interpolator({}, Properties)", testClass);
+    this.testClass = testClass;
     try {
       this.replacements =
           new Gson().fromJson(properties.getProperty(Interpolator.REPLACEMENTS_KEY, ""), Map.class);
     } catch (JsonSyntaxException e) {
       throw new InterpolationException("Unable to determine replacement information", e);
     }
+    initSystemReplacements();
     this.id = initFromReplacements("test.id");
     this.container = initFromReplacements("container.name");
     try {
@@ -144,11 +159,20 @@ public class Interpolator implements Closeable, StringLookup {
   }
 
   /**
+   * Gets the current test class.
+   *
+   * @return the test class
+   */
+  public Class<?> getTestClass() {
+    return testClass;
+  }
+
+  /**
    * Gets the unique identifier for the current test run.
    *
    * @return a unique identifier for the current test run
    */
-  public String getUUID() {
+  public String getId() {
     return id;
   }
 
@@ -310,7 +334,7 @@ public class Interpolator implements Closeable, StringLookup {
 
   /**
    * Gets the current replacement information as a Json string suitable to rebuild an interpolator
-   * using the {@link #Interpolator(Properties)} constructor.
+   * using the {@link #Interpolator(Class, Properties)} constructor.
    *
    * @return a json string for the current set of replacement information
    */
@@ -320,7 +344,7 @@ public class Interpolator implements Closeable, StringLookup {
 
   /**
    * Gets the current port information as a Json string suitable to rebuild an interpolator using
-   * the {@link #Interpolator(Properties)} constructor.
+   * the {@link #Interpolator(Class, Properties)} constructor.
    *
    * @return a json string for the current set of port information
    */
@@ -343,6 +367,12 @@ public class Interpolator implements Closeable, StringLookup {
           "Unable to retrieved replacement string for {" + key + "}");
     }
     return value;
+  }
+
+  private void initSystemReplacements() {
+    // force those to the system values
+    replacements.put("/", File.separator);
+    replacements.put("%n", System.lineSeparator());
   }
 
   /** Matcher to match '{' as the prefix as long as it is not preceded with $. */

@@ -82,7 +82,7 @@ public class DominionProbeRunner extends BlockJUnit4ClassRunner {
   // creates a nice unique enough id for testing which makes it easier to find the exam directory
   private final String id = new SimpleDateFormat("yyyyMMdd-hhmmss").format(new Date());
 
-  private final PaxExamDriverInterpolator interpolator = new PaxExamDriverInterpolator(id);
+  private final PaxExamDriverInterpolator interpolator;
 
   public DominionProbeRunner(Class<?> testClass) throws InitializationError {
     super(testClass);
@@ -92,6 +92,7 @@ public class DominionProbeRunner extends BlockJUnit4ClassRunner {
       this.testClass = testClass;
       this.manager = ReactorManager.getInstance();
       this.testInstance = testClass.newInstance();
+      this.interpolator = new PaxExamDriverInterpolator(testClass, id);
     } catch (InstantiationException | IllegalAccessException e) {
       throw new DominionInitializationException(e);
     }

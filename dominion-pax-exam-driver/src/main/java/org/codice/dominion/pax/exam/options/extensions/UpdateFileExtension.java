@@ -15,16 +15,17 @@ package org.codice.dominion.pax.exam.options.extensions;
 
 import java.io.IOException;
 import java.util.stream.Stream;
-import org.codice.dominion.options.Options.ReplaceFile;
+import org.codice.dominion.options.Options.UpdateFile;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.karaf.options.KarafDistributionConfigurationFileReplacementOption;
 
-/** Extension point for the {@link ReplaceFile} option annotation. */
-public class ReplaceFileExtension extends AbstractFileExtension<ReplaceFile> {
+/** Extension point for the {@link UpdateFile} option annotation. */
+public class UpdateFileExtension extends AbstractFileExtension<UpdateFile> {
   @Override
   public Option[] options(
-      ReplaceFile annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader)
+      UpdateFile annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader)
       throws IOException {
     final String file = annotation.file();
     final String url = annotation.url();
@@ -52,13 +53,23 @@ public class ReplaceFileExtension extends AbstractFileExtension<ReplaceFile> {
               + " for "
               + resourceLoader.getLocationClass().getName());
     }
+    final KarafDistributionConfigurationFileReplacementOption option;
+
     if (fileIsDefined) {
-      return new Option[] {fileOption(file, annotation.target())};
+      option = fileOption(file, annotation.target());
     } else if (urlIsDefined) {
-      return new Option[] {urlOption(url, annotation.target())};
+      option = urlOption(url, annotation.target());
     } else if (contentIsDefined) {
-      return new Option[] {contentOption(content, annotation.target())};
+      option = contentOption(content, annotation.target());
+    } else {
+      option = resourceOption(resource, annotation.target(), resourceLoader);
     }
-    return new Option[] {resourceOption(resource, annotation.target(), resourceLoader)};
+    return new Option[] {
+      new KarafDistributionConfigurationFileRemoveOption(
+          interpolator,
+          annotation.location(),
+          option.getConfigurationFilePath(),
+          option.getSource())
+    };
   }
 }

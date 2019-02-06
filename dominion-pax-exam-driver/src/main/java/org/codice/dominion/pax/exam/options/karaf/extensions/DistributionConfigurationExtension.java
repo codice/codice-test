@@ -20,6 +20,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.codice.dominion.options.Options.MavenUrl;
 import org.codice.dominion.options.karaf.KarafOptions.DistributionConfiguration;
+import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.pax.exam.options.extensions.Utilities;
 import org.codice.dominion.resources.ResourceLoader;
@@ -31,7 +32,9 @@ import org.ops4j.pax.exam.karaf.options.KarafDistributionKitConfigurationOption.
 public class DistributionConfigurationExtension implements Extension<DistributionConfiguration> {
   @Override
   public Option[] options(
-      DistributionConfiguration annotation, Class<?> testClass, ResourceLoader resourceLoader)
+      DistributionConfiguration annotation,
+      PaxExamInterpolator interpolator,
+      ResourceLoader resourceLoader)
       throws IOException {
     final Platform platform = DistributionConfigurationExtension.getKarafPlatform(annotation);
 

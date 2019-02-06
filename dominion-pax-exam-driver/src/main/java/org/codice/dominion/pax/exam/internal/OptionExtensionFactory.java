@@ -25,6 +25,7 @@ import org.codice.dominion.options.Options.EnableRemoteDebugging;
 import org.codice.dominion.options.Options.KeepRuntimeFolder;
 import org.codice.dominion.options.Options.ReplaceFile;
 import org.codice.dominion.options.Options.UpdateConfigFile;
+import org.codice.dominion.options.Options.UpdateFile;
 import org.codice.dominion.options.karaf.KarafOptions;
 import org.codice.dominion.pax.exam.options.extensions.CleanCachesExtension;
 import org.codice.dominion.pax.exam.options.extensions.DeleteRuntimeFolderExtension;
@@ -42,6 +43,7 @@ import org.codice.dominion.pax.exam.options.extensions.SetRootLogLevelExtension;
 import org.codice.dominion.pax.exam.options.extensions.SetSystemPropertyExtension;
 import org.codice.dominion.pax.exam.options.extensions.SetSystemTimeoutExtension;
 import org.codice.dominion.pax.exam.options.extensions.UpdateConfigFileExtension;
+import org.codice.dominion.pax.exam.options.extensions.UpdateFileExtension;
 import org.codice.dominion.pax.exam.options.extensions.VMOptionExtension;
 import org.codice.dominion.pax.exam.options.karaf.extensions.DistributionConfigurationExtension;
 import org.codice.dominion.pax.exam.options.karaf.extensions.FeatureExtension;
@@ -70,6 +72,7 @@ public class OptionExtensionFactory implements Option.Factory {
     map.put(KarafOptions.Feature.class, new FeatureExtension());
     map.put(KeepRuntimeFolder.class, new KeepRuntimeFolderExtension());
     map.put(ReplaceFile.class, new ReplaceFileExtension());
+    map.put(UpdateFile.class, new UpdateFileExtension());
     map.put(
         KarafOptions.SetLogLevel.class,
         new org.codice.dominion.pax.exam.options.karaf.extensions.SetLogLevelExtension());

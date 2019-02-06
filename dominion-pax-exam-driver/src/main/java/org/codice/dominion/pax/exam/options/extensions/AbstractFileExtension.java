@@ -23,38 +23,44 @@ import java.nio.file.Files;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.codice.dominion.options.OptionException;
+import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileRetractOption;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.karaf.options.KarafDistributionConfigurationFileReplacementOption;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 
 /** Provides some common utility methods for dealing with file-based options. */
 public abstract class AbstractFileExtension<A extends Annotation> implements Extension<A> {
-  protected Option[] fileOptions(String source, String target) {
-    return fileOptions(new File(FilenameUtils.separatorsToSystem(source)), target);
+  protected KarafDistributionConfigurationFileReplacementOption fileOption(
+      String source, String target) {
+    return fileOption(new File(FilenameUtils.separatorsToSystem(source)), target);
   }
 
-  protected Option[] fileOptions(File source, String target) {
-    return new Option[] {
-      KarafDistributionOption.replaceConfigurationFile(
-          FilenameUtils.separatorsToSystem(target), source)
-    };
+  protected KarafDistributionConfigurationFileReplacementOption fileOption(
+      File source, String target) {
+    return new KarafDistributionConfigurationFileReplacementOption(
+        // separators to Unix is on purpose as PaxExam will analyze the target based on it
+        // containing / and not \ and then convert it properly
+        FilenameUtils.separatorsToUnix(target), source);
   }
 
-  protected Option[] urlOptions(String url, String target) throws IOException {
-    try (final InputStream is = new URL(url).openStream()) {
-      return streamOptions(is, target);
-    }
-  }
-
-  protected Option[] contentOptions(String content, String target) throws IOException {
-    try (final InputStream is = new ByteArrayInputStream(content.getBytes("UTF-8"))) {
-      return streamOptions(is, target);
-    }
-  }
-
-  protected Option[] resourceOptions(String resource, String target, ResourceLoader resourceLoader)
+  protected KarafDistributionConfigurationFileReplacementOption urlOption(String url, String target)
       throws IOException {
+    try (final InputStream is = new URL(url).openStream()) {
+      return streamOption(is, target);
+    }
+  }
+
+  protected KarafDistributionConfigurationFileReplacementOption contentOption(
+      String content, String target) throws IOException {
+    try (final InputStream is = new ByteArrayInputStream(content.getBytes("UTF-8"))) {
+      return streamOption(is, target);
+    }
+  }
+
+  protected KarafDistributionConfigurationFileReplacementOption resourceOption(
+      String resource, String target, ResourceLoader resourceLoader) throws IOException {
     try (final InputStream is = resourceLoader.getResourceAsStream(resource)) {
       if (is == null) {
         throw new OptionException(
@@ -63,7 +69,7 @@ public abstract class AbstractFileExtension<A extends Annotation> implements Ext
                 + " in "
                 + resourceLoader.getLocationClass().getName());
       }
-      return streamOptions(is, target);
+      return streamOption(is, target);
     }
   }
 
@@ -71,37 +77,44 @@ public abstract class AbstractFileExtension<A extends Annotation> implements Ext
     "squid:S4042" /* deleting a temp file and we don't care if it fails */,
     "squid:S899" /* deleting a temp file and we don't care if it fails */
   })
-  protected Option[] streamOptions(InputStream is, String target) throws IOException {
+  protected KarafDistributionConfigurationFileReplacementOption streamOption(
+      InputStream is, String target) throws IOException {
     final File temp = Files.createTempFile(getClass().getName(), ".tmp").toFile();
 
     temp.deleteOnExit();
     try {
       FileUtils.copyInputStreamToFile(is, temp);
-      return fileOptions(temp, target);
+      return fileOption(temp, target);
     } catch (IOException e) {
       temp.delete();
       throw e;
     }
   }
 
-  protected Option[] setOptions(String target, String key, String value) {
-    return new Option[] {
-      KarafDistributionOption.editConfigurationFilePut(
-          FilenameUtils.separatorsToSystem(target), key, value)
-    };
+  protected Option setOption(String target, String key, String value) {
+    return KarafDistributionOption.editConfigurationFilePut(
+        // separators to Unix is on purpose as PaxExam will analyze the target based on it
+        // containing / and not \ and then convert it properly
+        FilenameUtils.separatorsToUnix(target), key, value);
   }
 
-  protected Option[] setAbsolutePathOptions(String target, String key, String path) {
-    return setOptions(
-        FilenameUtils.separatorsToSystem(target),
-        key,
-        new File(FilenameUtils.separatorsToSystem(path)).getAbsolutePath());
+  protected Option setAbsolutePathOption(String target, String key, String path) {
+    return setOption(
+        target, key, new File(FilenameUtils.separatorsToSystem(path)).getAbsolutePath());
   }
 
-  protected Option[] addOptions(String target, String key, String value) {
-    return new Option[] {
-      KarafDistributionOption.editConfigurationFileExtend(
-          FilenameUtils.separatorsToSystem(target), key, value)
-    };
+  protected Option addOption(String target, String key, String value) {
+    return KarafDistributionOption.editConfigurationFileExtend(
+        // separators to Unix is on purpose as PaxExam will analyze the target based on it
+        // containing / and not \ and then convert it properly
+        FilenameUtils.separatorsToUnix(target), key, value);
+  }
+
+  protected Option removeOption(String target, String key, String value) {
+    return new KarafDistributionConfigurationFileRetractOption(
+        // separators to Unix is on purpose as our extensions (and then PaxExam) behaves the same as
+        // PaxExam which analyzes the target based on it containing / and not \ and then convert it
+        // properly
+        FilenameUtils.separatorsToUnix(target), key, value);
   }
 }

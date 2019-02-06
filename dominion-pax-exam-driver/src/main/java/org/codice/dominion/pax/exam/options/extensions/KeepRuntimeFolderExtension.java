@@ -14,6 +14,7 @@
 package org.codice.dominion.pax.exam.options.extensions;
 
 import org.codice.dominion.options.Options.KeepRuntimeFolder;
+import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
@@ -23,7 +24,9 @@ import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 public class KeepRuntimeFolderExtension implements Extension<KeepRuntimeFolder> {
   @Override
   public Option[] options(
-      KeepRuntimeFolder annotation, Class<?> testClass, ResourceLoader resourceLoader) {
+      KeepRuntimeFolder annotation,
+      PaxExamInterpolator interpolator,
+      ResourceLoader resourceLoader) {
     // by default Karaf deletes the runtime folder, so do nothing if we should delete it
     return annotation.value() ? new Option[] {KarafDistributionOption.keepRuntimeFolder()} : null;
   }

@@ -16,6 +16,7 @@ package org.codice.dominion.pax.exam.options.karaf.extensions;
 import java.io.IOException;
 import org.codice.dominion.options.Options.MavenUrl;
 import org.codice.dominion.options.karaf.KarafOptions.Feature;
+import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.pax.exam.options.extensions.Utilities;
 import org.codice.dominion.resources.ResourceLoader;
@@ -25,7 +26,8 @@ import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 /** Extension point for the {@link Feature} option annotation. */
 public class FeatureExtension implements Extension<Feature> {
   @Override
-  public Option[] options(Feature annotation, Class<?> testClass, ResourceLoader resourceLoader)
+  public Option[] options(
+      Feature annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader)
       throws IOException {
     final MavenUrl mavenUrl = annotation.repository();
     final String url = annotation.repositoryUrl();

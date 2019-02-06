@@ -14,6 +14,7 @@
 package org.codice.dominion.pax.exam.options.extensions;
 
 import org.codice.dominion.options.Options.SetFrameworkProperty;
+import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.CoreOptions;
@@ -23,7 +24,9 @@ import org.ops4j.pax.exam.Option;
 public class SetFrameworkPropertyExtension implements Extension<SetFrameworkProperty> {
   @Override
   public Option[] options(
-      SetFrameworkProperty annotation, Class<?> testClass, ResourceLoader resourceLoader) {
+      SetFrameworkProperty annotation,
+      PaxExamInterpolator interpolator,
+      ResourceLoader resourceLoader) {
     final String key = annotation.key();
     final String value = annotation.value();
 
