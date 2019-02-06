@@ -24,7 +24,6 @@ import java.util.ServiceLoader;
 import javax.annotation.Nullable;
 import org.codice.dominion.Dominion;
 import org.codice.dominion.DominionException;
-import org.codice.dominion.options.OptionException;
 import org.codice.dominion.resources.ResourceLoader;
 
 /**
@@ -58,12 +57,12 @@ public class Condition {
           return clazz.cast(extension);
         }
       }
-      throw new OptionException(
+      throw new ConditionException(
           "unable to find a condition extension for: " + annotation.annotationType());
     } catch (VirtualMachineError | DominionException e) {
       throw e;
     } catch (Throwable t) {
-      throw new OptionException(
+      throw new ConditionException(
           "failure retrieving a condition extension for: " + annotation.annotationType(), t);
     }
   }
@@ -129,7 +128,7 @@ public class Condition {
      * Gets an extension implementation point for the given condition annotation.
      *
      * @param annotation the condition annotation for which to create an extension point (this will
-     *     of of the annotation class annotated with {@link Annotation}
+     *     of the annotation class annotated with {@link Annotation}
      * @return the corresponding extension to use or <code>null</code> if this factory does not
      *     support the specified condition annotation
      * @throws ConditionException if a failure occurred while retrieving the extension

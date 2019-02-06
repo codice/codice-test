@@ -39,28 +39,33 @@ import java.lang.annotation.Target;
  * not preceded with a <code>$</code>. Where <code>expression</code> can be:
  *
  * <ul>
- *   <li><code>"{test.id}"</code> which represents the unique test run id (will be different each
- *       time execution the test is started)
- *   <li><code>"{container.name}"</code> which represents the current container name
- *   <li><code>"{test-classes.path}</code> which represents an absolute path for the location where
+ *   <li><code>"test.id"</code> which represents the unique test run id (will be different each time
+ *       the test is executed)
+ *   <li><code>"container.name}"</code> which represents the current container name
+ *   <li><code>"test-classes.path"</code> which represents an absolute path for the location where
  *       test classes and resources are laid down by Maven.
- *   <li><code>"{test-classes.url}</code> which represents a url for the location where test classes
+ *   <li><code>"test-classes.url</code> which represents a url for the location where test classes
  *       and resources are laid down by Maven.
- *   <li><code>"{classes.path}</code> which represents a n absolute path for the location where main
+ *   <li><code>"classes.path"</code> which represents an absolute path for the location where main
  *       classes and resources are laid down by Maven.
- *   <li><code>"{classes.url}</code> which represents a url for the location where main classes and
+ *   <li><code>"classes.url"</code> which represents a url for the location where main classes and
  *       resources are laid down by Maven.
- *   <li><code>"{/}</code> which represents the system default system file name separator (see
- *       {@link java.io.File#separator}).
- *   <li>a system property key. When used inside PaxExam driver, the system property must be defined
- *       in PaxExam. When used in PaxExam container, the system property must be defined using
- *       PaxExam options.
- *   <li><code>"{port.<i>name</i>}"</code>. Where <code>name</code> is a unique name for a free port
+ *   <li><code>"/"</code> which represents the system default system file name separator (see {@link
+ *       java.io.File#separator}).
+ *   <li><code>"system-property"</code> a system property key. When used inside Dominion's driver,
+ *       the system property must be defined in Dominion. When used in a container, the system
+ *       property must be defined using Dominion's options or be already provided by the JVM.
+ *   <li><code>"system-property:-default"</code> adds supports for a default in case the referenced
+ *       system property is not defined (or is <code>null</code>). Since interpolation is recursive,
+ *       the <code>default</code> strings will themselves be interpolated using the same rules
+ *       defined here.
+ *   <li><code>"port.<i>name</i>"</code>. Where <code>name</code> is a unique name for a free port
  *       number to reserve. The interpolation will result in the same free reserved port whether the
  *       interpolation happens inside PaxExam driver or container.
- *   <li><code>"{<i>condition</i>?<i>then</i>:<i>else</i>}"</code> where <code>condition</code> is
- *       evaluated as a boolean condition which must be equal to <code>"true"</code> (case
- *       insensitive) to result in the <code>then</code> string; otherwise it results in the <code>
+ *   <li><code>"<i>condition</i>?<i>then</i>:<i>else</i>"</code> where <code>condition</code> is an
+ *       expression evaluated as a boolean condition which must be equal to <code>"true"</code>
+ *       (case insensitive) to result in the <code>then</code> string; otherwise it results in the
+ *       <code>
  *       false</code> string. Since interpolation is recursive, the <code>condition</code>, <code>
  *       then</code>, or <code>else</code> strings will themselves be interpolated using the same
  *       rules defined here.

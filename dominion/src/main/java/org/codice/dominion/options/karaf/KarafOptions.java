@@ -192,8 +192,8 @@ public class KarafOptions {
      * folder.
      *
      * @return <code>false</code> to have the Dominion container framework add deployment urls
-     *     directly to a features xml file; "org.apache.karaf.main.Main" to have it copy those
-     *     deployment files to the deploy folder
+     *     directly to a features xml file; <code>true</code> to have it copy those deployment files
+     *     to the deploy folder
      */
     boolean deploy() default false;
 

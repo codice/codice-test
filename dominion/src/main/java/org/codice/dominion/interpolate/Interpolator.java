@@ -148,7 +148,7 @@ public class Interpolator implements Closeable, StringLookup {
       this.replacements =
           new Gson().fromJson(properties.getProperty(Interpolator.REPLACEMENTS_KEY, ""), Map.class);
     } catch (JsonSyntaxException e) {
-      throw new InterpolationException("Unable to determined replacement information", e);
+      throw new InterpolationException("Unable to determine replacement information", e);
     }
     this.id = initFromReplacements("test.id");
     this.container = initFromReplacements("container.name");
@@ -161,7 +161,7 @@ public class Interpolator implements Closeable, StringLookup {
               ? portFinder
               : new PortFinder(Interpolator.BASE_PORT, Interpolator.BLOCK_SIZE);
     } catch (JsonSyntaxException e) {
-      throw new InterpolationException("Unable to determined reserved ports information", e);
+      throw new InterpolationException("Unable to determine reserved ports information", e);
     }
   }
 
@@ -191,7 +191,7 @@ public class Interpolator implements Closeable, StringLookup {
    * <p><<i>Note:</i> This method will not attempt any interpolations. Instead it will return a
    * proxy which will delay interpolation until an annotation value marked to be interpolated is
    * accessed. It is therefore possible that accessing a value of an interpolated annotation throws
-   * an instance of {@link InterpolationException}.
+   * an unexpected instance of {@link InterpolationException}.
    *
    * @param <A> the type of annotation to be interpolated
    * @param annotation the annotation to be interpolated
@@ -271,8 +271,10 @@ public class Interpolator implements Closeable, StringLookup {
    * @param clazz the class to interpolate
    * @return <code>clazz</code> for chaining
    * @throws InterpolationException if unable to interpolate the class
-   * @throws ContainerNotStagedException if an <code>"{karaf.XXXX}"</code> expression is found and
-   *     PaxExam has not yet staged the container
+   * @throws ContainerNotStagedException if an interpolate expression requires the container to be
+   *     staged and the container has not yet been staged (e.g. <code>"{karaf.home}"</code> when
+   *     using the PaxExam Dominion driver requires the container to be first staged before it can
+   *     be interpolated)
    */
   public <C> Class<C> interpolate(Class<C> clazz) {
     ReflectionUtils.getAllAnnotationsForFieldsAnnotatedWith(clazz, Interpolate.class, true)
@@ -288,8 +290,10 @@ public class Interpolator implements Closeable, StringLookup {
    * @param field the static field to interpolate
    * @return <code>field</code> for chaining
    * @throws InterpolationException if unable to interpolate the field
-   * @throws ContainerNotStagedException if an <code>"{karaf.XXXX}"</code> expression is found and
-   *     PaxExam has not yet staged the container
+   * @throws ContainerNotStagedException if an interpolate expression requires the container to be
+   *     staged and the container has not yet been staged (e.g. <code>"{karaf.home}"</code> when
+   *     using the PaxExam Dominion driver requires the container to be first staged before it can
+   *     be interpolated)
    */
   public Field interpolate(Field field) {
     final int modifiers = field.getModifiers();
@@ -322,8 +326,10 @@ public class Interpolator implements Closeable, StringLookup {
    * @return a cloned version of the array where all elements where interpolated or <code>null
    *     </code> if <code>s</code> is <code>null</code>
    * @throws InterpolationException if unable to interpolate a string in the array
-   * @throws ContainerNotStagedException if an <code>"{karaf.XXXX}"</code> expression is found and
-   *     PaxExam has not yet staged the container
+   * @throws ContainerNotStagedException if an interpolate expression requires the container to be
+   *     staged and the container has not yet been staged (e.g. <code>"{karaf.home}"</code> when
+   *     using the PaxExam Dominion driver requires the container to be first staged before it can
+   *     be interpolated)
    */
   @Nullable
   public String[] interpolate(@Nullable String[] s) {
@@ -339,8 +345,10 @@ public class Interpolator implements Closeable, StringLookup {
    * @param s the string to interpolate
    * @return a new interpolated string or <code>null</code> if <code>s</code> is <code>null</code>
    * @throws InterpolationException if unable to interpolate the string
-   * @throws ContainerNotStagedException if an <code>"{karaf.XXXX}"</code> expression is found and
-   *     PaxExam has not yet staged the container
+   * @throws ContainerNotStagedException if an interpolate expression requires the container to be
+   *     staged and the container has not yet been staged (e.g. <code>"{karaf.home}"</code> when
+   *     using the PaxExam Dominion driver requires the container to be first staged before it can
+   *     be interpolated)
    */
   @Nullable
   public String interpolate(@Nullable String s) {

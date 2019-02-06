@@ -72,7 +72,7 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
   public org.ops4j.pax.exam.Option[] createConfiguration() {
     LOGGER.debug("{}::createConfiguration()", this);
     // to delay expansion of options until PaxExam searches for them, we are forced to wrap our
-    // logic inside a CompositeOption. In addition each extension wil also be managed by its own
+    // logic inside a CompositeOption. In addition each extension will also be managed by its own
     // CompositeOption such that if we cannot interpolate everything (e.g. reference to {karaf.home}
     // before the container is staged) we will be able to re-attempt later once the container is
     // finally staged since PaxEam will always expands all composite options before searching
@@ -218,8 +218,8 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
 
   /**
    * Corresponds to an extension and its annotation which allows for re-interpolation on subsequent
-   * attempts to retrieved the extension's options if an interpolation failure due to PaxExam not
-   * having staged the container yet occurred in the previous calls.
+   * attempts to retrieve the extension's options if an interpolation failure occurred due to
+   * PaxExam not having staged the container yet occurred in the previous calls.
    */
   private class ExtensionOption implements CompositeOption {
     private final String debugId = Integer.toHexString(System.identityHashCode(this));
@@ -242,7 +242,7 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
     }
 
     /**
-     * Interpolate and retrieved the options associated with this extension.
+     * Interpolate and retrieve the options associated with this extension.
      *
      * @return an array of all options defined by this extension or an array containing this
      *     extension if currently unable to interpolate the associated annotation
