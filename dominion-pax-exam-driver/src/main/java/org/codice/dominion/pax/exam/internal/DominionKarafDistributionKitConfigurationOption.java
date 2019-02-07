@@ -42,11 +42,11 @@ public class DominionKarafDistributionKitConfigurationOption
   @Override
   public KarafDistributionBaseConfigurationOption unpackDirectory(File unpackDirectory) {
     return super.unpackDirectory(
-        DominionKarafDistributionBaseConfigurationOption.resolve(interpolator, unpackDirectory));
+        DistributionConfigurationUtils.resolve(interpolator, unpackDirectory));
   }
 
   @Override
   public String toString() {
-    return DominionKarafDistributionBaseConfigurationOption.toString(interpolator, this, config);
+    return DistributionConfigurationUtils.toString(interpolator, this, config);
   }
 }

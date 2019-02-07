@@ -104,8 +104,8 @@ public class Options {
 
   /**
    * If you do not want to replace (or extend) values in a file but rather simply want to replace a
-   * configuration file "brute force" this option is the one of your choice. It simply removes the
-   * original file and replaces it with the one configured here.
+   * configuration file "brute force" this option is the one. It simply removes the original file
+   * and replaces it with the one configured here.
    */
   @Option.Annotation
   @Target(ElementType.TYPE)
@@ -201,6 +201,7 @@ public class Options {
      *
      * @return the config key to update
      */
+    @Interpolate
     String key();
 
     /**

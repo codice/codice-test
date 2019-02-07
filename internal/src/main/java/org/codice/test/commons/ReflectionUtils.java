@@ -375,6 +375,7 @@ public class ReflectionUtils {
      * @return the immediate annotation where this meta annotation was defined or <code>null</code>
      *     if this is not a meta annotation
      */
+    @Nullable
     public AnnotationEntry getEnclosingAnnotation() {
       return enclosingAnnotation;
     }

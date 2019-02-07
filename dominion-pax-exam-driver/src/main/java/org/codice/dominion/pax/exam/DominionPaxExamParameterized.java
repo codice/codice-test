@@ -20,6 +20,7 @@ import org.ops4j.pax.exam.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** Parameterized JUnit runner for the Dominion PaxExam driver. */
 public class DominionPaxExamParameterized extends DominionPaxExam {
   private static final Logger LOGGER = LoggerFactory.getLogger(DominionPaxExamParameterized.class);
 
@@ -34,7 +35,8 @@ public class DominionPaxExamParameterized extends DominionPaxExam {
     return "DominionPaxExamParameterized[" + testClass.getName() + ", " + delegate + "]";
   }
 
-  @SuppressWarnings("squid:CommentedOutCodeLine" /* left over code from PaxExam */)
+  @SuppressWarnings(
+      "squid:CommentedOutCodeLine" /* left over code from PaxExam to be removed when we are guaranteed we won't support CDI */)
   private static ParentRunner createDelegate(Class<?> testClass) throws InitializationError {
     // force us into a per-suite strategy
     System.setProperty(

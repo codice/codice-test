@@ -14,10 +14,6 @@
 package org.codice.dominion.pax.exam.internal;
 
 import java.io.File;
-import java.nio.file.Paths;
-import javax.annotation.Nullable;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionBaseConfigurationOption;
 
@@ -44,86 +40,11 @@ public class DominionKarafDistributionBaseConfigurationOption
   @Override
   public KarafDistributionBaseConfigurationOption unpackDirectory(File unpackDirectory) {
     return super.unpackDirectory(
-        DominionKarafDistributionBaseConfigurationOption.resolve(interpolator, unpackDirectory));
+        DistributionConfigurationUtils.resolve(interpolator, unpackDirectory));
   }
 
   @Override
   public String toString() {
-    return DominionKarafDistributionBaseConfigurationOption.toString(interpolator, this, config);
-  }
-
-  static File resolve(PaxExamInterpolator interpolator, @Nullable File dir) {
-    if (dir != null) {
-      return new File(
-          new File(dir.getAbsoluteFile(), interpolator.getUUID()), interpolator.getContainer());
-    }
-    // this is the standard default typically used by PaxExam
-    // see DefaultExamSystem() and KarafTestContainer.retrieveFinalTargetFolder()
-    return Paths.get(
-            System.getProperty("user.home"),
-            ".pax",
-            "exam",
-            interpolator.getUUID(),
-            interpolator.getContainer())
-        .toAbsolutePath()
-        .toFile();
-  }
-
-  @SuppressWarnings("squid:S1181" /* catching VirtualMachineError first */)
-  static String toString(
-      PaxExamInterpolator interpolator,
-      KarafDistributionBaseConfigurationOption thisOption,
-      KarafDistributionBaseConfigurationOption config) {
-    String configString;
-
-    try {
-      configString = ReflectionToStringBuilder.toString(config, null, true);
-    } catch (VirtualMachineError e) {
-      throw e;
-    } catch (Throwable t) {
-      configString = config.toString();
-    }
-    try {
-      return new ReflectionToStringBuilder(
-                  thisOption,
-                  DominionKarafDistributionBaseConfigurationOption.ENHANCED_STYLE,
-                  null,
-                  null,
-                  true,
-                  false)
-              .setExcludeFieldNames("interpolator", "config")
-              .toString()
-          + ",id="
-          + interpolator.getUUID()
-          + ",container="
-          + interpolator.getContainer()
-          + ",config="
-          + configString
-          + ']';
-    } catch (VirtualMachineError e) {
-      throw e;
-    } catch (Throwable t) {
-      return thisOption.getClass().getSimpleName()
-          + "[id="
-          + interpolator.getUUID()
-          + ",container="
-          + interpolator.getContainer()
-          + ",config="
-          + configString
-          + ']';
-    }
-  }
-
-  static final ToStringStyle ENHANCED_STYLE = new EnhancedToStringStyle();
-
-  static class EnhancedToStringStyle extends ToStringStyle {
-
-    EnhancedToStringStyle() {
-      setContentEnd("");
-    }
-
-    protected Object readResolve() {
-      return DominionKarafDistributionBaseConfigurationOption.ENHANCED_STYLE;
-    }
+    return DistributionConfigurationUtils.toString(interpolator, this, config);
   }
 }

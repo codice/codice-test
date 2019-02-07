@@ -49,26 +49,22 @@ public class Utilities {
   public static MavenArtifactUrlReference getProjectReference(
       Annotation annotation, ResourceLoader resourceLoader) {
     final Properties dependencies = Utilities.getDependencies(annotation, resourceLoader, null);
-    MavenArtifactUrlReference maven = CoreOptions.maven();
 
-    maven =
-        maven.groupId(
+    return CoreOptions.maven()
+        .groupId(
             Utilities.getProjectAttribute(
-                annotation, resourceLoader, MavenUtils.GROUP_ID, dependencies));
-    maven =
-        maven.artifactId(
+                annotation, resourceLoader, MavenUtils.GROUP_ID, dependencies))
+        .artifactId(
             Utilities.getProjectAttribute(
-                annotation, resourceLoader, MavenUtils.ARTIFACT_ID, dependencies));
-    maven =
-        maven.version(
+                annotation, resourceLoader, MavenUtils.ARTIFACT_ID, dependencies))
+        .version(
             Utilities.getProjectAttribute(
                 annotation, resourceLoader, MavenUtils.VERSION, dependencies));
-    return maven;
   }
 
   public static MavenArtifactUrlReference toReference(
       Annotation annotation, MavenUrl url, ResourceLoader resourceLoader) {
-    MavenArtifactUrlReference maven = CoreOptions.maven();
+    final MavenArtifactUrlReference maven = CoreOptions.maven();
     final String groupId = url.groupId();
     final String artifactId = url.artifactId();
     final String version = url.version();
@@ -78,58 +74,55 @@ public class Utilities {
 
     if (Options.MavenUrl.AS_PROJECT.equals(groupId)) {
       dependencies = Utilities.getDependencies(annotation, resourceLoader, dependencies);
-      maven =
-          maven.groupId(
-              Utilities.getProjectAttribute(
-                  annotation, resourceLoader, MavenUtils.GROUP_ID, dependencies));
+      maven.groupId(
+          Utilities.getProjectAttribute(
+              annotation, resourceLoader, MavenUtils.GROUP_ID, dependencies));
     } else {
-      maven = maven.groupId(groupId);
+      maven.groupId(groupId);
     }
     if (Options.MavenUrl.AS_PROJECT.contains(artifactId)) {
       dependencies = Utilities.getDependencies(annotation, resourceLoader, dependencies);
-      maven =
-          maven.artifactId(
-              Utilities.getProjectAttribute(
-                  annotation, resourceLoader, MavenUtils.ARTIFACT_ID, dependencies));
+
+      maven.artifactId(
+          Utilities.getProjectAttribute(
+              annotation, resourceLoader, MavenUtils.ARTIFACT_ID, dependencies));
     } else {
-      maven = maven.artifactId(artifactId);
+      maven.artifactId(artifactId);
     }
     if (Options.MavenUrl.AS_IN_PROJECT.equals(version)) {
       dependencies = Utilities.getDependencies(annotation, resourceLoader, dependencies);
-      maven =
-          maven.version(
-              Utilities.getArtifactAttribute(
-                  annotation, resourceLoader, url, MavenUtils.VERSION, dependencies));
+
+      maven.version(
+          Utilities.getArtifactAttribute(
+              annotation, resourceLoader, url, MavenUtils.VERSION, dependencies));
     } else if (Options.MavenUrl.AS_PROJECT.equals(version)) {
       dependencies = Utilities.getDependencies(annotation, resourceLoader, dependencies);
-      maven =
-          maven.version(
-              Utilities.getProjectAttribute(
-                  annotation, resourceLoader, MavenUtils.VERSION, dependencies));
+
+      maven.version(
+          Utilities.getProjectAttribute(
+              annotation, resourceLoader, MavenUtils.VERSION, dependencies));
     } else {
-      maven = Utilities.applyIfDefined(version, maven, maven::version);
+      Utilities.applyIfDefined(version, maven, maven::version);
     }
     if (Options.MavenUrl.AS_IN_PROJECT.equals(type)) {
       dependencies = Utilities.getDependencies(annotation, resourceLoader, dependencies);
-      maven =
-          maven.type(
-              Utilities.getArtifactAttribute(
-                  annotation, resourceLoader, url, MavenUtils.TYPE, dependencies));
+      maven.type(
+          Utilities.getArtifactAttribute(
+              annotation, resourceLoader, url, MavenUtils.TYPE, dependencies));
     } else if (Options.MavenUrl.AS_PROJECT.equals(type)) {
       throw new IllegalArgumentException("Must specify a valid type for: " + annotation);
     } else {
-      maven = Utilities.applyIfDefined(type, maven, maven::type);
+      Utilities.applyIfDefined(type, maven, maven::type);
     }
     if (Options.MavenUrl.AS_IN_PROJECT.equals(classifier)) {
       dependencies = Utilities.getDependencies(annotation, resourceLoader, dependencies);
-      maven =
-          maven.classifier(
-              Utilities.getArtifactAttribute(
-                  annotation, resourceLoader, url, MavenUtils.CLASSIFIER, dependencies));
+      maven.classifier(
+          Utilities.getArtifactAttribute(
+              annotation, resourceLoader, url, MavenUtils.CLASSIFIER, dependencies));
     } else if (Options.MavenUrl.AS_PROJECT.equals(classifier)) {
       throw new IllegalArgumentException("Must specify a valid classifier for: " + annotation);
     } else {
-      maven = Utilities.applyIfDefined(classifier, maven, maven::classifier);
+      Utilities.applyIfDefined(classifier, maven, maven::classifier);
     }
     return maven;
   }

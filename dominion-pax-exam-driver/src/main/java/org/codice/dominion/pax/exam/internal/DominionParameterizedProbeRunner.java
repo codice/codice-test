@@ -181,7 +181,7 @@ public class DominionParameterizedProbeRunner extends BlockJUnit4ClassRunner {
     Statement statement = childrenInvoker(notifier);
 
     if (!filteredChildren().allMatch(this::isIgnored)) {
-      LOGGER.debug("{}::1lassBlock() - adding @BeforeExam and @AfterExam statements", this);
+      LOGGER.debug("{}::classBlock() - adding @BeforeExam and @AfterExam statements", this);
       statement = withBeforeClasses(statement);
       statement = withAfterClasses(statement);
     } else {

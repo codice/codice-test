@@ -13,6 +13,7 @@
  */
 package org.codice.dominion.pax.exam.options;
 
+import javax.annotation.Nullable;
 import org.codice.dominion.resources.ResourceLoader;
 
 /**
@@ -37,13 +38,12 @@ public class PaxExamOption {
      * @param testClass the class for test for which a test container will be staged
      * @param resourceLoader a resource loader capable of loading resources associated with where
      *     the annotation is used
-     * @return <code>true</code> if the annotated option should be considered before staging the
-     *     PaxExam test container
      * @return an array of PaxExam options to be combined together when staging the test container
      *     or <code>null</code> if no options are available
      * @throws Throwable if unable to generate the options for this extension
      */
     @SuppressWarnings("squid:S00112" /* the framework will handle any exceptions thrown out */)
+    @Nullable
     public org.ops4j.pax.exam.Option[] options(
         T annotation, Class<?> testClass, ResourceLoader resourceLoader) throws Throwable;
   }

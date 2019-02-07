@@ -96,7 +96,7 @@ public class MavenUtils {
   }
 
   /**
-   * Gets a n artifact's attribute from the provided dependencies.
+   * Gets an artifact's attribute from the provided dependencies.
    *
    * @param dependencies the dependencies from which to retrieve the attribute
    * @param groupId the group id of the artifact for which to retrieve the attribute

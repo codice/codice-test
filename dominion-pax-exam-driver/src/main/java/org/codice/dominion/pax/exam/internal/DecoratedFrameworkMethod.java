@@ -26,7 +26,8 @@ import org.ops4j.pax.exam.TestAddress;
  * <p>The background is that each method from the test class may be executed in multiple different
  * configurations or containers.
  *
- * <p>This class is an exact copy of a private class defined inside PaxExam's distribution.
+ * <p>This class is an exact copy of PaxExam's private class {@link
+ * org.ops4j.pax.exam.junit.impl.DecoratedFrameworkMethod} which is package private.
  */
 class DecoratedFrameworkMethod extends FrameworkMethod {
 

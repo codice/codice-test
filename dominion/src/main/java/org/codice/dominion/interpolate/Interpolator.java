@@ -20,19 +20,11 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.text.StringSubstitutor;
@@ -56,16 +48,6 @@ public class Interpolator implements Closeable, StringLookup {
   private static final int BASE_PORT = 20000;
   private static final int BLOCK_SIZE = 20;
 
-  private static final Method TO_STRING;
-
-  static {
-    try {
-      TO_STRING = Object.class.getMethod("toString");
-    } catch (NoSuchMethodException e) {
-      throw new InternalError(e);
-    }
-  }
-
   protected final String id;
 
   protected final String container;
@@ -78,10 +60,6 @@ public class Interpolator implements Closeable, StringLookup {
       new StringSubstitutor(
               this, new PrefixMatcher(), StringMatcherFactory.INSTANCE.stringMatcher("}"), '\0')
           .setEnableSubstitutionInVariables(true);
-
-  /** Cache of annotation methods to interpolate keyed by the annotation class. */
-  private final Map<Class<? extends Annotation>, Set<Method>> methodsToInterpolate =
-      new ConcurrentHashMap<>();
 
   /**
    * Initializes a new interpolator inside a driver with the specified test run id and container
@@ -186,12 +164,12 @@ public class Interpolator implements Closeable, StringLookup {
   /**
    * Interpolates a given annotation by returning a proxy version that will automatically
    * interpolate all <code>String</code> and <code>String[]</code> methods that are annotated with
-   * the {@link Interpolate} annotation.
+   * the {@link Interpolate} meta-annotation.
    *
-   * <p><<i>Note:</i> This method will not attempt any interpolations. Instead it will return a
-   * proxy which will delay interpolation until an annotation value marked to be interpolated is
-   * accessed. It is therefore possible that accessing a value of an interpolated annotation throws
-   * an unexpected instance of {@link InterpolationException}.
+   * <p><i>Note:</i> This method will not attempt any interpolations. Instead it will return a proxy
+   * which will delay interpolation until an annotation value marked to be interpolated is accessed.
+   * It is therefore possible that accessing a value of an interpolated annotation throws an
+   * unexpected instance of {@link InterpolationException}.
    *
    * @param <A> the type of annotation to be interpolated
    * @param annotation the annotation to be interpolated
@@ -199,68 +177,7 @@ public class Interpolator implements Closeable, StringLookup {
    *     interpolation was requested
    */
   public <A extends Annotation> A interpolate(A annotation) {
-    // check if the annotation has methods annotated with @Interpolate in which case, we will want
-    // to create a proxy for the annotation such that we can report interpolated values instead
-    final Class<? extends Annotation> clazz = annotation.annotationType();
-    final Set<Method> toInterpolate =
-        methodsToInterpolate.computeIfAbsent(
-            clazz,
-            c ->
-                Stream.of(c.getMethods())
-                    .filter(m -> m.getAnnotation(Interpolate.class) != null)
-                    .collect(Collectors.toSet()));
-
-    if (toInterpolate.isEmpty()) {
-      return annotation;
-    }
-    return (A)
-        Proxy.newProxyInstance(
-            annotation.getClass().getClassLoader(),
-            new Class<?>[] {annotation.annotationType(), Annotation.class},
-            new InvocationHandler() {
-              @Override
-              public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                final Object o = method.invoke(annotation, args);
-
-                if (method.equals(Interpolator.TO_STRING)) {
-                  return toInterpolate
-                      .stream()
-                      .map(this::toInterpolatedString)
-                      .collect(Collectors.joining(", ", "@interpolation(" + o + ", ", ")"));
-                } else if (!toInterpolate.contains(method)) {
-                  return o;
-                }
-                return toInterpolatedObject(o);
-              }
-
-              private Object toInterpolatedObject(Object o) {
-                if (o instanceof String[]) {
-                  return interpolate((String[]) o);
-                } else if (o instanceof String) {
-                  return interpolate((String) o);
-                }
-                throw new InterpolationException(
-                    "Can only interpolate annotated methods that returns String or String[]");
-              }
-
-              private String toInterpolatedString(Method method) {
-                String s;
-
-                try {
-                  // Note. Annotation methods cannot have arguments!
-                  final Object o = toInterpolatedObject(method.invoke(annotation));
-
-                  if (o instanceof String[]) {
-                    s = Arrays.toString((String[]) o);
-                  } else { // must be a string
-                    s = (String) o;
-                  }
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                  s = "?";
-                }
-                return method.getName() + '=' + s;
-              }
-            });
+    return InterpolatedAnnotationHandler.proxyIfItNeedsInterpolation(this, annotation);
   }
 
   /**
