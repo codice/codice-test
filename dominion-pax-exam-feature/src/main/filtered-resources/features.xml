@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<features name="${project.artifactId}-${project.version}"
+          xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
+
+    <repository>mvn:org.ops4j.pax.exam/pax-exam-features/${pax.exam.version}/xml</repository>
+
+    <feature name="dominion-pax-exam" version="${project.version}">
+        <feature>exam-no-junit</feature>
+
+        <bundle>mvn:biz.aQute.bnd/biz.aQute.bndlib/${bndlib.version}</bundle>
+        <bundle>mvn:org.ops4j.pax.tinybundles/tinybundles/${pax.tinybundles.version}</bundle>
+
+        <bundle>mvn:org.apache.commons/commons-lang3/${commons-lang3.version}</bundle>
+        <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
+        <bundle>mvn:org.apache.commons/commons-text/${commons-text.version}</bundle>
+        <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
+
+        <bundle>mvn:org.ops4j.pax.swissbox/pax-swissbox-tracker/${pax.swissbox.version}</bundle>
+        <bundle>mvn:org.apache.felix/org.apache.felix.configadmin/${felix.configadmin.version}
+        </bundle>
+
+        <bundle>mvn:org.codice.test/junit-extensions/${project.version}</bundle>
+        <bundle>mvn:org.codice.test/pax-exam-extensions/${project.version}</bundle>
+        <bundle>mvn:org.codice.test/dominion/${project.version}</bundle>
+        <bundle>mvn:org.codice.test/dominion-pax-exam/${project.version}</bundle>
+
+        <!-- start level of 1 is to ensure it starts before PaxExam JUnit invoker -->
+        <bundle start-level="1">mvn:org.codice.test/dominion-pax-exam-invokers/${project.version}
+        </bundle>
+    </feature>
+</features>

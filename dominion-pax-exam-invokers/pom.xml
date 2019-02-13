@@ -23,33 +23,57 @@
         <version>0.4-SNAPSHOT</version>
     </parent>
 
-    <name>Codice Test :: JUnit Extensions</name>
-    <artifactId>junit-extensions</artifactId>
+    <name>Codice Test :: Dominion :: Pax Exam :: Invokers</name>
+    <artifactId>dominion-pax-exam-invokers</artifactId>
     <packaging>bundle</packaging>
 
     <dependencies>
         <dependency>
             <groupId>org.codice.test</groupId>
-            <artifactId>internal</artifactId>
+            <artifactId>junit-extensions</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.test</groupId>
+            <artifactId>dominion</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.test</groupId>
+            <artifactId>dominion-pax-exam</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.test</groupId>
+            <artifactId>pax-exam-extensions</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.javassist</groupId>
-            <artifactId>javassist</artifactId>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.jsr305</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.exam</groupId>
+            <artifactId>pax-exam</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.exam</groupId>
+            <artifactId>pax-exam-invoker-junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.swissbox</groupId>
+            <artifactId>pax-swissbox-tracker</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all</artifactId>
-            <type>pom</type>
-        </dependency>
-        <dependency>
-            <groupId>org.spockframework</groupId>
-            <artifactId>spock-core</artifactId>
         </dependency>
 
         <dependency>
@@ -69,6 +93,10 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.servicemix.tooling</groupId>
+                <artifactId>depends-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
@@ -76,23 +104,22 @@
                         <Bundle-Category>osgi</Bundle-Category>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Vendor>Codice</Bundle-Vendor>
+                        <Bundle-Activator>
+                            org.codice.dominion.pax.exam.invoker.Activator
+                        </Bundle-Activator>
                         <Embed-Dependency>
-                            internal,
-                            javassist
+                            pax-exam-invoker-junit
                         </Embed-Dependency>
-                        <Import-Package>
-                            javax.annotation;version="[1.1,2)",
-                            com.sun.jdi*;resolution:=optional,
-                            com.sun.tools.attach;resolution:=optional,
-                            org.spock*;resolution:=optional,
-                            spock*;resolution:=optional,
-                            *
-                        </Import-Package>
                         <Export-Package>
-                            org.codice.junit,
-                            org.codice.junit.rules,
-                            org.codice.junit.parameterized
+                            org.codice.dominion.pax.exam.invoker
                         </Export-Package>
+                        <!-- This ensures that the maven bundle plugin properly includes the
+                             dependencies file created by the depends-bundle-plugin which it
+                             does not by default -->
+                        <Include-Resource>
+                            META-INF/maven/dependencies.properties=${project.build.directory}/classes/META-INF/maven/dependencies.properties,
+                            {maven-resources}
+                        </Include-Resource>
                     </instructions>
                 </configuration>
             </plugin>
@@ -114,17 +141,17 @@
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.38</minimum>
+                                            <minimum>0.57</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.56</minimum>
+                                            <minimum>0.63</minimum>
                                         </limit>
                                         <limit implementation="org.codice.jacoco.LenientLimit">
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.27</minimum>
+                                            <minimum>0.41</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
