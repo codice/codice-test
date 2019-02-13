@@ -29,6 +29,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.codice.test</groupId>
+            <artifactId>dominion-pax-exam</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.jsr305</artifactId>
         </dependency>

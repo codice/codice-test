@@ -15,14 +15,17 @@ package org.codice.dominion.pax.exam.options.extensions;
 
 import java.io.IOException;
 import java.util.stream.Stream;
+import org.apache.commons.io.FilenameUtils;
 import org.codice.dominion.options.Options.UpdateFile;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
+import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileContentOption;
+import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileReplaceOption.Type;
+import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.karaf.options.KarafDistributionConfigurationFileReplacementOption;
 
 /** Extension point for the {@link UpdateFile} option annotation. */
-public class UpdateFileExtension extends AbstractFileExtension<UpdateFile> {
+public class UpdateFileExtension implements Extension<UpdateFile> {
   @Override
   public Option[] options(
       UpdateFile annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader)
@@ -53,23 +56,49 @@ public class UpdateFileExtension extends AbstractFileExtension<UpdateFile> {
               + " for "
               + resourceLoader.getLocationClass().getName());
     }
-    final KarafDistributionConfigurationFileReplacementOption option;
-
     if (fileIsDefined) {
-      option = fileOption(file, annotation.target());
+      return new Option[] {
+        new KarafDistributionConfigurationFileContentOption(
+            interpolator,
+            annotation.location(),
+            // separators to Unix is on purpose as PaxExam will analyze the target based on it
+            // containing / and not \ and then convert it properly
+            FilenameUtils.separatorsToUnix(annotation.target()),
+            Type.FILE,
+            file)
+      };
     } else if (urlIsDefined) {
-      option = urlOption(url, annotation.target());
+      return new Option[] {
+        new KarafDistributionConfigurationFileContentOption(
+            interpolator,
+            annotation.location(),
+            // separators to Unix is on purpose as PaxExam will analyze the target
+            // based on it containing / and not \ and then convert it properly
+            FilenameUtils.separatorsToUnix(annotation.target()),
+            Type.URL,
+            url)
+      };
     } else if (contentIsDefined) {
-      option = contentOption(content, annotation.target());
-    } else {
-      option = resourceOption(resource, annotation.target(), resourceLoader);
+      return new Option[] {
+        new KarafDistributionConfigurationFileContentOption(
+            interpolator,
+            annotation.location(),
+            // separators to Unix is on purpose as PaxExam will analyze the target based on it
+            // containing / and not \ and then convert it properly
+            FilenameUtils.separatorsToUnix(annotation.target()),
+            Type.CONTENT,
+            content)
+      };
     }
     return new Option[] {
-      new KarafDistributionConfigurationFileRemoveOption(
+      new KarafDistributionConfigurationFileContentOption(
           interpolator,
           annotation.location(),
-          option.getConfigurationFilePath(),
-          option.getSource())
+          // separators to Unix is on purpose as PaxExam will analyze the target based on it
+          // containing / and not \ and then convert it properly
+          FilenameUtils.separatorsToUnix(annotation.target()),
+          resource,
+          resourceLoader)
     };
   }
 }

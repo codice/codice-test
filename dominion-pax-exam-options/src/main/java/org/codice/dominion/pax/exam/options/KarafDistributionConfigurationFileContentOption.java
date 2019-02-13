@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.dominion.pax.exam.options.extensions;
+package org.codice.dominion.pax.exam.options;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,23 +24,58 @@ import org.apache.commons.io.FileUtils;
 import org.codice.dominion.DominionException;
 import org.codice.dominion.options.Options.UpdateFile.Location;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
-import org.ops4j.pax.exam.karaf.options.KarafDistributionConfigurationFileReplacementOption;
+import org.codice.dominion.resources.ResourceLoader;
 
 /**
  * Provides an extension to PaxExam's KarafDistributionConfigurationFileReplacementOption which
- * supports removing entries from configuration properties.
+ * supports adding content to an existing file.
  */
-public class KarafDistributionConfigurationFileRemoveOption
-    extends KarafDistributionConfigurationFileReplacementOption {
+public class KarafDistributionConfigurationFileContentOption
+    extends KarafDistributionConfigurationFileReplaceOption {
   private final PaxExamInterpolator interpolator;
   private final Location location;
 
-  public KarafDistributionConfigurationFileRemoveOption(
+  /**
+   * Creates a new file content PaxExam option.
+   *
+   * @param interpolator the interpolator from which to retrieve Karaf directory locations
+   * @param location the location in the file where to add the content
+   * @param configurationFilePath the configuration file path to add content to
+   * @param type the type of the source (any except for {@link Type#RESOURCE})
+   * @param source the source where to get the content
+   * @throws IllegalArgumentException if <code>type</code> is {@link Type#RESOURCE}
+   * @throws IOException if an I/O error occurs while retrieving the source
+   */
+  public KarafDistributionConfigurationFileContentOption(
       PaxExamInterpolator interpolator,
       Location location,
       String configurationFilePath,
-      File source) {
-    super(configurationFilePath, source);
+      Type type,
+      String source)
+      throws IOException {
+    super(configurationFilePath, type, source);
+    this.interpolator = interpolator;
+    this.location = location;
+  }
+
+  /**
+   * Creates a new file content PaxExam option.
+   *
+   * @param interpolator the interpolator from which to retrieve Karaf directory locations
+   * @param location the location in the file where to add the content
+   * @param configurationFilePath the configuration file path to add content to
+   * @param source the source where to get the content
+   * @param resourceLoader the resource loader to use if required
+   * @throws IOException if an I/O error occurs while retrieving the source
+   */
+  public KarafDistributionConfigurationFileContentOption(
+      PaxExamInterpolator interpolator,
+      Location location,
+      String configurationFilePath,
+      String source,
+      ResourceLoader resourceLoader)
+      throws IOException {
+    super(configurationFilePath, source, resourceLoader);
     this.interpolator = interpolator;
     this.location = location;
   }
@@ -53,18 +88,18 @@ public class KarafDistributionConfigurationFileRemoveOption
     // see KarafTestContainer.updateUserSetProperties() for logic on how to find the location
     // of a file
     File original =
-        KarafDistributionConfigurationFileRemoveOption.toFile(interpolator.getKarafHome(), path);
+        KarafDistributionConfigurationFileContentOption.toFile(interpolator.getKarafHome(), path);
 
     if (!original.exists()) {
       File customFile = null;
 
       if (path.startsWith("data/")) {
         customFile =
-            KarafDistributionConfigurationFileRemoveOption.toFile(
+            KarafDistributionConfigurationFileContentOption.toFile(
                 interpolator.getKarafData(), path.substring(5));
       } else if (path.startsWith("etc/")) {
         customFile =
-            KarafDistributionConfigurationFileRemoveOption.toFile(
+            KarafDistributionConfigurationFileContentOption.toFile(
                 interpolator.getKarafEtc(), path.substring(4));
       }
       if ((customFile != null) && customFile.exists()) {
@@ -79,7 +114,10 @@ public class KarafDistributionConfigurationFileRemoveOption
     File temp = null;
 
     try {
-      temp = Files.createTempFile(UpdateFileExtension.class.getName(), ".tmp").toFile();
+      temp =
+          Files.createTempFile(
+                  KarafDistributionConfigurationFileContentOption.class.getName(), ".tmp")
+              .toFile();
       temp.deleteOnExit();
       final InputStream is;
 
