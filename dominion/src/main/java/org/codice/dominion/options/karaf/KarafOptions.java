@@ -174,14 +174,14 @@ public class KarafOptions {
 
     /**
      * Specifies the unpack directory for the karaf distribution. In this directory (defaults to
-     * <code>{user.home}/.pax/exam</code>) a UUID named directory will be created for each running
+     * <code>target/dominion</code>) a date-based directory will be created for each running
      * instance under which directories named for each containers will be created under which a UUID
      * named directory will be created for each environment.
      *
      * @return specifies the unpack directory for the karaf distribution
      */
     @Interpolate
-    String unpack() default Options.NOT_DEFINED;
+    String unpack() default "target/dominion";
 
     /**
      * Per default the framework simply copies all referenced artifacts (via {@link

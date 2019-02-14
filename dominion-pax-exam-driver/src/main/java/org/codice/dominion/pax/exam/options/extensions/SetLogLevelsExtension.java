@@ -33,7 +33,7 @@ public class SetLogLevelsExtension implements Extension<SetLogLevels> {
     }
     return Arrays.stream(logging.split(";"))
         .map(s -> s.split("="))
-        .map(e -> SetLogLevelExtension.options(e[0], e[1]))
+        .flatMap(e -> SetLogLevelExtension.options(e[0], e[1]))
         .toArray(Option[]::new);
   }
 }

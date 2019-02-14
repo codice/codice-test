@@ -85,12 +85,6 @@ public class DistributionConfigurationExtension implements Extension<Distributio
         Utilities.applyIfDefined(
             FilenameUtils.separatorsToSystem(annotation.etc()), cfg, cfg::karafEtc);
     cfg =
-        Utilities.mapAndApplyIfDefined(
-            FilenameUtils.separatorsToSystem(annotation.unpack()),
-            cfg,
-            File::new,
-            cfg::unpackDirectory);
-    cfg =
         Utilities.applyIfDefined(
             FilenameUtils.separatorsToSystem(annotation.start()), cfg, cfg::executable);
     cfg =
@@ -98,7 +92,11 @@ public class DistributionConfigurationExtension implements Extension<Distributio
             Stream.of(annotation.executables())
                 .map(FilenameUtils::separatorsToSystem)
                 .toArray(String[]::new));
-    return new Option[] {cfg.useDeployFolder(annotation.deploy()).runEmbedded(annotation.embed())};
+    return new Option[] {
+      cfg.unpackDirectory(new File(FilenameUtils.separatorsToSystem(annotation.unpack())))
+          .useDeployFolder(annotation.deploy())
+          .runEmbedded(annotation.embed())
+    };
   }
 
   private static Platform getKarafPlatform(DistributionConfiguration annotation) {
