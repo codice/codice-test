@@ -11,24 +11,26 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.dominion.pax.exam.options.extensions;
+package org.codice.dominion.pax.exam.options.karaf.extensions;
 
 import java.io.IOException;
 import java.util.stream.Stream;
-import org.apache.commons.io.FilenameUtils;
-import org.codice.dominion.options.Options.UpdateFile;
+import org.codice.dominion.options.karaf.KarafOptions.UpdateShellInitScript;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
-import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileContentOption;
 import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileReplaceOption.Type;
+import org.codice.dominion.pax.exam.options.KarafShellInitFileContentOption;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
+import org.codice.dominion.pax.exam.options.extensions.Utilities;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
 
-/** Extension point for the {@link UpdateFile} option annotation. */
-public class UpdateFileExtension implements Extension<UpdateFile> {
+/** Extension point for the {@link UpdateShellInitScript} option annotation. */
+public class UpdateShellInitScriptExtension implements Extension<UpdateShellInitScript> {
   @Override
   public Option[] options(
-      UpdateFile annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader)
+      UpdateShellInitScript annotation,
+      PaxExamInterpolator interpolator,
+      ResourceLoader resourceLoader)
       throws IOException {
     final String file = annotation.file();
     final String url = annotation.url();
@@ -57,47 +59,14 @@ public class UpdateFileExtension implements Extension<UpdateFile> {
               + resourceLoader.getLocationClass().getName());
     }
     if (fileIsDefined) {
-      return new Option[] {
-        new KarafDistributionConfigurationFileContentOption(
-            interpolator,
-            annotation.location(),
-            // separators to Unix is on purpose as PaxExam will analyze the target based on it
-            // containing / and not \ and then convert it properly
-            FilenameUtils.separatorsToUnix(annotation.target()),
-            Type.FILE,
-            file)
-      };
+      return new Option[] {new KarafShellInitFileContentOption(interpolator, Type.FILE, file)};
     } else if (urlIsDefined) {
-      return new Option[] {
-        new KarafDistributionConfigurationFileContentOption(
-            interpolator,
-            annotation.location(),
-            // separators to Unix is on purpose as PaxExam will analyze the target
-            // based on it containing / and not \ and then convert it properly
-            FilenameUtils.separatorsToUnix(annotation.target()),
-            Type.URL,
-            url)
-      };
+      return new Option[] {new KarafShellInitFileContentOption(interpolator, Type.URL, url)};
     } else if (contentIsDefined) {
-      return new Option[] {
-        new KarafDistributionConfigurationFileContentOption(
-            interpolator,
-            annotation.location(),
-            // separators to Unix is on purpose as PaxExam will analyze the target based on it
-            // containing / and not \ and then convert it properly
-            FilenameUtils.separatorsToUnix(annotation.target()),
-            content)
-      };
+      return new Option[] {new KarafShellInitFileContentOption(interpolator, content)};
     }
     return new Option[] {
-      new KarafDistributionConfigurationFileContentOption(
-          interpolator,
-          annotation.location(),
-          // separators to Unix is on purpose as PaxExam will analyze the target based on it
-          // containing / and not \ and then convert it properly
-          FilenameUtils.separatorsToUnix(annotation.target()),
-          resource,
-          resourceLoader)
+      new KarafShellInitFileContentOption(interpolator, resource, resourceLoader)
     };
   }
 }

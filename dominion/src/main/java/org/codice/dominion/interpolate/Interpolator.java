@@ -98,7 +98,7 @@ public class Interpolator implements Closeable, StringLookup {
     path = Paths.get("target", "test-classes").toAbsolutePath().toString();
     replacements.put("test-classes.path", path);
     replacements.put("test-classes.url", "file:" + path);
-    this.ports = new PortFinder(Interpolator.BASE_PORT, Interpolator.BLOCK_SIZE);
+    this.ports = new PortFinder(container, Interpolator.BASE_PORT, Interpolator.BLOCK_SIZE);
   }
 
   /**
@@ -152,7 +152,7 @@ public class Interpolator implements Closeable, StringLookup {
       this.ports =
           (portFinder != null)
               ? portFinder
-              : new PortFinder(Interpolator.BASE_PORT, Interpolator.BLOCK_SIZE);
+              : new PortFinder(container, Interpolator.BASE_PORT, Interpolator.BLOCK_SIZE);
     } catch (JsonSyntaxException e) {
       throw new InterpolationException("Unable to determine reserved ports information", e);
     }
@@ -183,6 +183,29 @@ public class Interpolator implements Closeable, StringLookup {
    */
   public String getContainer() {
     return container;
+  }
+
+  /**
+   * Gets the system-dependent line separator string associated with the corresponding container.
+   *
+   * <p>On UNIX systems, it returns <code>"\n"</code>; on Microsoft Windows systems it returns
+   * <code>"\r\n"</code>.
+   *
+   * @return the system-dependent line separator string associated with the corresponding container
+   */
+  public String getLineSeparator() {
+    return replacements.get("%n");
+  }
+
+  /**
+   * Gets the system-dependent default name-separator character associated with the corresponding
+   * container.
+   *
+   * @return the system-dependent default name-separator character associated with the corresponding
+   *     container
+   */
+  public String getFileSeparator() {
+    return replacements.get("/");
   }
 
   /**
@@ -273,7 +296,7 @@ public class Interpolator implements Closeable, StringLookup {
    *     be interpolated)
    */
   @Nullable
-  public String[] interpolate(@Nullable String[] s) {
+  public String[] interpolate(@Nullable String... s) {
     if (s == null) {
       return null;
     }

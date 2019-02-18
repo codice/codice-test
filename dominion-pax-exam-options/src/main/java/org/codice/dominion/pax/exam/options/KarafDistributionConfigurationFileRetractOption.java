@@ -23,7 +23,7 @@ import org.ops4j.pax.exam.karaf.options.ConfigurationPointer;
  * there is no current value or if it is not currently defined as part of the configuration then
  * nothing happen.
  *
- * <p>If you would like to extends or replace functionality please use the {@link
+ * <p>If you would like to extend or replace functionality please use the {@link
  * org.ops4j.pax.exam.karaf.options.KarafDistributionConfigurationFileExtendOption} or {@link
  * org.ops4j.pax.exam.karaf.options.KarafDistributionConfigurationFileOption} instead.
  */

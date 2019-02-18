@@ -32,7 +32,7 @@ public class ReplaceFileExtension implements Extension<ReplaceFile> {
       throws IOException {
     final String file = annotation.file();
     final String url = annotation.url();
-    final String content = annotation.content();
+    final String[] content = annotation.content();
     final String resource = annotation.resource();
     final boolean fileIsDefined = Utilities.isDefined(file);
     final boolean urlIsDefined = Utilities.isDefined(url);
@@ -45,13 +45,13 @@ public class ReplaceFileExtension implements Extension<ReplaceFile> {
 
     if (count == 0L) {
       throw new IllegalArgumentException(
-          "must specify one of ReplaceFile.file(), ReplaceFile.url(), ReplaceFile.content(), or ReplaceFile.resource() in "
+          "must specify one of file(), url(), content(), or resource() in "
               + annotation
               + " for "
               + resourceLoader.getLocationClass().getName());
     } else if (count > 1L) {
       throw new IllegalArgumentException(
-          "specify only one of ReplaceFile.file(), ReplaceFile.url(), ReplaceFile.content(), or ReplaceFile.resource() in "
+          "specify only one of file(), url(), content(), or resource() in "
               + annotation
               + " for "
               + resourceLoader.getLocationClass().getName());
@@ -59,23 +59,31 @@ public class ReplaceFileExtension implements Extension<ReplaceFile> {
     if (fileIsDefined) {
       return new Option[] {
         new KarafDistributionConfigurationFileReplaceOption(
+            interpolator,
             // separators to Unix is on purpose as PaxExam will analyze the target based on it
             // containing / and not \ and then convert it properly
-            FilenameUtils.separatorsToUnix(annotation.target()), Type.FILE, file)
+            FilenameUtils.separatorsToUnix(annotation.target()),
+            Type.FILE,
+            file)
       };
     } else if (urlIsDefined) {
       return new Option[] {
         new KarafDistributionConfigurationFileReplaceOption(
+            interpolator,
             // separators to Unix is on purpose as PaxExam will analyze the target based on it
             // containing / and not \ and then convert it properly
-            FilenameUtils.separatorsToUnix(annotation.target()), Type.URL, url)
+            FilenameUtils.separatorsToUnix(annotation.target()),
+            Type.URL,
+            url)
       };
     } else if (contentIsDefined) {
       return new Option[] {
         new KarafDistributionConfigurationFileReplaceOption(
+            interpolator,
             // separators to Unix is on purpose as PaxExam will analyze the target based on it
             // containing / and not \ and then convert it properly
-            FilenameUtils.separatorsToUnix(annotation.target()), Type.CONTENT, content)
+            FilenameUtils.separatorsToUnix(annotation.target()),
+            content)
       };
     }
     return new Option[] {

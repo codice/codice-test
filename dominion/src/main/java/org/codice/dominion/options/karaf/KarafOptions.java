@@ -20,6 +20,7 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.concurrent.TimeUnit;
 import org.codice.dominion.conditions.Conditions;
 import org.codice.dominion.interpolate.Interpolate;
 import org.codice.dominion.options.Option;
@@ -263,6 +264,107 @@ public class KarafOptions {
   @Documented
   public @interface PropagateOverriddenMavenLocalRepo {}
 
+  /**
+   * Options for appending commands to Karaf's <code>etc/shell.init.script</code> before it is
+   * started.
+   *
+   * <p><i>Note:</i> Commands introduced this way will not be waited upon before starting executing
+   * the tests. Instead use {@link ExecuteShellCommand} in order to execute commands via Karaf's
+   * remote SSH endpoint after it has started and before tests are executed.
+   */
+  @Option.Annotation
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Inherited
+  @Documented
+  @Repeatable(Repeatables.UpdateShellInitScripts.class)
+  public @interface UpdateShellInitScript {
+    /**
+     * Specifies the filename to copy its commands content to the target file.
+     *
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
+     * must be specified.
+     *
+     * @return the source filename to copy
+     */
+    @Interpolate
+    String file() default Options.NOT_DEFINED;
+
+    /**
+     * Specifies the url to copy its comamnds content to the target file.
+     *
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
+     * must be specified.
+     *
+     * @return the source url to copy
+     */
+    @Interpolate
+    String url() default Options.NOT_DEFINED;
+
+    /**
+     * Specifies the commands to copy to the target file. Each entry will represent a different line
+     * in the target file.
+     *
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
+     * must be specified.
+     *
+     * @return the content text to copy
+     */
+    @Interpolate
+    String[] content() default Options.NOT_DEFINED;
+
+    /**
+     * Specifies the resource name for the commands to copy to the target file.
+     *
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
+     * must be specified.
+     *
+     * @return the resource name to copy
+     */
+    @Interpolate
+    String resource() default Options.NOT_DEFINED;
+  }
+
+  /**
+   * Options for executing commands via Karaf's remote SSH endpoint after it has started and before
+   * tests are executed.
+   *
+   * <p><i>Note:</i> Commands introduced this way will be waited upon before starting executing the
+   * tests. If not required, one can use {@link UpdateShellInitScript} to simply have the commands
+   * added to Karaf's startup script.
+   */
+  @Option.Annotation
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Inherited
+  @Documented
+  @Repeatable(Repeatables.ExecuteShellCommands.class)
+  public @interface ExecuteShellCommand {
+    /**
+     * Specifies the command to be executed via an ssh session.
+     *
+     * @return the command to be executed
+     */
+    @Interpolate
+    String command();
+
+    /**
+     * Specifies the units for the maximum amount of time to wait for the command to complete
+     * (defaults to milliseconds).
+     *
+     * @return the units for the maximum amount of time to wait
+     */
+    TimeUnit units() default TimeUnit.MILLISECONDS;
+
+    /**
+     * Specifies the maximum amount of time time to wait for the command to complete in the provided
+     * units.
+     *
+     * @return the maximum amount of time to wait
+     */
+    long timeout();
+  }
+
   /** This interface is defined purely to provide scoping. */
   public interface Repeatables {
     @Target(ElementType.TYPE)
@@ -281,6 +383,24 @@ public class KarafOptions {
     /** Defines several {@link DistributionConfiguration} annotations. */
     public @interface DistributionConfigurations {
       DistributionConfiguration[] value();
+    }
+
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Inherited
+    @Documented
+    /** Defines several {@link UpdateShellInitScript} annotations. */
+    public @interface UpdateShellInitScripts {
+      UpdateShellInitScript[] value();
+    }
+
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Inherited
+    @Documented
+    /** Defines several {@link ExecuteShellCommand} annotations. */
+    public @interface ExecuteShellCommands {
+      ExecuteShellCommand[] value();
     }
   }
 

@@ -36,6 +36,15 @@ public class Options {
    */
   public static final String NOT_DEFINED = "_not_defined_";
 
+  /** Sets of possible locations in a file where to insert content. */
+  public enum Location {
+    /** Prepends the content at the beginning of the existing file. */
+    PREPEND,
+
+    /** Appends the content at the end of the existing file. */
+    APPEND
+  }
+
   /** Annotation used to specify a maven URL reference. */
   @Retention(RetentionPolicy.RUNTIME)
   @Inherited
@@ -76,21 +85,21 @@ public class Options {
      *
      * @return the optional marven artifact version
      */
-    String version() default NOT_DEFINED;
+    String version() default Options.NOT_DEFINED;
 
     /**
      * Specifies the maven artifact type.
      *
      * @return the marven artifact type
      */
-    String type() default NOT_DEFINED;
+    String type() default Options.NOT_DEFINED;
 
     /**
      * Specifies the maven artifact classifier.
      *
      * @return the marven artifact classifier
      */
-    String classifier() default NOT_DEFINED;
+    String classifier() default Options.NOT_DEFINED;
   }
 
   /** Option to install the Dominion driver specific configuration. */
@@ -134,7 +143,7 @@ public class Options {
      * @return the source filename to copy
      */
     @Interpolate
-    String file() default NOT_DEFINED;
+    String file() default Options.NOT_DEFINED;
 
     /**
      * Specifies the url to copy its content to the target file.
@@ -145,10 +154,11 @@ public class Options {
      * @return the source url to copy
      */
     @Interpolate
-    String url() default NOT_DEFINED;
+    String url() default Options.NOT_DEFINED;
 
     /**
-     * Specifies the text to copy to the target file.
+     * Specifies the text to copy to the target file. Each entry will represent a different line in
+     * the target file.
      *
      * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
      * must be specified.
@@ -156,7 +166,7 @@ public class Options {
      * @return the content text to copy
      */
     @Interpolate
-    String content() default NOT_DEFINED;
+    String[] content() default Options.NOT_DEFINED;
 
     /**
      * Specifies the resource name to copy to the target file.
@@ -167,16 +177,7 @@ public class Options {
      * @return the resource name to copy
      */
     @Interpolate
-    String resource() default NOT_DEFINED;
-
-    /** Sets of possible locations in the target file where to insert the content. */
-    public enum Location {
-      /** Prepends the content at the beginning of the existing file. */
-      PREPEND,
-
-      /** Appends the content at the end of the existing file. */
-      APPEND
-    }
+    String resource() default Options.NOT_DEFINED;
   }
 
   /**
@@ -209,7 +210,7 @@ public class Options {
      * @return the source filename to copy
      */
     @Interpolate
-    String file() default NOT_DEFINED;
+    String file() default Options.NOT_DEFINED;
 
     /**
      * Specifies the url to copy its content to the target file.
@@ -220,10 +221,11 @@ public class Options {
      * @return the source url to copy
      */
     @Interpolate
-    String url() default NOT_DEFINED;
+    String url() default Options.NOT_DEFINED;
 
     /**
-     * Specifies the text to copy to the target file.
+     * Specifies the text to copy to the target file. Each entry will represent a different line in
+     * the target file.
      *
      * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
      * must be specified.
@@ -231,7 +233,7 @@ public class Options {
      * @return the content text to copy
      */
     @Interpolate
-    String content() default NOT_DEFINED;
+    String[] content() default Options.NOT_DEFINED;
 
     /**
      * Specifies the resource name to copy to the target file.
@@ -242,7 +244,7 @@ public class Options {
      * @return the resource name to copy
      */
     @Interpolate
-    String resource() default NOT_DEFINED;
+    String resource() default Options.NOT_DEFINED;
   }
 
   /**
@@ -616,15 +618,6 @@ public class Options {
   @Documented
   public @interface EnableRemoteDebugging {
     public static final String PROPERTY_KEY = "waitForDebug";
-  }
-
-  /** Defines several {@link UpdateFile} annotations. */
-  @Target(ElementType.TYPE)
-  @Retention(RetentionPolicy.RUNTIME)
-  @Inherited
-  @Documented
-  @interface UpdateFiles {
-    UpdateFile[] value();
   }
 
   /** This interface is defined purely to provide scoping. */

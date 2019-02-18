@@ -13,13 +13,11 @@
  */
 package org.codice.dominion.pax.exam.internal;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -34,7 +32,6 @@ import org.codice.dominion.interpolate.InterpolationException;
 import org.codice.dominion.options.Option;
 import org.codice.dominion.options.OptionException;
 import org.codice.dominion.options.karaf.KarafOptions;
-import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileRetractOption;
 import org.codice.dominion.pax.exam.options.PaxExamOption;
 import org.codice.test.commons.ReflectionUtils;
 import org.codice.test.commons.ReflectionUtils.AnnotationEntry;
@@ -56,9 +53,11 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
   private static final Logger LOGGER = LoggerFactory.getLogger(DominionConfigurationFactory.class);
 
   // thread locals are the only way I can get the required information passed into this factory
-  // from inside PaxExam driver
+  // from inside PaxExam driver and back
   private static final ThreadLocal<Object> THREAD_LOCAL_TEST_INSTANCE = new ThreadLocal<>();
   private static final ThreadLocal<PaxExamDriverInterpolator> THREAD_LOCAL_INTERPOLATOR =
+      new ThreadLocal<>();
+  private static final ThreadLocal<DominionConfigurationFactory> THREAD_LOCAL_CONFIG =
       new ThreadLocal<>();
 
   private final PaxExamDriverInterpolator interpolator;
@@ -68,8 +67,6 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
   private final Class<?> testClass;
 
   @Nullable private volatile AnnotationOptions options = null;
-
-  @Nullable private volatile KarafDistributionBaseConfigurationOption distribution;
 
   public DominionConfigurationFactory() {
     this.testInstance = DominionConfigurationFactory.THREAD_LOCAL_TEST_INSTANCE.get();
@@ -82,6 +79,9 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
   @Override
   public org.ops4j.pax.exam.Option[] createConfiguration() {
     LOGGER.debug("{}::createConfiguration()", this);
+    // save our instance back to the thread local to give a chance to the probe runner to retrieve
+    // it after staging and continue extracting info from it
+    DominionConfigurationFactory.setConfigInfo(this);
     // to delay expansion of options until PaxExam searches for them, we are forced to wrap our
     // logic inside a CompositeOption. In addition each extension will also be managed by its own
     // CompositeOption such that if we cannot interpolate everything (e.g. reference to {karaf.home}
@@ -101,12 +101,11 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
     LOGGER.debug("{}::createConfiguration() - karaf distribution = {}", this, distro);
     interpolator.setDistribution(distro);
     this.options = opts;
-    this.distribution = distro;
     return new org.ops4j.pax.exam.Option[] {opts};
   }
 
   /**
-   * Gets the interpolator associated with this configuration fatory.
+   * Gets the interpolator associated with this configuration factory.
    *
    * @return the interpolator associated with this configuration factory
    */
@@ -125,74 +124,28 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
 
   // called when we are just about to start the container and all other options have been processed
   // by PaxExam
-  void preStart() {
-    LOGGER.debug("{}::preStart()", this);
+  void processPreStartOptions() {
+    LOGGER.debug("{}::processPreStartOptions()", this);
     try {
-      processFileRetractOptions();
-    } catch (IOException e) {
+      new KarafDistributionConfigurationFileRetractOptionProcessor(options).process();
+    } catch (DominionException e) {
+      throw e;
+    } catch (Exception e) {
       throw new DominionException("Problem starting container", e);
     }
   }
 
-  private void processFileRetractOptions() throws IOException {
-    LOGGER.debug("{}::processFileRetractOptions()", this);
-    final Map<String, List<KarafDistributionConfigurationFileRetractOption>> configs =
-        options
-            .options(KarafDistributionConfigurationFileRetractOption.class)
-            .collect(
-                Collectors.groupingBy(
-                    KarafDistributionConfigurationFileRetractOption::getConfigurationFilePath));
-    // see KarafTestContainer.updateUserSetProperties() for logic on how to find the location of a
-    // config file
-    final File karafHome = interpolator.getKarafHome().toFile();
-    final String karafData = distribution.getKarafData();
-    final String karafEtc = distribution.getKarafEtc();
-
-    for (final Map.Entry<String, List<KarafDistributionConfigurationFileRetractOption>> e :
-        configs.entrySet()) {
-      final String configFile = e.getKey();
-      final List<KarafDistributionConfigurationFileRetractOption> optionsToApply = e.getValue();
-      final DominionKarafConfigurationFile karafConfigFile =
-          getConfigFile(configFile, karafHome, karafData, karafEtc);
-      boolean store = false;
-
-      karafConfigFile.load();
-      for (final KarafDistributionConfigurationFileRetractOption optionToApply : optionsToApply) {
-        if (karafConfigFile.retract(optionToApply.getKey(), optionToApply.getValue())) {
-          store = true;
-        }
-      }
-      if (store) {
-        karafConfigFile.store();
-      }
+  // called when the container was started and the probe has registered back to the driver
+  // note that it doesn't mean the startup script was completely process
+  void processPostStartOptions() {
+    LOGGER.debug("{}::processPostStartOptions()", this);
+    try {
+      new KarafSshCommandOptionProcessor(options).process();
+    } catch (DominionException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new DominionException("Problem starting container", e);
     }
-  }
-
-  private DominionKarafConfigurationFile getConfigFile(
-      String configFile, File karafHome, String karafData, String karafEtc) {
-    final DominionKarafConfigurationFile karafConfigFile =
-        DominionKarafConfigurationFileFactory.create(karafHome, configFile);
-
-    if (!karafConfigFile.exists()) {
-      // some property options will come from Pax-Exam and use the default data/etc locations,
-      // in those cases when the property file doesn't exist and we have custom data/etc paths
-      // we need to consider the custom location and use that - but only if it matches+exists
-      DominionKarafConfigurationFile customConfigFile = null;
-
-      if (configFile.startsWith("data/") && !configFile.startsWith(karafData)) {
-        customConfigFile =
-            DominionKarafConfigurationFileFactory.create(
-                karafHome, karafData + configFile.substring(4));
-      } else if (configFile.startsWith("etc/") && !configFile.startsWith(karafEtc)) {
-        customConfigFile =
-            DominionKarafConfigurationFileFactory.create(
-                karafHome, karafEtc + configFile.substring(3));
-      }
-      if ((customConfigFile != null) && customConfigFile.exists()) {
-        return customConfigFile;
-      }
-    }
-    return karafConfigFile;
   }
 
   private boolean filterConditionAnnotations(AnnotationEntry<?> entry) {
@@ -247,9 +200,12 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
     }
   }
 
-  /** Wraps all annotations defining options into one single composite option. */
-  private class AnnotationOptions implements CompositeOption {
+  /**
+   * Wraps all annotations defining options into one single composite option for a given container.
+   */
+  public class AnnotationOptions implements CompositeOption {
     private final List<ExtensionOption> options;
+    private final KarafDistributionBaseConfigurationOption distribution;
 
     AnnotationOptions(Stream<AnnotationEntry<Option.Annotation>> annotations) {
       this.options =
@@ -257,9 +213,6 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
               .map(ExtensionOption::new)
               .flatMap(ExtensionOption::extensions)
               .collect(Collectors.toList());
-    }
-
-    public KarafDistributionBaseConfigurationOption getDistribution() {
       final KarafDistributionBaseConfigurationOption[] distros =
           options
               .stream()
@@ -280,7 +233,55 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
                 + " with @"
                 + KarafOptions.DistributionConfiguration.class.getSimpleName());
       }
-      return distros[0];
+      this.distribution = distros[0];
+    }
+
+    /**
+     * Gets the distribution option that was configured for the current container and OS.
+     *
+     * @return the distribution option that was configured for the current container and OS
+     */
+    public KarafDistributionBaseConfigurationOption getDistribution() {
+      return distribution;
+    }
+
+    /**
+     * Gets the interpolator associated with this set of options.
+     *
+     * @return the interpolator associated with this set of options
+     */
+    public PaxExamDriverInterpolator getInterpolator() {
+      return interpolator;
+    }
+
+    /**
+     * Gets all configured options of a given type for the corresponding container.
+     *
+     * @param <T> the type of options to retrieve
+     * @param optionType the type of options to retrieve
+     * @return a stream of all configured options of the specified type
+     * @throws IllegalStateException if called before options have been created by PaxExam
+     */
+    public <T extends org.ops4j.pax.exam.Option> Stream<T> options(Class<T> optionType) {
+      return Stream.of(
+              options.stream().map(ExtensionOption::getOptions).flatMap(Stream::of),
+              Stream.of(interpolator.getOptions()),
+              preStartHookOptions())
+          .flatMap(Function.identity())
+          .filter(optionType::isInstance)
+          .map(optionType::cast);
+    }
+
+    /**
+     * Gets a single configured option of a given type for the corresponding container.
+     *
+     * @param <T> the type of option to retrieve
+     * @param optionType the type of option to retrieve
+     * @return a configured option of the specified type or empty if none configured
+     * @throws IllegalStateException if called before options have been created by PaxExam
+     */
+    public <T extends org.ops4j.pax.exam.Option> Optional<T> getOption(Class<T> optionType) {
+      return options(optionType).findFirst();
     }
 
     @Override
@@ -293,16 +294,6 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
       return "AnnotationOptions" + options;
     }
 
-    <T extends org.ops4j.pax.exam.Option> Stream<T> options(Class<T> optionType) {
-      return Stream.of(
-              options.stream().map(ExtensionOption::getOptions).flatMap(Stream::of),
-              Stream.of(interpolator.getOptions()),
-              preStartHookOptions())
-          .flatMap(Function.identity())
-          .filter(optionType::isInstance)
-          .map(optionType::cast);
-    }
-
     private Stream<org.ops4j.pax.exam.Option> preStartHookOptions() {
       return Stream.of(
           // this option is only used to be called back just before the container is started
@@ -311,7 +302,7 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
             @Override
             @SuppressWarnings("squid:S2447" /* per PaxExam API definition for this class */)
             public Boolean getEnableKarafMBeanServerBuilder() {
-              preStart();
+              processPreStartOptions();
               return null; // make sure we don't affect the end result
             }
           });
@@ -511,9 +502,18 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
     DominionConfigurationFactory.THREAD_LOCAL_TEST_INSTANCE.set(testInstance);
   }
 
+  static void setConfigInfo(DominionConfigurationFactory factory) {
+    DominionConfigurationFactory.THREAD_LOCAL_CONFIG.set(factory);
+  }
+
+  static DominionConfigurationFactory getConfigInfo() {
+    return DominionConfigurationFactory.THREAD_LOCAL_CONFIG.get();
+  }
+
   static void clearTestInfo() {
     DominionConfigurationFactory.THREAD_LOCAL_INTERPOLATOR.remove();
     DominionConfigurationFactory.THREAD_LOCAL_TEST_INSTANCE.remove();
+    DominionConfigurationFactory.THREAD_LOCAL_CONFIG.remove();
   }
 
   static String toString(Stream<? extends org.ops4j.pax.exam.Option> options) {

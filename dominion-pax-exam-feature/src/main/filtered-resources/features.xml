@@ -20,10 +20,11 @@
     <repository>mvn:org.ops4j.pax.exam/pax-exam-features/${pax.exam.version}/xml</repository>
 
     <feature name="dominion-pax-exam" version="${project.version}">
-        <feature>exam-no-junit</feature>
+        <!-- start level of 1 is to ensure it starts before PaxExam JUnit invoker -->
+        <bundle start-level="1">mvn:org.codice.test/dominion-pax-exam-invokers/${project.version}
+        </bundle>
 
-        <bundle>mvn:biz.aQute.bnd/biz.aQute.bndlib/${bndlib.version}</bundle>
-        <bundle>mvn:org.ops4j.pax.tinybundles/tinybundles/${pax.tinybundles.version}</bundle>
+        <feature>exam</feature>
 
         <bundle>mvn:org.apache.commons/commons-lang3/${commons-lang3.version}</bundle>
         <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
@@ -38,9 +39,5 @@
         <bundle>mvn:org.codice.test/pax-exam-extensions/${project.version}</bundle>
         <bundle>mvn:org.codice.test/dominion/${project.version}</bundle>
         <bundle>mvn:org.codice.test/dominion-pax-exam/${project.version}</bundle>
-
-        <!-- start level of 1 is to ensure it starts before PaxExam JUnit invoker -->
-        <bundle start-level="1">mvn:org.codice.test/dominion-pax-exam-invokers/${project.version}
-        </bundle>
     </feature>
 </features>

@@ -19,9 +19,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionConfigurationFileReplacementOption;
 
@@ -49,17 +53,40 @@ public class KarafDistributionConfigurationFileReplaceOption
   /**
    * Creates a new file replace PaxExam option.
    *
+   * @param interpolator the interpolator from which to retrieve line separator
    * @param configurationFilePath the configuration file path to replace
    * @param type the type of the source (any except for {@link Type#RESOURCE})
    * @param source the source where to get the content
    * @throws IllegalArgumentException if <code>type</code> is {@link Type#RESOURCE}
-   * @throws IOException if an I/O error occurs while retrieving the source
+   * @throws IOException if an I/O error occurs while retrieving/creating the source
    */
   public KarafDistributionConfigurationFileReplaceOption(
-      String configurationFilePath, Type type, String source) throws IOException {
+      PaxExamInterpolator interpolator, String configurationFilePath, Type type, String source)
+      throws IOException {
     this(
         configurationFilePath,
-        KarafDistributionConfigurationFileReplaceOption.toFile(type, source, null));
+        KarafDistributionConfigurationFileReplaceOption.toFile(interpolator, type, source, null));
+  }
+
+  /**
+   * Creates a new file replace PaxExam option.
+   *
+   * @param interpolator the interpolator from which to retrieve line separator
+   * @param configurationFilePath the configuration file path to replace
+   * @param content the source where to get the content where each string represents a separate line
+   *     to be added
+   * @throws IOException if an I/O error occurs while creating the source
+   */
+  public KarafDistributionConfigurationFileReplaceOption(
+      PaxExamInterpolator interpolator, String configurationFilePath, String... content)
+      throws IOException {
+    this(
+        interpolator,
+        configurationFilePath,
+        Type.CONTENT,
+        Stream.of(content)
+            .map(c -> StringUtils.appendIfMissing(c, interpolator.getLineSeparator()))
+            .collect(Collectors.joining()));
   }
 
   /**
@@ -68,7 +95,7 @@ public class KarafDistributionConfigurationFileReplaceOption
    * @param configurationFilePath the configuration file path to replace
    * @param source the source where to get the content
    * @param resourceLoader the resource loader to use if required
-   * @throws IOException if an I/O error occurs while retrieving the source
+   * @throws IOException if an I/O error occurs while retrieving/creating the source
    */
   public KarafDistributionConfigurationFileReplaceOption(
       String configurationFilePath, String source, ResourceLoader resourceLoader)
@@ -76,7 +103,7 @@ public class KarafDistributionConfigurationFileReplaceOption
     this(
         configurationFilePath,
         KarafDistributionConfigurationFileReplaceOption.toFile(
-            Type.RESOURCE, source, resourceLoader));
+            null, Type.RESOURCE, source, resourceLoader));
   }
 
   /**
@@ -90,13 +117,21 @@ public class KarafDistributionConfigurationFileReplaceOption
     super(configurationFilePath, source);
   }
 
-  protected static File toFile(Type type, String source, @Nullable ResourceLoader resourceLoader)
+  protected static File toFile(
+      @Nullable PaxExamInterpolator interpolator,
+      Type type,
+      String source,
+      @Nullable ResourceLoader resourceLoader)
       throws IOException {
     switch (type) {
       case URL:
         return KarafDistributionConfigurationFileReplaceOption.fromUrlToFile(source);
       case CONTENT:
-        return KarafDistributionConfigurationFileReplaceOption.fromContentToFile(source);
+        if (interpolator == null) {
+          throw new IllegalArgumentException("must provide an interpolator to load content");
+        }
+        return KarafDistributionConfigurationFileReplaceOption.fromContentToFile(
+            interpolator, source);
       case RESOURCE:
         if (resourceLoader == null) {
           throw new IllegalArgumentException("must provide a resource loader to load resources");
@@ -149,8 +184,12 @@ public class KarafDistributionConfigurationFileReplaceOption
     }
   }
 
-  protected static File fromContentToFile(String content) throws IOException {
-    try (final InputStream is = new ByteArrayInputStream(content.getBytes("UTF-8"))) {
+  protected static File fromContentToFile(PaxExamInterpolator interpolator, String content)
+      throws IOException {
+    try (final InputStream is =
+        new ByteArrayInputStream(
+            StringUtils.appendIfMissing(content, interpolator.getLineSeparator())
+                .getBytes("UTF-8"))) {
       return KarafDistributionConfigurationFileReplaceOption.fromStreamToFile(is);
     }
   }

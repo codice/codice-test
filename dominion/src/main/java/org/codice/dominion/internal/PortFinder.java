@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.codice.dominion.interpolate.InterpolationException;
+import org.codice.dominion.interpolate.Interpolator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +38,8 @@ public class PortFinder implements Closeable {
   @Nullable
   private final transient ServerSocket placeHolderSocket;
 
+  private final String container;
+
   private final int basePort;
 
   private final int blockSize;
@@ -47,6 +50,7 @@ public class PortFinder implements Closeable {
 
   @SuppressWarnings("unused" /* used by Gson */)
   public PortFinder() {
+    this.container = Interpolator.DEFAULT_CONTAINER;
     this.blockSize = -1;
     this.placeHolderSocket = null;
     this.basePort = -1;
@@ -56,8 +60,13 @@ public class PortFinder implements Closeable {
   /**
    * Default constructor. Finds and reserves a range of <code>blockSize</code> ports starting at or
    * after <code>basePort</code>.
+   *
+   * @param container the name of the container for which to create a port finder
+   * @param basePort the base port from which to find a starting range for available ports
+   * @param blockSize the number of ports in the set of ports to reserve
    */
-  public PortFinder(int basePort, int blockSize) {
+  public PortFinder(String container, int basePort, int blockSize) {
+    this.container = container;
     this.blockSize = blockSize;
     this.placeHolderSocket = findServerSocket(basePort, blockSize);
     this.basePort = placeHolderSocket.getLocalPort();
@@ -83,10 +92,14 @@ public class PortFinder implements Closeable {
 
       if (num >= basePort + blockSize) {
         throw new InterpolationException(
-            "Failed to reserve '" + portKey + "' port; too many ports requested");
+            "Failed to reserve '"
+                + portKey
+                + "' port for '"
+                + container
+                + "'; too many ports requested");
       }
       registeredPorts.put(portKey, num);
-      LOGGER.info("Reserving '{}' port: {}", portKey, num);
+      LOGGER.info("Reserving '{}' port: {} for '{}' container", portKey, num, container);
       return num;
     }
   }
@@ -111,7 +124,7 @@ public class PortFinder implements Closeable {
         throw e;
       }
     } catch (Exception e) {
-      LOGGER.debug("Port {} unavailable, trying {}", portToTry, portToTry + blockSize);
+      LOGGER.debug("Starting port {} unavailable, trying {}", portToTry, portToTry + blockSize);
       return findServerSocket(portToTry + blockSize, blockSize);
     }
   }

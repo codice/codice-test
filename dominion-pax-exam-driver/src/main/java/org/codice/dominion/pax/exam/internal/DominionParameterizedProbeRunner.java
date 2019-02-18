@@ -88,6 +88,9 @@ public class DominionParameterizedProbeRunner extends BlockJUnit4ClassRunner {
 
   private final PaxExamDriverInterpolator interpolator;
 
+  @Nullable // will be set after staging
+  private volatile DominionConfigurationFactory config = null;
+
   public DominionParameterizedProbeRunner(Class<?> testClass) throws InitializationError {
     super(testClass);
     LOGGER.debug("DominionParameterizedProbeRunner({})", testClass.getName());
@@ -133,6 +136,7 @@ public class DominionParameterizedProbeRunner extends BlockJUnit4ClassRunner {
       DominionConfigurationFactory.setTestInfo(interpolator, testInstance);
       this.stagedReactor = manager.stageReactor();
       LOGGER.debug("{}::stage() - staged reactor = {}", this, stagedReactor);
+      this.config = DominionConfigurationFactory.getConfigInfo();
     } finally {
       DominionConfigurationFactory.clearTestInfo();
     }
@@ -153,6 +157,8 @@ public class DominionParameterizedProbeRunner extends BlockJUnit4ClassRunner {
     LOGGER.info("Running test class {}", testClass.getName());
     try {
       manager.beforeClass(stagedReactor, testClass);
+      // now let the config factory know the container was started
+      config.processPostStartOptions();
       super.run(notifier);
     } catch (VirtualMachineError e) {
       throw e;
@@ -198,7 +204,9 @@ public class DominionParameterizedProbeRunner extends BlockJUnit4ClassRunner {
     final List<FrameworkMethod> befores = getTestClass().getAnnotatedMethods(BeforeClass.class);
 
     LOGGER.debug("{}::withBeforeClasses({}) - count={}", this, statement, befores.size());
-    return befores.isEmpty() ? statement : new RunBeforeClasses(statement);
+    // register the @BeforeClass whether or not methods were annotated. This will give a chance
+    // to the probe runner to do prep work of its own
+    return new RunBeforeClasses(statement);
   }
 
   @Override
@@ -206,7 +214,9 @@ public class DominionParameterizedProbeRunner extends BlockJUnit4ClassRunner {
     final List<FrameworkMethod> afters = getTestClass().getAnnotatedMethods(AfterClass.class);
 
     LOGGER.debug("{}::withAfterClasses({}) - count={}", this, statement, afters.size());
-    return afters.isEmpty() ? statement : new RunAfterClasses(statement);
+    // register the @BeforeClass whether or not methods were annotated. This will give a chance
+    // to the probe runner to do cleanup work of its own
+    return new RunAfterClasses(statement);
   }
 
   /**

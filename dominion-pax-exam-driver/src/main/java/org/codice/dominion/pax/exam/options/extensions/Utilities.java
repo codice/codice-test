@@ -33,6 +33,10 @@ public class Utilities {
     return !Options.NOT_DEFINED.equals(value);
   }
 
+  public static boolean isDefined(String[] value) {
+    return (value.length > 0) && !Options.NOT_DEFINED.equals(value[0]);
+  }
+
   public static String resolve(String value, String dflt) {
     return Utilities.isDefined(value) ? value : dflt;
   }

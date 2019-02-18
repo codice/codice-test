@@ -22,7 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import org.apache.commons.io.FileUtils;
 import org.codice.dominion.DominionException;
-import org.codice.dominion.options.Options.UpdateFile.Location;
+import org.codice.dominion.options.Options.Location;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.resources.ResourceLoader;
 
@@ -44,7 +44,7 @@ public class KarafDistributionConfigurationFileContentOption
    * @param type the type of the source (any except for {@link Type#RESOURCE})
    * @param source the source where to get the content
    * @throws IllegalArgumentException if <code>type</code> is {@link Type#RESOURCE}
-   * @throws IOException if an I/O error occurs while retrieving the source
+   * @throws IOException if an I/O error occurs while retrieving/creating the source
    */
   public KarafDistributionConfigurationFileContentOption(
       PaxExamInterpolator interpolator,
@@ -53,7 +53,27 @@ public class KarafDistributionConfigurationFileContentOption
       Type type,
       String source)
       throws IOException {
-    super(configurationFilePath, type, source);
+    super(interpolator, configurationFilePath, type, source);
+    this.interpolator = interpolator;
+    this.location = location;
+  }
+
+  /**
+   * Creates a new shell.init.script content PaxExam option.
+   *
+   * @param interpolator the interpolator from which to retrieve Karaf directory locations
+   * @param location the location in the file where to add the content
+   * @param configurationFilePath the configuration file path to add content to
+   * @param content the source content where each string represents a separate line to be added
+   * @throws IOException if an I/O error occurs while creating the source
+   */
+  public KarafDistributionConfigurationFileContentOption(
+      PaxExamInterpolator interpolator,
+      Location location,
+      String configurationFilePath,
+      String... content)
+      throws IOException {
+    super(interpolator, configurationFilePath, content);
     this.interpolator = interpolator;
     this.location = location;
   }
@@ -64,7 +84,7 @@ public class KarafDistributionConfigurationFileContentOption
    * @param interpolator the interpolator from which to retrieve Karaf directory locations
    * @param location the location in the file where to add the content
    * @param configurationFilePath the configuration file path to add content to
-   * @param source the source where to get the content
+   * @param resource the resource where to get the content
    * @param resourceLoader the resource loader to use if required
    * @throws IOException if an I/O error occurs while retrieving the source
    */
@@ -72,10 +92,10 @@ public class KarafDistributionConfigurationFileContentOption
       PaxExamInterpolator interpolator,
       Location location,
       String configurationFilePath,
-      String source,
+      String resource,
       ResourceLoader resourceLoader)
       throws IOException {
-    super(configurationFilePath, source, resourceLoader);
+    super(configurationFilePath, resource, resourceLoader);
     this.interpolator = interpolator;
     this.location = location;
   }
