@@ -14,14 +14,75 @@
 package org.codice.dominion.pax.exam.internal;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.Collection;
-import org.ops4j.pax.exam.karaf.container.internal.KarafConfigFile;
+import java.util.Dictionary;
+import java.util.Hashtable;
+import javax.annotation.Nullable;
+import org.apache.felix.cm.file.ConfigurationHandler;
 
-public class DominionKarafConfigFile extends KarafConfigFile
-    implements DominionKarafConfigurationFile {
+public class DominionKarafConfigFile extends DominionKarafConfigurationFile {
+  private volatile Dictionary configuration = new Hashtable();
+
   public DominionKarafConfigFile(File karafHome, String location) {
     super(karafHome, location);
+  }
+
+  @Override
+  public void store() throws IOException {
+    try (final FileOutputStream os = new FileOutputStream(file)) {
+      ConfigurationHandler.write(os, configuration);
+    }
+  }
+
+  @Override
+  public void extend(String key, Object value) {
+    final Object current = configuration.get(key);
+
+    if (current == null) {
+      final Object array = Array.newInstance(value.getClass(), 1);
+
+      Array.set(array, 0, value);
+      configuration.put(key, array);
+    } else {
+      final Class clazz = current.getClass();
+
+      if (clazz.isArray()) {
+        final int length = Array.getLength(current);
+        final Object array = Array.newInstance(clazz.getComponentType(), length + 1);
+
+        System.arraycopy(current, 0, array, 0, length);
+        Array.set(array, length, value);
+        configuration.put(key, array);
+      } else if (current instanceof Collection) {
+        ((Collection) current).add(value);
+      } else {
+        throw new IllegalArgumentException(String.format("Cannot extend %s by %s.", key, value));
+      }
+    }
+  }
+
+  @Override
+  public void load() throws IOException {
+    if (!file.exists()) {
+      return;
+    }
+    try (final FileInputStream is = new FileInputStream(file)) {
+      this.configuration = ConfigurationHandler.read(is);
+    }
+  }
+
+  @Override
+  public void put(String key, Object value) {
+    configuration.put(key, value);
+  }
+
+  @Override
+  public boolean remove(String key) {
+    return configuration.remove(key) != null;
   }
 
   @Override
@@ -55,6 +116,12 @@ public class DominionKarafConfigFile extends KarafConfigFile
       return true;
     }
     return false;
+  }
+
+  @Nullable
+  @Override
+  public Object get(final String key) {
+    return configuration.get(key);
   }
 
   private static Object retract(Object array, int index) {

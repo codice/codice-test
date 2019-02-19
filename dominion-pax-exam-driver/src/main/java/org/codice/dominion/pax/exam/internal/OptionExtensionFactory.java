@@ -29,6 +29,7 @@ import org.codice.dominion.pax.exam.options.extensions.InstallExtension;
 import org.codice.dominion.pax.exam.options.extensions.KeepCachesExtension;
 import org.codice.dominion.pax.exam.options.extensions.KeepRuntimeFolderExtension;
 import org.codice.dominion.pax.exam.options.extensions.PropagateSystemPropertyExtension;
+import org.codice.dominion.pax.exam.options.extensions.RemoveFromConfigFileExtension;
 import org.codice.dominion.pax.exam.options.extensions.ReplaceFileExtension;
 import org.codice.dominion.pax.exam.options.extensions.SetFrameworkPropertyExtension;
 import org.codice.dominion.pax.exam.options.extensions.SetLogLevelExtension;
@@ -42,6 +43,8 @@ import org.codice.dominion.pax.exam.options.extensions.VMOptionExtension;
 import org.codice.dominion.pax.exam.options.karaf.extensions.DistributionConfigurationExtension;
 import org.codice.dominion.pax.exam.options.karaf.extensions.ExecuteShellCommandExtension;
 import org.codice.dominion.pax.exam.options.karaf.extensions.FeatureExtension;
+import org.codice.dominion.pax.exam.options.karaf.extensions.LocalGroupExtension;
+import org.codice.dominion.pax.exam.options.karaf.extensions.LocalUserExtension;
 import org.codice.dominion.pax.exam.options.karaf.extensions.UpdateShellInitScriptExtension;
 
 /** Factory implementation for PaxExam option extensions. */
@@ -59,6 +62,7 @@ public class OptionExtensionFactory implements Option.Factory {
     map.put(Options.KeepCaches.class, new KeepCachesExtension());
     map.put(Options.KeepRuntimeFolder.class, new KeepRuntimeFolderExtension());
     map.put(Options.PropagateSystemProperty.class, new PropagateSystemPropertyExtension());
+    map.put(Options.RemoveFromConfigFile.class, new RemoveFromConfigFileExtension());
     map.put(Options.ReplaceFile.class, new ReplaceFileExtension());
     map.put(Options.SetFrameworkProperty.class, new SetFrameworkPropertyExtension());
     map.put(Options.SetLogLevel.class, new SetLogLevelExtension());
@@ -73,6 +77,8 @@ public class OptionExtensionFactory implements Option.Factory {
     map.put(KarafOptions.DistributionConfiguration.class, new DistributionConfigurationExtension());
     map.put(KarafOptions.ExecuteShellCommand.class, new ExecuteShellCommandExtension());
     map.put(KarafOptions.Feature.class, new FeatureExtension());
+    map.put(KarafOptions.LocalGroup.class, new LocalGroupExtension());
+    map.put(KarafOptions.LocalUser.class, new LocalUserExtension());
     map.put(
         KarafOptions.SetLogLevel.class,
         new org.codice.dominion.pax.exam.options.karaf.extensions.SetLogLevelExtension());

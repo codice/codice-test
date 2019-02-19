@@ -47,6 +47,8 @@ import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
 import org.apache.sshd.common.util.io.EmptyInputStream;
 import org.apache.sshd.common.util.io.NoCloseOutputStream;
 import org.codice.dominion.options.OptionException;
+import org.codice.dominion.options.Options;
+import org.codice.dominion.options.karaf.UserRoles;
 import org.codice.dominion.pax.exam.internal.DominionConfigurationFactory.AnnotationOptions;
 import org.codice.dominion.pax.exam.options.KarafSshCommandOption;
 import org.slf4j.Logger;
@@ -55,7 +57,7 @@ import org.slf4j.LoggerFactory;
 /** Class used to process configured {@link KarafSshCommandOption}s. */
 public class KarafSshCommandOptionProcessor {
   private static final Logger LOGGER =
-      LoggerFactory.getLogger(KarafDistributionConfigurationFileRetractOptionProcessor.class);
+      LoggerFactory.getLogger(KarafDistributionConfigurationFilePostOptionProcessor.class);
 
   private static final String ROLE_DELIMITER = ",";
   private static final String GROUP_PREFIX = "_g_:";
@@ -117,14 +119,23 @@ public class KarafSshCommandOptionProcessor {
     this.idleTimeout =
         KarafSshCommandOptionProcessor.getLong(
             shellCfg, "sshIdleTimeout", KarafSshCommandOptionProcessor.DEFAULT_IDLE_TIMEOUT);
+    final String dominionUserId = interpolator.interpolate(Options.DOMINION_USER_ID);
     final Map.Entry<String, String> user =
         users
             .entrySet()
             .stream()
-            .filter(KarafSshCommandOptionProcessor::isUser)
+            .filter(e -> e.getKey().equals(dominionUserId))
             .filter(KarafSshCommandOptionProcessor::hasSshRole)
             .findAny()
-            .orElse(null);
+            .orElseGet(
+                () ->
+                    users
+                        .entrySet()
+                        .stream()
+                        .filter(KarafSshCommandOptionProcessor::isUser)
+                        .filter(KarafSshCommandOptionProcessor::hasSshRole)
+                        .findAny()
+                        .orElse(null));
 
     if (user == null) {
       throw new OptionException("no local users configured for ssh");
@@ -290,9 +301,9 @@ public class KarafSshCommandOptionProcessor {
       final int j = value.indexOf(KarafSshCommandOptionProcessor.ROLE_DELIMITER, i);
 
       if (j == -1) {
-        return "ssh".equals(value.substring(i));
+        return UserRoles.SSH.equals(value.substring(i));
       }
-      if ("ssh".equals(value.substring(i, j))) {
+      if (UserRoles.SSH.equals(value.substring(i, j))) {
         return true;
       }
       i = j + 1;

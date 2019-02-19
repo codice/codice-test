@@ -24,6 +24,8 @@ import java.util.concurrent.TimeUnit;
 import org.codice.dominion.conditions.Conditions;
 import org.codice.dominion.interpolate.Interpolate;
 import org.codice.dominion.options.Option.Annotation;
+import org.codice.dominion.options.karaf.KarafOptions;
+import org.codice.dominion.options.karaf.UserRoles;
 
 /**
  * This class defines annotations that can be used to configure containers. It is solely used for
@@ -35,6 +37,9 @@ public class Options {
    * attribute is not yet defined.
    */
   public static final String NOT_DEFINED = "_not_defined_";
+
+  /** User id for the Dominion user installed. This string expects to be interpolated. */
+  public static final String DOMINION_USER_ID = "{dominion.user:-dominion}";
 
   /** Sets of possible locations in a file where to insert content. */
   public enum Location {
@@ -103,6 +108,21 @@ public class Options {
   }
 
   /** Option to install the Dominion driver specific configuration. */
+  // make sure we have at least one user capable of SSH to the container
+  @SuppressWarnings("squid:S2068" /* hard-coded password is for testing */)
+  @KarafOptions.LocalUser(
+    userId = Options.DOMINION_USER_ID,
+    password = "{dominion.password:-dominion}",
+    roles = {
+      UserRoles.GROUP,
+      UserRoles.ADMIN,
+      UserRoles.MANAGER,
+      UserRoles.VIEWER,
+      UserRoles.SYSTEM_ADMIN,
+      UserRoles.SYSTEM_BUNDLES,
+      UserRoles.SSH
+    }
+  )
   @Option.Annotation
   @Target(ElementType.TYPE)
   @Retention(RetentionPolicy.RUNTIME)
@@ -309,6 +329,32 @@ public class Options {
        */
       REMOVE
     }
+  }
+
+  /** This option allows to remove a specific key (and its value) from a configuration file */
+  @Option.Annotation
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Inherited
+  @Documented
+  @Repeatable(Options.Repeatables.RemoveFromConfigFiles.class)
+  public @interface RemoveFromConfigFile {
+    /**
+     * Specifies the target configuration file to update relative from the home directory where the
+     * distribution was expanded (e.g. <code>"{karaf.home}"</code>).
+     *
+     * @return the relative target config file to update
+     */
+    @Interpolate
+    String target();
+
+    /**
+     * Specifies the config key to remove.
+     *
+     * @return the config key to remove
+     */
+    @Interpolate
+    String key();
   }
 
   /** Option to set a system property. */
@@ -647,6 +693,15 @@ public class Options {
     @Documented
     @interface UpdateConfigFiles {
       UpdateConfigFile[] value();
+    }
+
+    /** Defines several {@link RemoveFromConfigFile} annotations. */
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Inherited
+    @Documented
+    @interface RemoveFromConfigFiles {
+      Options.RemoveFromConfigFile[] value();
     }
 
     @Target(ElementType.TYPE)

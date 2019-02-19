@@ -45,6 +45,10 @@ public class Utilities {
     return Utilities.isDefined(value) ? (T) function.apply(value) : t;
   }
 
+  public static <T> T applyIfDefined(String[] value, T t, Function<String[], ?> function) {
+    return Utilities.isDefined(value) ? (T) function.apply(value) : t;
+  }
+
   public static <T, S> T mapAndApplyIfDefined(
       String value, T t, Function<String, S> mapper, Function<S, ?> function) {
     return Utilities.isDefined(value) ? (T) function.apply(mapper.apply(value)) : t;

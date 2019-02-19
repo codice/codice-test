@@ -19,15 +19,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.codice.dominion.pax.exam.internal.DominionConfigurationFactory.AnnotationOptions;
+import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFilePostOption;
+import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileRemoveOption;
 import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileRetractOption;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionBaseConfigurationOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Class used to process configured {@link KarafDistributionConfigurationFileRetractOption}s. */
-public class KarafDistributionConfigurationFileRetractOptionProcessor {
+public class KarafDistributionConfigurationFilePostOptionProcessor {
   private static final Logger LOGGER =
-      LoggerFactory.getLogger(KarafDistributionConfigurationFileRetractOptionProcessor.class);
+      LoggerFactory.getLogger(KarafDistributionConfigurationFilePostOptionProcessor.class);
 
   private final AnnotationOptions options;
 
@@ -35,7 +37,7 @@ public class KarafDistributionConfigurationFileRetractOptionProcessor {
 
   private final PaxExamDriverInterpolator interpolator;
 
-  public KarafDistributionConfigurationFileRetractOptionProcessor(AnnotationOptions options) {
+  public KarafDistributionConfigurationFilePostOptionProcessor(AnnotationOptions options) {
     this.options = options;
     this.distribution = options.getDistribution();
     this.interpolator = options.getInterpolator();
@@ -48,31 +50,39 @@ public class KarafDistributionConfigurationFileRetractOptionProcessor {
    */
   public void process() throws IOException {
     LOGGER.debug("{}::process()", this);
-    final Map<String, List<KarafDistributionConfigurationFileRetractOption>> configs =
-        options
-            .options(KarafDistributionConfigurationFileRetractOption.class)
+    final Map<String, List<KarafDistributionConfigurationFilePostOption>> options =
+        this.options
+            .options(KarafDistributionConfigurationFilePostOption.class)
             .collect(
                 Collectors.groupingBy(
-                    KarafDistributionConfigurationFileRetractOption::getConfigurationFilePath));
+                    KarafDistributionConfigurationFilePostOption::getConfigurationFilePath));
     // see KarafTestContainer.updateUserSetProperties() for logic on how to find the location of a
     // config file
     final File karafHome = interpolator.getKarafHome().toFile();
     final String karafData = distribution.getKarafData();
     final String karafEtc = distribution.getKarafEtc();
 
-    for (final Map.Entry<String, List<KarafDistributionConfigurationFileRetractOption>> e :
-        configs.entrySet()) {
+    for (final Map.Entry<String, List<KarafDistributionConfigurationFilePostOption>> e :
+        options.entrySet()) {
       final String configFile = e.getKey();
-      final List<KarafDistributionConfigurationFileRetractOption> optionsToApply = e.getValue();
+      final List<KarafDistributionConfigurationFilePostOption> optionsToApply = e.getValue();
       final DominionKarafConfigurationFile karafConfigFile =
-          KarafDistributionConfigurationFileRetractOptionProcessor.getConfigFile(
+          KarafDistributionConfigurationFilePostOptionProcessor.getConfigFile(
               configFile, karafHome, karafData, karafEtc);
       boolean store = false;
 
       karafConfigFile.load();
-      for (final KarafDistributionConfigurationFileRetractOption optionToApply : optionsToApply) {
-        if (karafConfigFile.retract(optionToApply.getKey(), optionToApply.getValue())) {
-          store = true;
+      for (final KarafDistributionConfigurationFilePostOption optionToApply : optionsToApply) {
+        if (optionToApply instanceof KarafDistributionConfigurationFileRetractOption) {
+          if (karafConfigFile.retract(
+              optionToApply.getKey(),
+              ((KarafDistributionConfigurationFileRetractOption) optionToApply).getValue())) {
+            store = true;
+          }
+        } else if (optionToApply instanceof KarafDistributionConfigurationFileRemoveOption) {
+          if (karafConfigFile.remove(optionToApply.getKey())) {
+            store = true;
+          }
         }
       }
       if (store) {

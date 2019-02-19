@@ -13,7 +13,6 @@
  */
 package org.codice.dominion.pax.exam.options;
 
-import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.karaf.options.ConfigurationPointer;
 
 /**
@@ -29,29 +28,20 @@ import org.ops4j.pax.exam.karaf.options.ConfigurationPointer;
  */
 // cannot extend KarafDistributionConfigurationFileOption as it will be handle as an extend option
 // by PaxExam
-public class KarafDistributionConfigurationFileRetractOption implements Option {
-  private final String configurationFilePath;
-  private final String key;
+public class KarafDistributionConfigurationFileRetractOption
+    extends KarafDistributionConfigurationFilePostOption {
   private final Object value;
 
   public KarafDistributionConfigurationFileRetractOption(
       ConfigurationPointer pointer, Object value) {
-    this(pointer.getConfigurationFilePath(), pointer.getKey(), value);
+    super(pointer);
+    this.value = value;
   }
 
   public KarafDistributionConfigurationFileRetractOption(
       String configurationFilePath, String key, Object value) {
-    this.configurationFilePath = configurationFilePath;
-    this.key = key;
+    super(configurationFilePath, key);
     this.value = value;
-  }
-
-  public String getConfigurationFilePath() {
-    return configurationFilePath;
-  }
-
-  public String getKey() {
-    return key;
   }
 
   public Object getValue() {

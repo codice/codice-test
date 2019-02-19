@@ -31,6 +31,8 @@ import org.codice.dominion.interpolate.ContainerNotStagedException;
 import org.codice.dominion.interpolate.InterpolationException;
 import org.codice.dominion.options.Option;
 import org.codice.dominion.options.OptionException;
+import org.codice.dominion.options.Options;
+import org.codice.dominion.options.Options.MavenUrl;
 import org.codice.dominion.options.karaf.KarafOptions;
 import org.codice.dominion.pax.exam.options.PaxExamOption;
 import org.codice.test.commons.ReflectionUtils;
@@ -49,6 +51,17 @@ import org.slf4j.LoggerFactory;
  * Implementation of PaxExam {@link ConfigurationFactory} capable of extracting all {@link
  * Option.Annotation} meta-annotations in order to configure the container.
  */
+@KarafOptions.Feature(
+  repository =
+      @MavenUrl(
+        groupId = Options.MavenUrl.AS_PROJECT,
+        artifactId = "dominion-pax-exam-feature",
+        version = Options.MavenUrl.AS_PROJECT,
+        type = "xml",
+        classifier = "features"
+      ),
+  names = "dominion-pax-exam"
+)
 public class DominionConfigurationFactory implements ConfigurationFactory {
   private static final Logger LOGGER = LoggerFactory.getLogger(DominionConfigurationFactory.class);
 
@@ -66,6 +79,8 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
 
   private final Class<?> testClass;
 
+  private final List<? extends org.ops4j.pax.exam.Option> coreOptions;
+
   @Nullable private volatile AnnotationOptions options = null;
 
   public DominionConfigurationFactory() {
@@ -73,6 +88,16 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
     this.interpolator = DominionConfigurationFactory.THREAD_LOCAL_INTERPOLATOR.get();
     this.testClass = testInstance.getClass();
     LOGGER.debug("DominionConfigurationFactory({}, {})", testClass.getName(), testInstance);
+    this.coreOptions =
+        ReflectionUtils.annotationsByType(
+                DominionConfigurationFactory.this::filterConditionAnnotations,
+                DominionConfigurationFactory.class,
+                Option.Annotation.class)
+            .map(ExtensionOption::new)
+            .flatMap(ExtensionOption::extensions)
+            .map(ExtensionOption::getOptions)
+            .flatMap(Stream::of)
+            .collect(Collectors.toList());
   }
 
   @SuppressWarnings("squid:CommentedOutCodeLine" /* no code commented here */)
@@ -127,7 +152,7 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
   void processPreStartOptions() {
     LOGGER.debug("{}::processPreStartOptions()", this);
     try {
-      new KarafDistributionConfigurationFileRetractOptionProcessor(options).process();
+      new KarafDistributionConfigurationFilePostOptionProcessor(options).process();
     } catch (DominionException e) {
       throw e;
     } catch (Exception e) {
@@ -255,6 +280,24 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
     }
 
     /**
+     * Gets all configured options for the corresponding container.
+     *
+     * @return a stream of all configured options
+     * @throws IllegalStateException if called before options have been created by PaxExam
+     */
+    public Stream<? extends org.ops4j.pax.exam.Option> options() {
+      return Stream.of(
+              options.stream().map(ExtensionOption::getOptions).flatMap(Stream::of),
+              Stream.of(interpolator.getOptions()),
+              // make sure we add the core options after all other options that are specified by the
+              // test class
+              coreOptions.stream(),
+              // the pre-hook options should be last
+              preStartHookOptions())
+          .flatMap(Function.identity());
+    }
+
+    /**
      * Gets all configured options of a given type for the corresponding container.
      *
      * @param <T> the type of options to retrieve
@@ -263,13 +306,19 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
      * @throws IllegalStateException if called before options have been created by PaxExam
      */
     public <T extends org.ops4j.pax.exam.Option> Stream<T> options(Class<T> optionType) {
-      return Stream.of(
-              options.stream().map(ExtensionOption::getOptions).flatMap(Stream::of),
-              Stream.of(interpolator.getOptions()),
-              preStartHookOptions())
-          .flatMap(Function.identity())
-          .filter(optionType::isInstance)
-          .map(optionType::cast);
+      return options().filter(optionType::isInstance).map(optionType::cast);
+    }
+
+    /**
+     * Gets all configured options of the given types for the corresponding container.
+     *
+     * @param optionTypes the types of options to retrieve
+     * @return a stream of all configured options of the specified types
+     * @throws IllegalStateException if called before options have been created by PaxExam
+     */
+    public Stream<? extends org.ops4j.pax.exam.Option> options(
+        Class<? extends org.ops4j.pax.exam.Option>... optionTypes) {
+      return options().filter(o -> DominionConfigurationFactory.isInstance(optionTypes, o));
     }
 
     /**
@@ -286,7 +335,7 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
 
     @Override
     public org.ops4j.pax.exam.Option[] getOptions() {
-      return options(org.ops4j.pax.exam.Option.class).toArray(org.ops4j.pax.exam.Option[]::new);
+      return options().toArray(org.ops4j.pax.exam.Option[]::new);
     }
 
     @Override
@@ -549,5 +598,10 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
     } catch (Throwable t) { // ignore and fallback to default
     }
     return option.toString();
+  }
+
+  private static boolean isInstance(
+      Class<? extends org.ops4j.pax.exam.Option>[] optionTypes, org.ops4j.pax.exam.Option option) {
+    return Stream.of(optionTypes).anyMatch(c -> c.isInstance(option));
   }
 }

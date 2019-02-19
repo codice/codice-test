@@ -16,36 +16,55 @@ package org.codice.dominion.pax.exam.internal;
 import java.io.File;
 import java.io.IOException;
 import javax.annotation.Nullable;
+import org.apache.commons.io.FileUtils;
 
-/** Interface for Karaf configuration file support. */
-public interface DominionKarafConfigurationFile {
+/** Base class for Karaf configuration file support. */
+public abstract class DominionKarafConfigurationFile {
+  protected final File file;
+
+  public DominionKarafConfigurationFile(final File karafHome, final String location) {
+    if (location.startsWith("/")) {
+      this.file = new File(karafHome + location);
+    } else {
+      this.file = new File(karafHome + "/" + location);
+    }
+  }
+
   /**
    * Checks if the file exist on disk.
    *
    * @return <code>true</code> if the file exist on disk; <code>false</code> otherwise
    */
-  boolean exists();
+  public boolean exists() {
+    return file.exists();
+  }
 
   /**
    * Replaces the file on disk with the one specified.
    *
    * @param source the source file to copy to this config's location
    */
-  void replace(File source);
+  public void replace(File source) {
+    try {
+      FileUtils.copyFile(source, file);
+    } catch (IOException e) {
+      throw new IllegalStateException("Error occurred while replacing file " + file, e);
+    }
+  }
 
   /**
    * Stores this representation of a config file back to disk in the appropriate format.
    *
    * @throws IOException if an I/O error occurs
    */
-  void store() throws IOException;
+  public abstract void store() throws IOException;
 
   /**
    * Loads the corresponding config file from disk in this representation.
    *
    * @throws IOException if an I/O error occurs
    */
-  void load() throws IOException;
+  public abstract void load() throws IOException;
 
   /**
    * Puts a new value for the specified key.
@@ -53,7 +72,15 @@ public interface DominionKarafConfigurationFile {
    * @param key the key to have its value set
    * @param value the new value for the corresponding key
    */
-  void put(String key, Object value);
+  public abstract void put(String key, Object value);
+
+  /**
+   * Removes the specified key.
+   *
+   * @param key the key to remove
+   * @return if a change resulted for this configuration file
+   */
+  public abstract boolean remove(String key);
 
   /**
    * Extends the specified key's value with the specified one.
@@ -61,7 +88,7 @@ public interface DominionKarafConfigurationFile {
    * @param key the key to have its value extended
    * @param value the new value to add to the corresponding key
    */
-  void extend(String key, Object value);
+  public abstract void extend(String key, Object value);
 
   /**
    * Retracts a given value from the specified key.
@@ -70,7 +97,7 @@ public interface DominionKarafConfigurationFile {
    * @param value the value to remove from the corresponding key
    * @return if a change resulted for this configuration file
    */
-  boolean retract(String key, Object value);
+  public abstract boolean retract(String key, Object value);
 
   /**
    * Gets the current value associated with the specified key.
@@ -79,5 +106,5 @@ public interface DominionKarafConfigurationFile {
    * @return the corresponding value or <code>null</code> if none defined
    */
   @Nullable
-  Object get(String key);
+  public abstract Object get(String key);
 }
