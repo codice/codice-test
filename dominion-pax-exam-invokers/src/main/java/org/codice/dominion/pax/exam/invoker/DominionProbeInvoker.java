@@ -19,6 +19,8 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
+import org.apache.commons.io.IOUtils;
+import org.codice.dominion.interpolate.Interpolator;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
@@ -35,20 +37,28 @@ import org.ops4j.pax.exam.util.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Enhancement of PaxExam's probe invoker which support <code>@BeforeClass</code> and <code>
+ * @AfterClass</code>.
+ */
 public class DominionProbeInvoker implements ProbeInvoker {
   private static final Logger LOGGER = LoggerFactory.getLogger(DominionProbeInvoker.class);
-
-  private final PaxExamInterpolator interpolator = new PaxExamInterpolator();
 
   private final Class<?> testClass;
   private final String method;
   private final Injector injector;
 
+  @SuppressWarnings(
+      "squid:CallToDeprecatedMethod" /* don't care if the interpolator cannot be closed */)
   public DominionProbeInvoker(Class<?> testClass, String method, Injector injector) {
     LOGGER.debug("DominionProbeInvoker({}, {}, {})", testClass, method, injector);
-    this.testClass = interpolator.interpolate(testClass);
+    this.testClass = testClass;
     this.method = method;
     this.injector = injector;
+    final Interpolator i = new PaxExamInterpolator(testClass);
+
+    i.interpolate(testClass);
+    IOUtils.closeQuietly(i);
   }
 
   @Override

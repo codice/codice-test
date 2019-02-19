@@ -16,6 +16,7 @@ package org.codice.dominion.pax.exam.options.extensions;
 import org.codice.dominion.options.Options;
 import org.codice.dominion.options.Options.EnableRemoteDebugging;
 import org.codice.dominion.options.Options.Environment;
+import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
@@ -30,7 +31,9 @@ import org.ops4j.pax.exam.Option;
 public class EnableRemoteDebuggingExtension implements Extension<EnableRemoteDebugging> {
   @Override
   public Option[] options(
-      EnableRemoteDebugging annotation, Class<?> testClass, ResourceLoader resourceLoader)
+      EnableRemoteDebugging annotation,
+      PaxExamInterpolator interpolator,
+      ResourceLoader resourceLoader)
       throws Throwable {
     return new Option[0];
   }

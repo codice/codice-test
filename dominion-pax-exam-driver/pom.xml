@@ -23,7 +23,7 @@
         <version>0.4-SNAPSHOT</version>
     </parent>
 
-    <name>Codice Test :: Dominion :: Pax Exam :: Driver</name>
+    <name>Codice Test :: Dominion :: Pax Exam Driver</name>
     <artifactId>dominion-pax-exam-driver</artifactId>
     <packaging>jar</packaging>
 
@@ -41,6 +41,11 @@
         <dependency>
             <groupId>org.codice.test</groupId>
             <artifactId>dominion-pax-exam</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.test</groupId>
+            <artifactId>dominion-pax-exam-options</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -61,7 +66,15 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.sshd</groupId>
+            <artifactId>sshd-core</artifactId>
+        </dependency>
 
+        <dependency>
+            <groupId>org.apache.karaf</groupId>
+            <artifactId>org.apache.karaf.client</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam</artifactId>

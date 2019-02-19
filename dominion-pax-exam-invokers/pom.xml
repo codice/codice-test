@@ -23,7 +23,7 @@
         <version>0.4-SNAPSHOT</version>
     </parent>
 
-    <name>Codice Test :: Dominion :: Pax Exam :: Invokers</name>
+    <name>Codice Test :: Dominion :: Pax Exam JUnit Probe Invoker</name>
     <artifactId>dominion-pax-exam-invokers</artifactId>
     <packaging>bundle</packaging>
 
@@ -54,6 +54,10 @@
             <artifactId>org.apache.servicemix.bundles.jsr305</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>

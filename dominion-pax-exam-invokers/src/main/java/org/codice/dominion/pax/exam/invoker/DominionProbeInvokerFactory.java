@@ -22,6 +22,7 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** Factory for instantiating Dominion's probe invokers. */
 public class DominionProbeInvokerFactory implements ProbeInvokerFactory {
   private static final Logger LOGGER = LoggerFactory.getLogger(DominionProbeInvokerFactory.class);
 

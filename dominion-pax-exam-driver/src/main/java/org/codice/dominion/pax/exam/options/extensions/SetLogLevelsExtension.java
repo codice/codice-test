@@ -16,6 +16,7 @@ package org.codice.dominion.pax.exam.options.extensions;
 import java.util.Arrays;
 import org.apache.commons.lang3.StringUtils;
 import org.codice.dominion.options.Options.SetLogLevels;
+import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
@@ -24,7 +25,7 @@ import org.ops4j.pax.exam.Option;
 public class SetLogLevelsExtension implements Extension<SetLogLevels> {
   @Override
   public Option[] options(
-      SetLogLevels annotation, Class<?> testClass, ResourceLoader resourceLoader) {
+      SetLogLevels annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader) {
     final String logging = annotation.value();
 
     if (StringUtils.isEmpty(logging)) {
@@ -32,7 +33,7 @@ public class SetLogLevelsExtension implements Extension<SetLogLevels> {
     }
     return Arrays.stream(logging.split(";"))
         .map(s -> s.split("="))
-        .map(e -> SetLogLevelExtension.options(e[0], e[1]))
+        .flatMap(e -> SetLogLevelExtension.options(e[0], e[1]))
         .toArray(Option[]::new);
   }
 }

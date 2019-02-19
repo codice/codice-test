@@ -14,6 +14,7 @@
 package org.codice.dominion.pax.exam.options.extensions;
 
 import org.codice.dominion.options.Options.SetSystemProperty;
+import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.CoreOptions;
@@ -23,7 +24,9 @@ import org.ops4j.pax.exam.Option;
 public class SetSystemPropertyExtension implements Extension<SetSystemProperty> {
   @Override
   public Option[] options(
-      SetSystemProperty annotation, Class<?> testClass, ResourceLoader resourceLoader) {
+      SetSystemProperty annotation,
+      PaxExamInterpolator interpolator,
+      ResourceLoader resourceLoader) {
     final String key = annotation.key();
     final String value = annotation.value();
 

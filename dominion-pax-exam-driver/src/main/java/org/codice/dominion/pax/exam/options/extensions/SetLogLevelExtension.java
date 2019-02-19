@@ -16,6 +16,7 @@ package org.codice.dominion.pax.exam.options.extensions;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.codice.dominion.options.Options.SetLogLevel;
+import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
@@ -28,7 +29,7 @@ public class SetLogLevelExtension implements Extension<SetLogLevel> {
 
   @Override
   public Option[] options(
-      SetLogLevel annotation, Class<?> testClass, ResourceLoader resourceLoader) {
+      SetLogLevel annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader) {
     return SetLogLevelExtension.options(annotation.name(), annotation.level())
         .toArray(Option[]::new);
   }

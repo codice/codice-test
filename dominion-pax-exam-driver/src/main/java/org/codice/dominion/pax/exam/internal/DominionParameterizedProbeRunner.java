@@ -86,7 +86,10 @@ public class DominionParameterizedProbeRunner extends BlockJUnit4ClassRunner {
   // creates a nice unique enough id for testing which makes it easier to find the exam directory
   private final String id = new SimpleDateFormat("yyyyMMdd-hhmmss").format(new Date());
 
-  private final PaxExamDriverInterpolator interpolator = new PaxExamDriverInterpolator(id);
+  private final PaxExamDriverInterpolator interpolator;
+
+  @Nullable // will be set after staging
+  private volatile DominionConfigurationFactory config = null;
 
   public DominionParameterizedProbeRunner(Class<?> testClass) throws InitializationError {
     super(testClass);
@@ -96,6 +99,7 @@ public class DominionParameterizedProbeRunner extends BlockJUnit4ClassRunner {
       this.testClass = testClass;
       this.manager = ReactorManager.getInstance();
       this.testInstance = testClass.newInstance();
+      this.interpolator = new PaxExamDriverInterpolator(testClass, id);
     } catch (InstantiationException | IllegalAccessException e) {
       throw new DominionInitializationException(e);
     }
@@ -132,6 +136,7 @@ public class DominionParameterizedProbeRunner extends BlockJUnit4ClassRunner {
       DominionConfigurationFactory.setTestInfo(interpolator, testInstance);
       this.stagedReactor = manager.stageReactor();
       LOGGER.debug("{}::stage() - staged reactor = {}", this, stagedReactor);
+      this.config = DominionConfigurationFactory.getConfigInfo();
     } finally {
       DominionConfigurationFactory.clearTestInfo();
     }
@@ -152,6 +157,8 @@ public class DominionParameterizedProbeRunner extends BlockJUnit4ClassRunner {
     LOGGER.info("Running test class {}", testClass.getName());
     try {
       manager.beforeClass(stagedReactor, testClass);
+      // now let the config factory know the container was started
+      config.processPostStartOptions();
       super.run(notifier);
     } catch (VirtualMachineError e) {
       throw e;
@@ -197,7 +204,9 @@ public class DominionParameterizedProbeRunner extends BlockJUnit4ClassRunner {
     final List<FrameworkMethod> befores = getTestClass().getAnnotatedMethods(BeforeClass.class);
 
     LOGGER.debug("{}::withBeforeClasses({}) - count={}", this, statement, befores.size());
-    return befores.isEmpty() ? statement : new RunBeforeClasses(statement);
+    // register the @BeforeClass whether or not methods were annotated. This will give a chance
+    // to the probe runner to do prep work of its own
+    return new RunBeforeClasses(statement);
   }
 
   @Override
@@ -205,7 +214,9 @@ public class DominionParameterizedProbeRunner extends BlockJUnit4ClassRunner {
     final List<FrameworkMethod> afters = getTestClass().getAnnotatedMethods(AfterClass.class);
 
     LOGGER.debug("{}::withAfterClasses({}) - count={}", this, statement, afters.size());
-    return afters.isEmpty() ? statement : new RunAfterClasses(statement);
+    // register the @BeforeClass whether or not methods were annotated. This will give a chance
+    // to the probe runner to do cleanup work of its own
+    return new RunAfterClasses(statement);
   }
 
   /**

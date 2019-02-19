@@ -14,6 +14,7 @@
 package org.codice.dominion.pax.exam.options.extensions;
 
 import org.codice.dominion.options.Options.CleanCaches;
+import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.CoreOptions;
@@ -23,7 +24,7 @@ import org.ops4j.pax.exam.Option;
 public class CleanCachesExtension implements Extension<CleanCaches> {
   @Override
   public Option[] options(
-      CleanCaches annotation, Class<?> testClass, ResourceLoader resourceLoader) {
+      CleanCaches annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader) {
     return new Option[] {CoreOptions.cleanCaches(annotation.value())};
   }
 }

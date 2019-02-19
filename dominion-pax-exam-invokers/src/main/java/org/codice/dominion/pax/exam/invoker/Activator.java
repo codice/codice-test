@@ -20,6 +20,7 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 
+/** Activator for the probe invoker bundle which registered our own factory */
 public class Activator implements BundleActivator {
   @Override
   @SuppressWarnings("squid:S1149" /* Dictionary is part of OSGi's API requirement */)
@@ -27,7 +28,8 @@ public class Activator implements BundleActivator {
     final ProbeInvokerFactory factory = new DominionProbeInvokerFactory();
     final Dictionary<String, Object> props = new Hashtable<>(6);
 
-    props.put(Constants.SERVICE_DESCRIPTION, "Codice Test :: Dominion :: Pax Exam :: Invokers");
+    props.put(
+        Constants.SERVICE_DESCRIPTION, "Codice Test :: Dominion :: Pax Exam JUnit Probe Invoker");
     props.put(Constants.SERVICE_VENDOR, "Codice Foundation");
     props.put("driver", "junit");
     context.registerService(ProbeInvokerFactory.class, factory, props);

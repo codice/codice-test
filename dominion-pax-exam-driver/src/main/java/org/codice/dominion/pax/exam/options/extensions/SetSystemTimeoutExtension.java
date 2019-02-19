@@ -15,6 +15,7 @@ package org.codice.dominion.pax.exam.options.extensions;
 
 import java.util.concurrent.TimeUnit;
 import org.codice.dominion.options.Options.SetSystemTimeout;
+import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.CoreOptions;
@@ -24,7 +25,9 @@ import org.ops4j.pax.exam.Option;
 public class SetSystemTimeoutExtension implements Extension<SetSystemTimeout> {
   @Override
   public Option[] options(
-      SetSystemTimeout annotation, Class<?> testClass, ResourceLoader resourceLoader) {
+      SetSystemTimeout annotation,
+      PaxExamInterpolator interpolator,
+      ResourceLoader resourceLoader) {
     final TimeUnit unit = annotation.unit();
     final long value = annotation.value();
 

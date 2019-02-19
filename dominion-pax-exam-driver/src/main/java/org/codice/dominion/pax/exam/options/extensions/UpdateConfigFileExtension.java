@@ -13,23 +13,66 @@
  */
 package org.codice.dominion.pax.exam.options.extensions;
 
+import java.io.File;
+import org.apache.commons.io.FilenameUtils;
 import org.codice.dominion.options.Options.UpdateConfigFile;
+import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
+import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileRetractOption;
+import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 
 /** Extension point for the {@link UpdateConfigFile} option annotation. */
-public class UpdateConfigFileExtension extends AbstractFileExtension<UpdateConfigFile> {
+public class UpdateConfigFileExtension implements Extension<UpdateConfigFile> {
   @Override
   public Option[] options(
-      UpdateConfigFile annotation, Class<?> testClass, ResourceLoader resourceLoader) {
+      UpdateConfigFile annotation,
+      PaxExamInterpolator interpolator,
+      ResourceLoader resourceLoader) {
+    final Option option;
+
     switch (annotation.operation()) {
       case ADD:
-        return addOptions(annotation.target(), annotation.key(), annotation.value());
+        option = addOption(annotation.target(), annotation.key(), annotation.value());
+        break;
       case SET_ABSOLUTE_PATH:
-        return setAbsolutePathOptions(annotation.target(), annotation.key(), annotation.value());
+        option = setAbsolutePathOption(annotation.target(), annotation.key(), annotation.value());
+        break;
+      case REMOVE:
+        option = removeOption(annotation.target(), annotation.key(), annotation.value());
+        break;
       case SET:
       default:
-        return setOptions(annotation.target(), annotation.key(), annotation.value());
+        option = setOption(annotation.target(), annotation.key(), annotation.value());
     }
+    return new Option[] {option};
+  }
+
+  protected Option setOption(String target, String key, String value) {
+    return KarafDistributionOption.editConfigurationFilePut(
+        // separators to Unix is on purpose as PaxExam will analyze the target based on it
+        // containing / and not \ and then convert it properly
+        FilenameUtils.separatorsToUnix(target), key, value);
+  }
+
+  protected Option setAbsolutePathOption(String target, String key, String path) {
+    return setOption(
+        target, key, new File(FilenameUtils.separatorsToSystem(path)).getAbsolutePath());
+  }
+
+  protected Option addOption(String target, String key, String value) {
+    return KarafDistributionOption.editConfigurationFileExtend(
+        // separators to Unix is on purpose as PaxExam will analyze the target based on it
+        // containing / and not \ and then convert it properly
+        FilenameUtils.separatorsToUnix(target), key, value);
+  }
+
+  protected Option removeOption(String target, String key, String value) {
+    return new KarafDistributionConfigurationFileRetractOption(
+        // separators to Unix is on purpose as our extensions (and then PaxExam) behaves the same as
+        // PaxExam which analyzes the target based on it containing / and not \ and then convert it
+        // properly
+        FilenameUtils.separatorsToUnix(target), key, value);
   }
 }

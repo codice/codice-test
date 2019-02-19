@@ -13,6 +13,10 @@
  */
 package org.codice.dominion.pax.exam.interpolate;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import javax.annotation.Nullable;
+import org.codice.dominion.interpolate.ContainerNotStagedException;
 import org.codice.dominion.interpolate.Interpolator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,40 +42,98 @@ import org.slf4j.LoggerFactory;
 public class PaxExamInterpolator extends Interpolator {
   private static final Logger LOGGER = LoggerFactory.getLogger(PaxExamInterpolator.class);
 
+  protected volatile Path karafHome = null;
+  protected volatile Path karafBin = null;
+  protected volatile Path karafData = null;
+  protected volatile Path karafEtc = null;
+
   /**
    * Initializes a new interpolator inside a driver with the specified test run id and container
    * name.
    *
-   * @param uuid a unique id for this the corresponding test run
+   * @param testClass the current test class
+   * @param id a unique id for this the corresponding test run
    */
-  public PaxExamInterpolator(String uuid) {
-    this(uuid, PaxExamInterpolator.DEFAULT_CONTAINER);
+  public PaxExamInterpolator(Class<?> testClass, String id) {
+    this(testClass, id, PaxExamInterpolator.DEFAULT_CONTAINER);
   }
 
   /**
    * Initializes a new interpolator inside a driver with the specified test run id and container
    * name.
    *
-   * @param uuid a unique id for this the corresponding test run
+   * @param testClass the current test class
+   * @param id a unique id for this the corresponding test run
    * @param container the name of the container for which to create an interpolator
    */
-  public PaxExamInterpolator(String uuid, String container) {
-    super(uuid, container);
-    LOGGER.debug("PaxExamInterpolator({}, {})", uuid, container);
+  public PaxExamInterpolator(Class<?> testClass, String id, String container) {
+    super(testClass, id, container);
+    LOGGER.debug("PaxExamInterpolator({}, {}, {})", testClass, id, container);
   }
 
   /**
    * Initializes a new interpolator inside a container.
    *
    * <p>The container name and the port information will be retrieved from system properties.
+   *
+   * @param testClass the current test class
    */
-  public PaxExamInterpolator() {
-    super(System.getProperties());
-    final String home = initFromReplacements("karaf.home");
+  public PaxExamInterpolator(Class<?> testClass) {
+    super(testClass, System.getProperties());
+    this.karafHome = Paths.get(initFromReplacements("karaf.home"));
+    LOGGER.debug(
+        "PaxExamInterpolator({}, {}, {}) - karaf.home = {}", testClass, id, container, karafHome);
+    this.karafBin = Paths.get(initFromReplacements("karaf.bin"));
+    this.karafData = Paths.get(initFromReplacements("karaf.data"));
+    this.karafEtc = Paths.get(initFromReplacements("karaf.etc"));
+  }
 
-    LOGGER.debug("PaxExamInterpolator({}, {}) - karaf.home = {}", id, container, home);
-    initFromReplacements("karaf.bin");
-    initFromReplacements("karaf.data");
-    initFromReplacements("karaf.etc");
+  /**
+   * Gets the location of <code>"{karaf.home}"</code>.
+   *
+   * @return the path to <code>"{karaf.home}"</code> if known
+   * @throws ContainerNotStagedException if the container was not staged yet
+   */
+  @Nullable
+  public Path getKarafHome() {
+    final Path path = karafHome;
+
+    if (path == null) {
+      throw new ContainerNotStagedException("container was not staged yet");
+    }
+    return path;
+  }
+
+  /**
+   * Gets the location of <code>"{karaf.bin}"</code>.
+   *
+   * @return the path to <code>"{karaf.bin}"</code> if known
+   * @throws ContainerNotStagedException if the container was not staged yet
+   */
+  public Path getKarafBin() {
+    getKarafHome();
+    return karafBin;
+  }
+
+  /**
+   * Gets the location of <code>"{karaf.data}"</code>.
+   *
+   * @return the path to <code>"{karaf.data}"</code> if known
+   * @throws ContainerNotStagedException if the container was not staged yet
+   */
+  public Path getKarafData() {
+    getKarafHome();
+    return karafData;
+  }
+
+  /**
+   * Gets the location of <code>"{karaf.etc}"</code>.
+   *
+   * @return the path to <code>"{karaf.etc}"</code> if known
+   * @throws ContainerNotStagedException if the container was not staged yet
+   */
+  public Path getKarafEtc() {
+    getKarafHome();
+    return karafEtc;
   }
 }

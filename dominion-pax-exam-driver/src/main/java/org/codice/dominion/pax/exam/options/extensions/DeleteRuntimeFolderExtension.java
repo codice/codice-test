@@ -14,6 +14,7 @@
 package org.codice.dominion.pax.exam.options.extensions;
 
 import org.codice.dominion.options.Options.DeleteRuntimeFolder;
+import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
@@ -23,7 +24,9 @@ import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 public class DeleteRuntimeFolderExtension implements Extension<DeleteRuntimeFolder> {
   @Override
   public Option[] options(
-      DeleteRuntimeFolder annotation, Class<?> testClass, ResourceLoader resourceLoader) {
+      DeleteRuntimeFolder annotation,
+      PaxExamInterpolator interpolator,
+      ResourceLoader resourceLoader) {
     // by default Karaf deletes the runtime folder, so do nothing if we should delete it
     return annotation.value()
         ? new Option[0]

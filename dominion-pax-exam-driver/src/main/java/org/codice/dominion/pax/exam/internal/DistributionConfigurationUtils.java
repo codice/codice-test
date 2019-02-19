@@ -22,7 +22,7 @@ class DistributionConfigurationUtils {
   public static File resolve(PaxExamInterpolator interpolator, @Nullable File dir) {
     if (dir != null) {
       return new File(
-          new File(dir.getAbsoluteFile(), interpolator.getUUID()), interpolator.getContainer());
+          new File(dir.getAbsoluteFile(), interpolator.getId()), interpolator.getContainer());
     }
     // this is the standard default typically used by PaxExam
     // see DefaultExamSystem() and KarafTestContainer.retrieveFinalTargetFolder()
@@ -30,7 +30,7 @@ class DistributionConfigurationUtils {
             System.getProperty("user.home"),
             ".pax",
             "exam",
-            interpolator.getUUID(),
+            interpolator.getId(),
             interpolator.getContainer())
         .toAbsolutePath()
         .toFile();
@@ -60,11 +60,17 @@ class DistributionConfigurationUtils {
       configString = config.toString();
     }
     try {
-      return new ReflectionToStringBuilder(thisOption, ENHANCED_STYLE, null, null, true, false)
+      return new ReflectionToStringBuilder(
+                  thisOption,
+                  DistributionConfigurationUtils.ENHANCED_STYLE,
+                  null,
+                  null,
+                  true,
+                  false)
               .setExcludeFieldNames("interpolator", "config")
               .toString()
           + ",id="
-          + interpolator.getUUID()
+          + interpolator.getId()
           + ",container="
           + interpolator.getContainer()
           + ",config="
@@ -75,7 +81,7 @@ class DistributionConfigurationUtils {
     } catch (Throwable t) {
       return thisOption.getClass().getSimpleName()
           + "[id="
-          + interpolator.getUUID()
+          + interpolator.getId()
           + ",container="
           + interpolator.getContainer()
           + ",config="
@@ -92,7 +98,7 @@ class DistributionConfigurationUtils {
     }
 
     protected Object readResolve() {
-      return ENHANCED_STYLE;
+      return DistributionConfigurationUtils.ENHANCED_STYLE;
     }
   }
 

@@ -14,6 +14,7 @@
 package org.codice.dominion.pax.exam.options.extensions;
 
 import org.codice.dominion.options.Options.PropagateSystemProperty;
+import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.CoreOptions;
@@ -23,7 +24,9 @@ import org.ops4j.pax.exam.Option;
 public class PropagateSystemPropertyExtension implements Extension<PropagateSystemProperty> {
   @Override
   public Option[] options(
-      PropagateSystemProperty annotation, Class<?> testClass, ResourceLoader resourceLoader) {
+      PropagateSystemProperty annotation,
+      PaxExamInterpolator interpolator,
+      ResourceLoader resourceLoader) {
     return new Option[] {CoreOptions.propagateSystemProperties(annotation.value())};
   }
 }

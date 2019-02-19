@@ -20,11 +20,6 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.codice.dominion.options.Option;
 import org.codice.dominion.options.Options;
-import org.codice.dominion.options.Options.DeleteRuntimeFolder;
-import org.codice.dominion.options.Options.EnableRemoteDebugging;
-import org.codice.dominion.options.Options.KeepRuntimeFolder;
-import org.codice.dominion.options.Options.ReplaceFile;
-import org.codice.dominion.options.Options.UpdateConfigFile;
 import org.codice.dominion.options.karaf.KarafOptions;
 import org.codice.dominion.pax.exam.options.extensions.CleanCachesExtension;
 import org.codice.dominion.pax.exam.options.extensions.DeleteRuntimeFolderExtension;
@@ -42,39 +37,47 @@ import org.codice.dominion.pax.exam.options.extensions.SetRootLogLevelExtension;
 import org.codice.dominion.pax.exam.options.extensions.SetSystemPropertyExtension;
 import org.codice.dominion.pax.exam.options.extensions.SetSystemTimeoutExtension;
 import org.codice.dominion.pax.exam.options.extensions.UpdateConfigFileExtension;
+import org.codice.dominion.pax.exam.options.extensions.UpdateFileExtension;
 import org.codice.dominion.pax.exam.options.extensions.VMOptionExtension;
 import org.codice.dominion.pax.exam.options.karaf.extensions.DistributionConfigurationExtension;
+import org.codice.dominion.pax.exam.options.karaf.extensions.ExecuteShellCommandExtension;
 import org.codice.dominion.pax.exam.options.karaf.extensions.FeatureExtension;
+import org.codice.dominion.pax.exam.options.karaf.extensions.UpdateShellInitScriptExtension;
 
 /** Factory implementation for PaxExam option extensions. */
 public class OptionExtensionFactory implements Option.Factory {
   private static final Map<Class<? extends Annotation>, Option.Extension> EXTENSIONS;
 
   static {
-    final Map<Class<? extends Annotation>, Option.Extension> map = new HashMap<>(32);
+    final Map<Class<? extends Annotation>, Option.Extension> map = new HashMap<>();
 
     map.put(Options.CleanCaches.class, new CleanCachesExtension());
+    map.put(Options.DeleteRuntimeFolder.class, new DeleteRuntimeFolderExtension());
+    map.put(Options.EnableRemoteDebugging.class, new EnableRemoteDebuggingExtension());
     map.put(Options.Environment.class, new EnvironmentExtension());
     map.put(Options.Install.class, new InstallExtension());
     map.put(Options.KeepCaches.class, new KeepCachesExtension());
+    map.put(Options.KeepRuntimeFolder.class, new KeepRuntimeFolderExtension());
     map.put(Options.PropagateSystemProperty.class, new PropagateSystemPropertyExtension());
+    map.put(Options.ReplaceFile.class, new ReplaceFileExtension());
     map.put(Options.SetFrameworkProperty.class, new SetFrameworkPropertyExtension());
     map.put(Options.SetLogLevel.class, new SetLogLevelExtension());
     map.put(Options.SetLogLevels.class, new SetLogLevelsExtension());
     map.put(Options.SetRootLogLevel.class, new SetRootLogLevelExtension());
     map.put(Options.SetSystemProperty.class, new SetSystemPropertyExtension());
     map.put(Options.SetSystemTimeout.class, new SetSystemTimeoutExtension());
+    map.put(Options.UpdateConfigFile.class, new UpdateConfigFileExtension());
+    map.put(Options.UpdateFile.class, new UpdateFileExtension());
     map.put(Options.VMOption.class, new VMOptionExtension());
-    map.put(DeleteRuntimeFolder.class, new DeleteRuntimeFolderExtension());
+
     map.put(KarafOptions.DistributionConfiguration.class, new DistributionConfigurationExtension());
+    map.put(KarafOptions.ExecuteShellCommand.class, new ExecuteShellCommandExtension());
     map.put(KarafOptions.Feature.class, new FeatureExtension());
-    map.put(KeepRuntimeFolder.class, new KeepRuntimeFolderExtension());
-    map.put(ReplaceFile.class, new ReplaceFileExtension());
     map.put(
         KarafOptions.SetLogLevel.class,
         new org.codice.dominion.pax.exam.options.karaf.extensions.SetLogLevelExtension());
-    map.put(UpdateConfigFile.class, new UpdateConfigFileExtension());
-    map.put(EnableRemoteDebugging.class, new EnableRemoteDebuggingExtension());
+    map.put(KarafOptions.UpdateShellInitScript.class, new UpdateShellInitScriptExtension());
+
     EXTENSIONS = Collections.unmodifiableMap(map);
   }
 
