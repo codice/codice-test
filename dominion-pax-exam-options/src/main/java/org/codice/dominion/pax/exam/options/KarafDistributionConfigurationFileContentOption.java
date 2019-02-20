@@ -32,8 +32,8 @@ import org.codice.dominion.resources.ResourceLoader;
  */
 public class KarafDistributionConfigurationFileContentOption
     extends KarafDistributionConfigurationFileReplaceOption {
-  private final PaxExamInterpolator interpolator;
-  private final Location location;
+  protected final PaxExamInterpolator interpolator;
+  protected final Location location;
 
   /**
    * Creates a new file content PaxExam option.
@@ -100,10 +100,23 @@ public class KarafDistributionConfigurationFileContentOption
     this.location = location;
   }
 
+  /**
+   * Creates a new file content PaxExam option with no source. The subclass would be expected to
+   * override the {@link #getSource(File)} method in order to retrieve the source file to have its
+   * content used to replace the original file.
+   *
+   * @param configurationFilePath the configuration file path to replace
+   */
+  protected KarafDistributionConfigurationFileContentOption(
+      PaxExamInterpolator interpolator, String configurationFilePath) {
+    super(configurationFilePath);
+    this.interpolator = interpolator;
+    this.location = null;
+  }
+
   @Override
-  @SuppressWarnings("squid:S2095" /* closing of streams is handled by FileUtils.copy */)
   public File getSource() {
-    // find the original file so we can update it
+    // find the original file so we can getSource it
     final String path = getConfigurationFilePath();
     // see KarafTestContainer.updateUserSetProperties() for logic on how to find the location
     // of a file
@@ -126,19 +139,41 @@ public class KarafDistributionConfigurationFileContentOption
         original = customFile;
       }
     }
+    try {
+      return getSource(original);
+    } catch (DominionException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new DominionException("error occurred while updating file: " + original, e);
+    }
+  }
+
+  /**
+   * Called whenever PaxExam requires the resulting file to copy from when replacing the original
+   * one.
+   *
+   * @param original the original file being replaced (it might not exist)
+   * @return a file containing the content that should be copied over the original file
+   * @throws Exception if an I/O error occurred while putting together the source file
+   */
+  @SuppressWarnings({
+    "squid:S2095" /* closing of streams is handled by FileUtils.copy */,
+    "squid:S00112" /* Intended to allow subclasses to throw anything out */
+  })
+  protected File getSource(File original) throws Exception {
     final File source = super.getSource();
 
     if (!original.exists()) { // nothing to append/prepend to
       return source;
     }
-    File temp = null;
+    File tmp = null;
 
     try {
-      temp =
+      tmp =
           Files.createTempFile(
                   KarafDistributionConfigurationFileContentOption.class.getName(), ".tmp")
               .toFile();
-      temp.deleteOnExit();
+      tmp.deleteOnExit();
       final InputStream is;
 
       switch (location) {
@@ -150,12 +185,12 @@ public class KarafDistributionConfigurationFileContentOption
           is = new SequenceInputStream(new FileInputStream(original), new FileInputStream(source));
           break;
       }
-      FileUtils.copyInputStreamToFile(is, temp);
+      FileUtils.copyInputStreamToFile(is, tmp);
     } catch (IOException e) {
-      FileUtils.deleteQuietly(temp);
-      throw new DominionException("error occurred while updating file: " + original, e);
+      FileUtils.deleteQuietly(tmp);
+      throw e;
     }
-    return temp;
+    return tmp;
   }
 
   private static File toFile(Path base, String location) {

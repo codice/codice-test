@@ -110,11 +110,22 @@ public class KarafDistributionConfigurationFileReplaceOption
    * Creates a new file replace PaxExam option.
    *
    * @param configurationFilePath the configuration file path to replace
-   * @param source the source where to get the content
+   * @param source the source where to get the content or <code>null</code> if there is no source
    */
   public KarafDistributionConfigurationFileReplaceOption(
-      String configurationFilePath, File source) {
+      String configurationFilePath, @Nullable File source) {
     super(configurationFilePath, source);
+  }
+
+  /**
+   * Creates a new file replace PaxExam option with no source. The subclass would be expected to
+   * override the {@link #getSource} method in order to provide the file to replace the original
+   * with.
+   *
+   * @param configurationFilePath the configuration file path to replace
+   */
+  protected KarafDistributionConfigurationFileReplaceOption(String configurationFilePath) {
+    this(configurationFilePath, null);
   }
 
   protected static File toFile(
