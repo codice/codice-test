@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.util.Properties;
-import java.util.function.Function;
 import org.apache.commons.io.IOUtils;
 import org.codice.dominion.options.Options;
 import org.codice.dominion.options.Options.MavenUrl;
@@ -29,31 +28,17 @@ import org.ops4j.pax.exam.options.MavenArtifactUrlReference;
 
 /** Utility methods for defining extensions. */
 public class Utilities {
-  public static boolean isDefined(String value) {
-    return !Options.NOT_DEFINED.equals(value);
-  }
-
-  public static boolean isDefined(String[] value) {
-    return (value.length > 0) && !Options.NOT_DEFINED.equals(value[0]);
-  }
-
-  public static String resolve(String value, String dflt) {
-    return Utilities.isDefined(value) ? value : dflt;
-  }
-
-  public static <T> T applyIfDefined(String value, T t, Function<String, ?> function) {
-    return Utilities.isDefined(value) ? (T) function.apply(value) : t;
-  }
-
-  public static <T> T applyIfDefined(String[] value, T t, Function<String[], ?> function) {
-    return Utilities.isDefined(value) ? (T) function.apply(value) : t;
-  }
-
-  public static <T, S> T mapAndApplyIfDefined(
-      String value, T t, Function<String, S> mapper, Function<S, ?> function) {
-    return Utilities.isDefined(value) ? (T) function.apply(mapper.apply(value)) : t;
-  }
-
+  /**
+   * Gets the maven artifact url corresponding to the project associated with the specified
+   * annotation and resource loader.
+   *
+   * <p>This method will load the dependencies.properties file that was generated and packaged by
+   * the maven project where the annotation was used.
+   *
+   * @param annotation the annotation instance for which to retrieve the project maven url info
+   * @param resourceLoader the resource loader to load the dependencies.properties file with
+   * @return the corresponding maven artifact url
+   */
   public static MavenArtifactUrlReference getProjectReference(
       Annotation annotation, ResourceLoader resourceLoader) {
     final Properties dependencies = Utilities.getDependencies(annotation, resourceLoader, null);
@@ -70,6 +55,20 @@ public class Utilities {
                 annotation, resourceLoader, MavenUtils.VERSION, dependencies));
   }
 
+  /**
+   * Resolves a given maven url to a maven artifact url reference. If this one references the
+   * project in anyway (i.e. {@link Options.MavenUrl#AS_IN_PROJECT} or {@link
+   * Options.MavenUrl#AS_PROJECT}) then the information is retrieved from the specified annotation
+   * and resource loader.
+   *
+   * <p>This method will load the dependencies.properties file that was generated and packaged by
+   * the maven project where the annotation was used.
+   *
+   * @param annotation the annotation instance for which to retrieve the maven url info
+   * @param url the maven url for which to resolve the maven artifact url info
+   * @param resourceLoader the resource loader to load the dependencies.properties file with
+   * @return the corresponding maven artifact url
+   */
   public static MavenArtifactUrlReference toReference(
       Annotation annotation, MavenUrl url, ResourceLoader resourceLoader) {
     final MavenArtifactUrlReference maven = CoreOptions.maven();
@@ -110,7 +109,7 @@ public class Utilities {
           Utilities.getProjectAttribute(
               annotation, resourceLoader, MavenUtils.VERSION, dependencies));
     } else {
-      Utilities.applyIfDefined(version, maven, maven::version);
+      org.codice.dominion.options.Utilities.applyIfDefined(version, maven, maven::version);
     }
     if (Options.MavenUrl.AS_IN_PROJECT.equals(type)) {
       dependencies = Utilities.getDependencies(annotation, resourceLoader, dependencies);
@@ -120,7 +119,7 @@ public class Utilities {
     } else if (Options.MavenUrl.AS_PROJECT.equals(type)) {
       throw new IllegalArgumentException("Must specify a valid type for: " + annotation);
     } else {
-      Utilities.applyIfDefined(type, maven, maven::type);
+      org.codice.dominion.options.Utilities.applyIfDefined(type, maven, maven::type);
     }
     if (Options.MavenUrl.AS_IN_PROJECT.equals(classifier)) {
       dependencies = Utilities.getDependencies(annotation, resourceLoader, dependencies);
@@ -130,12 +129,12 @@ public class Utilities {
     } else if (Options.MavenUrl.AS_PROJECT.equals(classifier)) {
       throw new IllegalArgumentException("Must specify a valid classifier for: " + annotation);
     } else {
-      Utilities.applyIfDefined(classifier, maven, maven::classifier);
+      org.codice.dominion.options.Utilities.applyIfDefined(classifier, maven, maven::classifier);
     }
     return maven;
   }
 
-  public static String getProjectAttribute(
+  private static String getProjectAttribute(
       Annotation annotation, ResourceLoader resourceLoader, String name, Properties dependencies) {
     final String value = MavenUtils.getProjectAttribute(dependencies, name);
 
@@ -151,7 +150,7 @@ public class Utilities {
     return value;
   }
 
-  public static String getArtifactAttribute(
+  private static String getArtifactAttribute(
       Annotation annotation,
       ResourceLoader resourceLoader,
       MavenUrl url,

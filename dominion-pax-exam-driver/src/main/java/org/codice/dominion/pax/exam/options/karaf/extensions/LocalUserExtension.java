@@ -13,11 +13,11 @@
  */
 package org.codice.dominion.pax.exam.options.karaf.extensions;
 
+import org.codice.dominion.options.Utilities;
 import org.codice.dominion.options.karaf.KarafOptions.LocalUser;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.KarafUserPropertiesFileUserPutOption;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
-import org.codice.dominion.pax.exam.options.extensions.Utilities;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
 
@@ -29,7 +29,8 @@ public class LocalUserExtension implements Extension<LocalUser> {
     final KarafUserPropertiesFileUserPutOption option =
         new KarafUserPropertiesFileUserPutOption(annotation.userId());
 
-    Utilities.applyIfDefined(annotation.roles(), option, option::addRoles);
+    org.codice.dominion.options.Utilities.applyIfDefined(
+        annotation.roles(), option, option::addRoles);
     Utilities.applyIfDefined(annotation.groups(), option, option::addGroups);
     return new Option[] {option};
   }

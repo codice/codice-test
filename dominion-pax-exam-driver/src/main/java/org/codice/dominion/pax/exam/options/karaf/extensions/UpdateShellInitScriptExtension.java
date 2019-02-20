@@ -15,12 +15,12 @@ package org.codice.dominion.pax.exam.options.karaf.extensions;
 
 import java.io.IOException;
 import java.util.stream.Stream;
+import org.codice.dominion.options.Utilities;
 import org.codice.dominion.options.karaf.KarafOptions.UpdateShellInitScript;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileReplaceOption.Type;
 import org.codice.dominion.pax.exam.options.KarafShellInitFileContentOption;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
-import org.codice.dominion.pax.exam.options.extensions.Utilities;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
 
@@ -36,10 +36,10 @@ public class UpdateShellInitScriptExtension implements Extension<UpdateShellInit
     final String url = annotation.url();
     final String[] content = annotation.content();
     final String resource = annotation.resource();
-    final boolean fileIsDefined = Utilities.isDefined(file);
-    final boolean urlIsDefined = Utilities.isDefined(url);
+    final boolean fileIsDefined = org.codice.dominion.options.Utilities.isDefined(file);
+    final boolean urlIsDefined = org.codice.dominion.options.Utilities.isDefined(url);
     final boolean contentIsDefined = Utilities.isDefined(content);
-    final boolean resourceIsDefined = Utilities.isDefined(resource);
+    final boolean resourceIsDefined = org.codice.dominion.options.Utilities.isDefined(resource);
     final long count =
         Stream.of(fileIsDefined, urlIsDefined, contentIsDefined, resourceIsDefined)
             .filter(Boolean.TRUE::equals)

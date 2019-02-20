@@ -14,7 +14,6 @@
 package org.codice.dominion.pax.exam.options.karaf.extensions;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.stream.Stream;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -34,8 +33,7 @@ public class DistributionConfigurationExtension implements Extension<Distributio
   public Option[] options(
       DistributionConfiguration annotation,
       PaxExamInterpolator interpolator,
-      ResourceLoader resourceLoader)
-      throws IOException {
+      ResourceLoader resourceLoader) {
     final Platform platform = DistributionConfigurationExtension.getKarafPlatform(annotation);
 
     if (SystemUtils.IS_OS_WINDOWS) {
@@ -49,8 +47,9 @@ public class DistributionConfigurationExtension implements Extension<Distributio
     }
     final MavenUrl mavenUrl = annotation.framework();
     final String url = annotation.frameworkUrl();
-    final boolean groupIsDefined = Utilities.isDefined(mavenUrl.groupId());
-    final boolean urlIsDefined = Utilities.isDefined(url);
+    final boolean groupIsDefined =
+        org.codice.dominion.options.Utilities.isDefined(mavenUrl.groupId());
+    final boolean urlIsDefined = org.codice.dominion.options.Utilities.isDefined(url);
 
     if (!groupIsDefined && !urlIsDefined) {
       throw new IllegalArgumentException(
@@ -59,8 +58,9 @@ public class DistributionConfigurationExtension implements Extension<Distributio
               + " for "
               + resourceLoader.getLocationClass().getName());
     }
-    final String name = Utilities.resolve(annotation.name(), null);
-    final String version = Utilities.resolve(annotation.version(), null);
+    final String name = org.codice.dominion.options.Utilities.resolve(annotation.name(), null);
+    final String version =
+        org.codice.dominion.options.Utilities.resolve(annotation.version(), null);
     KarafDistributionKitConfigurationOption cfg;
 
     if (groupIsDefined) {
@@ -77,15 +77,17 @@ public class DistributionConfigurationExtension implements Extension<Distributio
     } else {
       cfg = new KarafDistributionKitConfigurationOption(url, name, version, platform);
     }
-    cfg = Utilities.applyIfDefined(annotation.main(), cfg, cfg::karafMain);
     cfg =
-        Utilities.applyIfDefined(
+        org.codice.dominion.options.Utilities.applyIfDefined(
+            annotation.main(), cfg, cfg::karafMain);
+    cfg =
+        org.codice.dominion.options.Utilities.applyIfDefined(
             FilenameUtils.separatorsToSystem(annotation.data()), cfg, cfg::karafData);
     cfg =
-        Utilities.applyIfDefined(
+        org.codice.dominion.options.Utilities.applyIfDefined(
             FilenameUtils.separatorsToSystem(annotation.etc()), cfg, cfg::karafEtc);
     cfg =
-        Utilities.applyIfDefined(
+        org.codice.dominion.options.Utilities.applyIfDefined(
             FilenameUtils.separatorsToSystem(annotation.start()), cfg, cfg::executable);
     cfg =
         cfg.filesToMakeExecutable(

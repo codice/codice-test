@@ -29,8 +29,9 @@ public class FeatureExtension implements Extension<Feature> {
       Feature annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader) {
     final MavenUrl mavenUrl = annotation.repository();
     final String url = annotation.repositoryUrl();
-    final boolean groupIsDefined = Utilities.isDefined(mavenUrl.groupId());
-    final boolean urlIsDefined = Utilities.isDefined(url);
+    final boolean groupIsDefined =
+        org.codice.dominion.options.Utilities.isDefined(mavenUrl.groupId());
+    final boolean urlIsDefined = org.codice.dominion.options.Utilities.isDefined(url);
     final String[] names = annotation.names();
 
     if (!groupIsDefined && !urlIsDefined) {

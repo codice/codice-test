@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.stream.Stream;
 import org.apache.commons.io.FilenameUtils;
 import org.codice.dominion.options.Options.UpdateFile;
+import org.codice.dominion.options.Utilities;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileContentOption;
 import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileReplaceOption.Type;
@@ -34,10 +35,10 @@ public class UpdateFileExtension implements Extension<UpdateFile> {
     final String url = annotation.url();
     final String[] content = annotation.content();
     final String resource = annotation.resource();
-    final boolean fileIsDefined = Utilities.isDefined(file);
-    final boolean urlIsDefined = Utilities.isDefined(url);
+    final boolean fileIsDefined = org.codice.dominion.options.Utilities.isDefined(file);
+    final boolean urlIsDefined = org.codice.dominion.options.Utilities.isDefined(url);
     final boolean contentIsDefined = Utilities.isDefined(content);
-    final boolean resourceIsDefined = Utilities.isDefined(resource);
+    final boolean resourceIsDefined = org.codice.dominion.options.Utilities.isDefined(resource);
     final long count =
         Stream.of(fileIsDefined, urlIsDefined, contentIsDefined, resourceIsDefined)
             .filter(Boolean.TRUE::equals)
