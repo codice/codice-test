@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.dominion.pax.exam.options.extensions;
+package org.codice.dominion.pax.exam.options;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
