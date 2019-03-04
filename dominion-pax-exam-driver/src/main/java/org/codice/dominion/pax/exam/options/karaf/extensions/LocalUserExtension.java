@@ -16,7 +16,7 @@ package org.codice.dominion.pax.exam.options.karaf.extensions;
 import org.codice.dominion.options.Utilities;
 import org.codice.dominion.options.karaf.KarafOptions.LocalUser;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
-import org.codice.dominion.pax.exam.options.KarafUserPropertiesFileUserPutOption;
+import org.codice.dominion.pax.exam.options.KarafUsersPropertiesFileUserPutOption;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
@@ -26,8 +26,8 @@ public class LocalUserExtension implements Extension<LocalUser> {
   @Override
   public Option[] options(
       LocalUser annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader) {
-    final KarafUserPropertiesFileUserPutOption option =
-        new KarafUserPropertiesFileUserPutOption(annotation.userId());
+    final KarafUsersPropertiesFileUserPutOption option =
+        new KarafUsersPropertiesFileUserPutOption(annotation.userId());
 
     org.codice.dominion.options.Utilities.applyIfDefined(
         annotation.roles(), option, option::addRoles);

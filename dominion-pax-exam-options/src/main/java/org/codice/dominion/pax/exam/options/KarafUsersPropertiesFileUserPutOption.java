@@ -21,7 +21,7 @@ import org.codice.dominion.options.karaf.KarafOptions;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionConfigurationFilePutOption;
 
 /** PaxExam option for adding a new user or replacing an existing one. */
-public class KarafUserPropertiesFileUserPutOption
+public class KarafUsersPropertiesFileUserPutOption
     extends KarafDistributionConfigurationFilePutOption {
 
   private final Set<String> roles;
@@ -32,7 +32,7 @@ public class KarafUserPropertiesFileUserPutOption
    *
    * @param userId the user id to be added or replaced
    */
-  public KarafUserPropertiesFileUserPutOption(String userId) {
+  public KarafUsersPropertiesFileUserPutOption(String userId) {
     super(KarafOptions.USER_PROPERTIES, userId, null);
     this.roles = new LinkedHashSet<>();
     this.groups = new LinkedHashSet<>();
@@ -44,7 +44,7 @@ public class KarafUserPropertiesFileUserPutOption
    * @param userId the user id to be added or replaced
    * @param roles the roles to be added to the user
    */
-  public KarafUserPropertiesFileUserPutOption(String userId, String... roles) {
+  public KarafUsersPropertiesFileUserPutOption(String userId, String... roles) {
     this(userId);
     addRoles(roles);
   }
@@ -64,7 +64,7 @@ public class KarafUserPropertiesFileUserPutOption
    * @param role the role to be added to the user
    * @return this for chaining
    */
-  public KarafUserPropertiesFileUserPutOption addRole(String role) {
+  public KarafUsersPropertiesFileUserPutOption addRole(String role) {
     roles.add(role);
     return this;
   }
@@ -75,7 +75,7 @@ public class KarafUserPropertiesFileUserPutOption
    * @param roles the roles to be added to the user
    * @return this for chaining
    */
-  public KarafUserPropertiesFileUserPutOption addRoles(String... roles) {
+  public KarafUsersPropertiesFileUserPutOption addRoles(String... roles) {
     Stream.of(roles).forEach(this.roles::add);
     return this;
   }
@@ -95,7 +95,7 @@ public class KarafUserPropertiesFileUserPutOption
    * @param group the group to be added to the user
    * @return this for chaining
    */
-  public KarafUserPropertiesFileUserPutOption addGroup(String group) {
+  public KarafUsersPropertiesFileUserPutOption addGroup(String group) {
     groups.add(group);
     return this;
   }
@@ -106,7 +106,7 @@ public class KarafUserPropertiesFileUserPutOption
    * @param groups the groups to be added to the user
    * @return this for chaining
    */
-  public KarafUserPropertiesFileUserPutOption addGroups(String... groups) {
+  public KarafUsersPropertiesFileUserPutOption addGroups(String... groups) {
     Stream.of(groups).forEach(this.groups::add);
     return this;
   }
@@ -124,7 +124,7 @@ public class KarafUserPropertiesFileUserPutOption
   public Object getValue() {
     return Stream.concat(
             roles.stream(),
-            groups.stream().map(KarafUserPropertiesFileGroupPutOption.GROUP_PREFIX::concat))
+            groups.stream().map(KarafUsersPropertiesFileGroupPutOption.GROUP_PREFIX::concat))
         .collect(Collectors.joining(","));
   }
 

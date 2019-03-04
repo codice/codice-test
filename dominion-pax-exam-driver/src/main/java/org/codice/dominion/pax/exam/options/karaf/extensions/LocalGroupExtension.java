@@ -15,7 +15,7 @@ package org.codice.dominion.pax.exam.options.karaf.extensions;
 
 import org.codice.dominion.options.karaf.KarafOptions.LocalGroup;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
-import org.codice.dominion.pax.exam.options.KarafUserPropertiesFileUserPutOption;
+import org.codice.dominion.pax.exam.options.KarafUsersPropertiesFileUserPutOption;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
@@ -26,7 +26,7 @@ public class LocalGroupExtension implements Extension<LocalGroup> {
   public Option[] options(
       LocalGroup annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader) {
     return new Option[] {
-      new KarafUserPropertiesFileUserPutOption(annotation.groupId(), annotation.roles())
+      new KarafUsersPropertiesFileUserPutOption(annotation.groupId(), annotation.roles())
     };
   }
 }

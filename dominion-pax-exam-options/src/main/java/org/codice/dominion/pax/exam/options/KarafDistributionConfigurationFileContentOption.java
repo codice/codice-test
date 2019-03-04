@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.SequenceInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.codice.dominion.DominionException;
 import org.codice.dominion.options.Options.Location;
@@ -33,7 +34,7 @@ import org.codice.dominion.resources.ResourceLoader;
 public class KarafDistributionConfigurationFileContentOption
     extends KarafDistributionConfigurationFileReplaceOption {
   protected final PaxExamInterpolator interpolator;
-  protected final Location location;
+  @Nullable protected final Location location;
 
   /**
    * Creates a new file content PaxExam option.

@@ -21,7 +21,7 @@ import org.codice.dominion.options.karaf.KarafOptions;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionConfigurationFilePutOption;
 
 /** PaxExam option for adding a new user or replacing an existing one. */
-public class KarafUserPropertiesFileGroupPutOption
+public class KarafUsersPropertiesFileGroupPutOption
     extends KarafDistributionConfigurationFilePutOption {
   public static final String GROUP_PREFIX = "_g_:";
 
@@ -32,7 +32,7 @@ public class KarafUserPropertiesFileGroupPutOption
    *
    * @param groupId the group id to be added or replaced
    */
-  public KarafUserPropertiesFileGroupPutOption(String groupId) {
+  public KarafUsersPropertiesFileGroupPutOption(String groupId) {
     super(KarafOptions.USER_PROPERTIES, groupId, null);
     this.roles = new LinkedHashSet<>();
   }
@@ -43,7 +43,7 @@ public class KarafUserPropertiesFileGroupPutOption
    * @param groupId the group id to be added or replaced
    * @param roles the roles to be added to the user
    */
-  public KarafUserPropertiesFileGroupPutOption(String groupId, String... roles) {
+  public KarafUsersPropertiesFileGroupPutOption(String groupId, String... roles) {
     this(groupId);
     addRoles(roles);
   }
@@ -63,7 +63,7 @@ public class KarafUserPropertiesFileGroupPutOption
    * @param role the role to be added to the group
    * @return this for chaining
    */
-  public KarafUserPropertiesFileGroupPutOption addRole(String role) {
+  public KarafUsersPropertiesFileGroupPutOption addRole(String role) {
     roles.add(role);
     return this;
   }
@@ -74,7 +74,7 @@ public class KarafUserPropertiesFileGroupPutOption
    * @param roles the roles to be added to the group
    * @return this for chaining
    */
-  public KarafUserPropertiesFileGroupPutOption addRoles(String... roles) {
+  public KarafUsersPropertiesFileGroupPutOption addRoles(String... roles) {
     Stream.of(roles).forEach(this.roles::add);
     return this;
   }
@@ -90,7 +90,7 @@ public class KarafUserPropertiesFileGroupPutOption
 
   @Override
   public String getKey() {
-    return KarafUserPropertiesFileGroupPutOption.GROUP_PREFIX + getGroupId();
+    return KarafUsersPropertiesFileGroupPutOption.GROUP_PREFIX + getGroupId();
   }
 
   @Override

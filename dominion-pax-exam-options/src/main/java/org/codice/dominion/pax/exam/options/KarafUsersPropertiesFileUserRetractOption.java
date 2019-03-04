@@ -16,7 +16,7 @@ package org.codice.dominion.pax.exam.options;
 import org.codice.dominion.options.karaf.KarafOptions;
 
 /** PaxExam option for removing a user. */
-public class KarafUserPropertiesFileUserRetractOption
+public class KarafUsersPropertiesFileUserRetractOption
     extends KarafDistributionConfigurationFileRemoveOption {
 
   /**
@@ -24,7 +24,7 @@ public class KarafUserPropertiesFileUserRetractOption
    *
    * @param userId the user id to be removed
    */
-  public KarafUserPropertiesFileUserRetractOption(String userId) {
+  public KarafUsersPropertiesFileUserRetractOption(String userId) {
     super(KarafOptions.USER_PROPERTIES, userId);
   }
 
