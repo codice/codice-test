@@ -52,6 +52,12 @@ public class Dominion extends Runner implements Filterable, Sortable {
   /** System property to use for overriding the driver search with a specific factory. */
   public static final String DRIVER_FACTORY_PROPERTY = "dominion.driver.factory";
 
+  /** System property to use for selecting a distribution matching a specific name. */
+  public static final String DISTRIBUTION_PROPERTY = "dominion.distribution";
+
+  /** User id for the Dominion user installed. This string expects to be interpolated. */
+  public static final String DOMINION_USER_ID = "{dominion.user:-dominion}";
+
   protected final Class<?> testClass;
   protected final Runner delegate;
   private final Filterable filterable;

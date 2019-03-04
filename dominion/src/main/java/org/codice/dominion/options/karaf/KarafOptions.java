@@ -138,7 +138,11 @@ public class KarafOptions {
     String frameworkUrl() default Options.NOT_DEFINED;
 
     /**
-     * Specifies the optional name for the framework (only used for logging).
+     * Specifies the optional name for the framework.
+     *
+     * <p>These options will be ignored if the {@link
+     * org.codice.dominion.Dominion#DISTRIBUTION_PROPERTY} system property is defined and doesn't
+     * match this optional name (if provided).
      *
      * @return the optional name for the framework
      */

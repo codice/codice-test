@@ -46,8 +46,8 @@ import org.apache.sshd.common.config.keys.FilePasswordProvider;
 import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
 import org.apache.sshd.common.util.io.EmptyInputStream;
 import org.apache.sshd.common.util.io.NoCloseOutputStream;
+import org.codice.dominion.Dominion;
 import org.codice.dominion.options.OptionException;
-import org.codice.dominion.options.Options;
 import org.codice.dominion.options.karaf.UserRoles;
 import org.codice.dominion.pax.exam.internal.DominionConfigurationFactory.AnnotationOptions;
 import org.codice.dominion.pax.exam.options.KarafSshCommandOption;
@@ -119,7 +119,7 @@ public class KarafSshCommandOptionProcessor {
     this.idleTimeout =
         KarafSshCommandOptionProcessor.getLong(
             shellCfg, "sshIdleTimeout", KarafSshCommandOptionProcessor.DEFAULT_IDLE_TIMEOUT);
-    final String dominionUserId = interpolator.interpolate(Options.DOMINION_USER_ID);
+    final String dominionUserId = interpolator.interpolate(Dominion.DOMINION_USER_ID);
     final Map.Entry<String, String> user =
         users
             .entrySet()

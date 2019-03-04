@@ -21,6 +21,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.concurrent.TimeUnit;
+import org.codice.dominion.Dominion;
 import org.codice.dominion.conditions.Conditions;
 import org.codice.dominion.interpolate.Interpolate;
 import org.codice.dominion.options.Option.Annotation;
@@ -37,9 +38,6 @@ public class Options {
    * attribute is not yet defined.
    */
   public static final String NOT_DEFINED = "_not_defined_";
-
-  /** User id for the Dominion user installed. This string expects to be interpolated. */
-  public static final String DOMINION_USER_ID = "{dominion.user:-dominion}";
 
   /** Sets of possible locations in a file where to insert content. */
   public enum Location {
@@ -111,7 +109,7 @@ public class Options {
   // make sure we have at least one user capable of SSH to the container
   @SuppressWarnings("squid:S2068" /* hard-coded password is for testing */)
   @KarafOptions.LocalUser(
-    userId = Options.DOMINION_USER_ID,
+    userId = Dominion.DOMINION_USER_ID,
     password = "{dominion.password:-dominion}",
     roles = {
       UserRoles.GROUP,
