@@ -58,15 +58,15 @@ import org.slf4j.LoggerFactory;
  * Option.Annotation} meta-annotations in order to configure the container.
  */
 @KarafOptions.Feature(
-    repository =
-    @MavenUrl(
+  repository =
+      @MavenUrl(
         groupId = Options.MavenUrl.AS_PROJECT,
         artifactId = "dominion-pax-exam-feature",
         version = Options.MavenUrl.AS_PROJECT,
         type = "xml",
         classifier = "features"
-    ),
-    names = "dominion-pax-exam"
+      ),
+  names = "dominion-pax-exam"
 )
 public class DominionConfigurationFactory implements ConfigurationFactory {
   private static final Logger LOGGER = LoggerFactory.getLogger(DominionConfigurationFactory.class);
@@ -89,8 +89,7 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
 
   private final List<? extends org.ops4j.pax.exam.Option> coreOptions;
 
-  @Nullable
-  private volatile AnnotationOptions options = null;
+  @Nullable private volatile AnnotationOptions options = null;
 
   public DominionConfigurationFactory() {
     this.testInstance = DominionConfigurationFactory.THREAD_LOCAL_TEST_INSTANCE.get();
@@ -99,9 +98,9 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
     LOGGER.debug("DominionConfigurationFactory({}, {})", testClass.getName(), testInstance);
     this.coreOptions =
         ReflectionUtils.annotationsByType(
-            DominionConfigurationFactory.this::filterConditionAnnotations,
-            DominionConfigurationFactory.class,
-            Option.Annotation.class)
+                DominionConfigurationFactory.this::filterConditionAnnotations,
+                DominionConfigurationFactory.class,
+                Option.Annotation.class)
             .map(ExtensionOption::new)
             .flatMap(ExtensionOption::extensions)
             .map(ExtensionOption::getOptions)
@@ -135,7 +134,7 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
     LOGGER.debug("{}::createConfiguration() - karaf distribution = {}", this, distro);
     interpolator.setDistribution(distro);
     this.options = opts;
-    return new org.ops4j.pax.exam.Option[]{opts};
+    return new org.ops4j.pax.exam.Option[] {opts};
   }
 
   /**
@@ -305,13 +304,13 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
      */
     public Stream<org.ops4j.pax.exam.Option> options() {
       return Stream.of(
-          options.stream().map(ExtensionOption::getOptions).flatMap(Stream::of),
-          Stream.of(interpolator.getOptions()),
-          // make sure we add the core options after all other options that are specified by the
-          // test class
-          coreOptions.stream(),
-          // the pre-hook options should be last
-          preStartHookOptions())
+              options.stream().map(ExtensionOption::getOptions).flatMap(Stream::of),
+              Stream.of(interpolator.getOptions()),
+              // make sure we add the core options after all other options that are specified by the
+              // test class
+              coreOptions.stream(),
+              // the pre-hook options should be last
+              preStartHookOptions())
           .flatMap(Function.identity());
     }
 
@@ -401,10 +400,8 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
     private final Annotation enclosingAnnotation;
     private final Annotation interpolatedEnclosingAnnotation;
     private final List<PaxExamOption.Extension<Annotation>> extensions;
-    @Nullable
-    private volatile List<org.ops4j.pax.exam.Option> options = null;
-    @Nullable
-    private volatile String optionsToString = null;
+    @Nullable private volatile List<org.ops4j.pax.exam.Option> options = null;
+    @Nullable private volatile String optionsToString = null;
 
     ExtensionOption(AnnotationEntry<Option.Annotation> entry) {
       this(entry, interpolator);
@@ -451,7 +448,7 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
       // trigger another attempt at interpolation
       return (opts != null)
           ? opts.toArray(new org.ops4j.pax.exam.Option[opts.size()])
-          : new org.ops4j.pax.exam.Option[]{this};
+          : new org.ops4j.pax.exam.Option[] {this};
     }
 
     @Override
@@ -482,9 +479,9 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
               .flatMap(
                   extension ->
                       ReflectionUtils.annotationsByType(
-                          DominionConfigurationFactory.this::filterConditionAnnotations,
-                          extension.getClass(),
-                          Option.Annotation.class)
+                              DominionConfigurationFactory.this::filterConditionAnnotations,
+                              extension.getClass(),
+                              Option.Annotation.class)
                           .map(e -> new ExtensionOption(e, annotationInterpolator))
                           .flatMap(ExtensionOption::extensions)),
           Stream.of(this));
@@ -498,7 +495,7 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
       for (final PaxExamOption.Extension<Annotation> extension : extensions) {
         try {
           expandAndFilterAndEnhanceDistributionOptions(
-              extension.options(interpolatedEnclosingAnnotation, interpolator, entryLoader))
+                  extension.options(interpolatedEnclosingAnnotation, interpolator, entryLoader))
               .forEach(opts::add);
         } catch (VirtualMachineError e) {
           throw e;
@@ -621,7 +618,7 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
   private static Stream<org.ops4j.pax.exam.Option> expand(org.ops4j.pax.exam.Option option) {
     return (option instanceof CompositeOption)
         ? Stream.of(((CompositeOption) option).getOptions())
-        .flatMap(DominionConfigurationFactory::expand)
+            .flatMap(DominionConfigurationFactory::expand)
         : Stream.of(option);
   }
 

@@ -249,9 +249,9 @@ public class KarafSshCommandOptionProcessor {
   }
 
   @SuppressWarnings({
-      "squid:CallToDeprecatedMethod" /* in error conditions, we don't care if the agent cannot be closed */,
-      "squid:S2095" /* agent is being returned out so we don't want to close it */,
-      "squid:S2093" /* we want the control to not close in successful cpaths */
+    "squid:CallToDeprecatedMethod" /* in error conditions, we don't care if the agent cannot be closed */,
+    "squid:S2095" /* agent is being returned out so we don't want to close it */,
+    "squid:S2093" /* we want the control to not close in successful cpaths */
   })
   private SshAgent startAgent(
       URL privateKeyUrl, @Nullable String keyFile, @Nullable FilePasswordProvider passwordProvider)
