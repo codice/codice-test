@@ -159,6 +159,20 @@ public class Interpolator implements Closeable, StringLookup {
   }
 
   /**
+   * Initializes a new interpolator with all information from the provided interpolator.
+   *
+   * @param interpolator the interpolator to proxy
+   */
+  protected Interpolator(Interpolator interpolator) {
+    LOGGER.debug("Interpolator({})", interpolator);
+    this.testClass = interpolator.testClass;
+    this.id = interpolator.id;
+    this.container = interpolator.container;
+    this.replacements = interpolator.replacements;
+    this.ports = interpolator.ports;
+  }
+
+  /**
    * Gets the current test class.
    *
    * @return the test class

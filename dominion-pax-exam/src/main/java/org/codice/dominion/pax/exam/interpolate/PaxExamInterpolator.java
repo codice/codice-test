@@ -89,6 +89,20 @@ public class PaxExamInterpolator extends Interpolator {
   }
 
   /**
+   * Initializes a new interpolator with all information from the provided interpolator.
+   *
+   * @param interpolator the interpolator to proxy
+   */
+  protected PaxExamInterpolator(PaxExamInterpolator interpolator) {
+    super(interpolator);
+    LOGGER.debug("PaxExamInterpolator({})", interpolator);
+    this.karafHome = interpolator.karafHome;
+    this.karafBin = interpolator.karafBin;
+    this.karafData = interpolator.karafData;
+    this.karafEtc = interpolator.karafEtc;
+  }
+
+  /**
    * Gets the location of <code>"{karaf.home}"</code>.
    *
    * @return the path to <code>"{karaf.home}"</code> if known

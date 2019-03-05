@@ -125,7 +125,16 @@ public class Option {
   @Documented
   public @interface Annotation {}
 
-  /** Extension point for user-defined option annotations. */
+  /**
+   * Extension point for user-defined option annotations.
+   *
+   * <p>Options can also be added to extension classes. When Dominion is searching for the extension
+   * associated with a given option, it will also recursively retrieve all extensions associated
+   * with the registered extension for a given option extension. In addition, when evaluating these
+   * options, it will provide an interpolator that adds support for the <code>"annotation."</code>
+   * prefix allowing these additional options a chance to retrieve specific attributes of the
+   * annotation for which the extension is registered for.
+   */
   public interface Extension {}
 
   /**

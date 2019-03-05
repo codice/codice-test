@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.dominion.pax.exam.internal;
+package org.codice.dominion.pax.exam.internal.processors;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,6 +50,7 @@ import org.codice.dominion.Dominion;
 import org.codice.dominion.options.OptionException;
 import org.codice.dominion.options.karaf.UserRoles;
 import org.codice.dominion.pax.exam.internal.DominionConfigurationFactory.AnnotationOptions;
+import org.codice.dominion.pax.exam.internal.PaxExamDriverInterpolator;
 import org.codice.dominion.pax.exam.options.KarafSshCommandOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -192,7 +193,7 @@ public class KarafSshCommandOptionProcessor {
       shell.setErr(new NoCloseOutputStream(System.err));
       shell.open().verify(5L, TimeUnit.SECONDS);
       shell.waitFor(
-          EnumSet.of(ClientChannelEvent.CLOSED), command.getTimeout() + 5000L); // padd 5 seconds
+          EnumSet.of(ClientChannelEvent.CLOSED), command.getTimeout() + 5000L); // pad 5 seconds
       final Integer status = shell.getExitStatus();
 
       if (status == null) {
@@ -248,9 +249,9 @@ public class KarafSshCommandOptionProcessor {
   }
 
   @SuppressWarnings({
-    "squid:CallToDeprecatedMethod" /* in error conditions, we don't care if the agent cannot be closed */,
-    "squid:S2095" /* agent is being returned out so we don't want to close it */,
-    "squid:S2093" /* we want the control to not close in successful cpaths */
+      "squid:CallToDeprecatedMethod" /* in error conditions, we don't care if the agent cannot be closed */,
+      "squid:S2095" /* agent is being returned out so we don't want to close it */,
+      "squid:S2093" /* we want the control to not close in successful cpaths */
   })
   private SshAgent startAgent(
       URL privateKeyUrl, @Nullable String keyFile, @Nullable FilePasswordProvider passwordProvider)
