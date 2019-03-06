@@ -49,6 +49,8 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This JUnit method rule behaves similarly to Pax Exam support for the <code>@Inject</code>
@@ -60,6 +62,8 @@ import org.osgi.framework.InvalidSyntaxException;
 @SuppressWarnings("squid:S2176" /* name was chosen to be a replacement for OSGi's config admin */)
 public class ConfigurationAdmin extends InjectedService<org.osgi.service.cm.ConfigurationAdmin>
     implements org.osgi.service.cm.ConfigurationAdmin {
+  private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationAdmin.class);
+
   /**
    * Sets of annotations that can be found on test classes, test methods, or recursively inside
    * other annotations found on test classes or test methods.
@@ -206,6 +210,7 @@ public class ConfigurationAdmin extends InjectedService<org.osgi.service.cm.Conf
    * @throws ConfigTimeoutException if we timed out before the config admin was able to stabilize
    */
   public void stabilize(long timeout) throws InterruptedException {
+    LOGGER.info("Stabilizing OSGi configuration");
     final long end = System.currentTimeMillis() + timeout;
     final Dictionary<String, Object> props = new Hashtable<>(6);
 
@@ -430,6 +435,7 @@ public class ConfigurationAdmin extends InjectedService<org.osgi.service.cm.Conf
       if (ConfigurationAdmin.snapshotConfigs.isEmpty()) {
         // stabilize the system before taking a snapshot
         stabilize(ConfigurationAdmin.STABILIZE_TIMEOUT);
+        LOGGER.info("Snapshooting OSGi configuration");
         configurations()
             .map(ConfigurationSnapshot::new)
             .forEach(c -> ConfigurationAdmin.snapshotConfigs.put(c.getPid(), c));
@@ -441,6 +447,7 @@ public class ConfigurationAdmin extends InjectedService<org.osgi.service.cm.Conf
     final Map<String, Configuration> currentConfigs =
         configurations().collect(Collectors.toMap(Configuration::getPid, Function.identity()));
 
+    LOGGER.info("Resetting OSGi configuration");
     // start by deleting config objects that shouldn't be there and updating those that changes
     currentConfigs.forEach(
         (pid, current) -> {
