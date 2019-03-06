@@ -20,8 +20,8 @@ import org.codice.dominion.options.Options.ReplaceFile;
 import org.codice.dominion.options.Utilities;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileReplaceOption;
-import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileReplaceOption.Type;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
+import org.codice.dominion.pax.exam.options.SourceType;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
 
@@ -64,7 +64,7 @@ public class ReplaceFileExtension implements Extension<ReplaceFile> {
             // separators to Unix is on purpose as PaxExam will analyze the target based on it
             // containing / and not \ and then convert it properly
             FilenameUtils.separatorsToUnix(annotation.target()),
-            Type.FILE,
+            SourceType.FILE,
             file)
       };
     } else if (urlIsDefined) {
@@ -74,7 +74,7 @@ public class ReplaceFileExtension implements Extension<ReplaceFile> {
             // separators to Unix is on purpose as PaxExam will analyze the target based on it
             // containing / and not \ and then convert it properly
             FilenameUtils.separatorsToUnix(annotation.target()),
-            Type.URL,
+            SourceType.URL,
             url)
       };
     } else if (contentIsDefined) {

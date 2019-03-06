@@ -13,8 +13,6 @@
  */
 package org.codice.dominion.pax.exam.options;
 
-import org.ops4j.pax.exam.karaf.options.ConfigurationPointer;
-
 /**
  * This option allows to retract configurations in each configuration file based on the <code>
  * {karaf.home}</code> location. The value identifies an entry to retract from the current value
@@ -32,16 +30,17 @@ public class KarafDistributionConfigurationFileRetractOption
     extends KarafDistributionConfigurationFilePostOption {
   private final Object value;
 
-  public KarafDistributionConfigurationFileRetractOption(
-      ConfigurationPointer pointer, Object value) {
-    super(pointer);
-    this.value = value;
-  }
+  private final String key;
 
   public KarafDistributionConfigurationFileRetractOption(
       String configurationFilePath, String key, Object value) {
-    super(configurationFilePath, key);
+    super(configurationFilePath);
+    this.key = key;
     this.value = value;
+  }
+
+  public String getKey() {
+    return key;
   }
 
   public Object getValue() {

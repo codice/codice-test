@@ -20,21 +20,27 @@ import java.io.InputStream;
 import java.io.SequenceInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.codice.dominion.DominionException;
 import org.codice.dominion.options.Options.Location;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.resources.ResourceLoader;
 
 /**
- * Provides an extension to PaxExam's KarafDistributionConfigurationFileReplacementOption which
- * supports adding content to an existing file.
+ * Provides an extension to PaxExam's file options which supports adding content to an existing
+ * file. This version supports multiple subsequent replacements of the same file without worrying
+ * for the key as does PaxExam's KarafDistributionConfigurationFileReplacementOption.
  */
 public class KarafDistributionConfigurationFileContentOption
-    extends KarafDistributionConfigurationFileReplaceOption {
+    extends KarafDistributionConfigurationFilePostOption {
   protected final PaxExamInterpolator interpolator;
   @Nullable protected final Location location;
+
+  protected final File source;
 
   /**
    * Creates a new file content PaxExam option.
@@ -42,25 +48,23 @@ public class KarafDistributionConfigurationFileContentOption
    * @param interpolator the interpolator from which to retrieve Karaf directory locations
    * @param location the location in the file where to add the content
    * @param configurationFilePath the configuration file path to add content to
-   * @param type the type of the source (any except for {@link Type#RESOURCE})
+   * @param type the type of the source (any except for {@link SourceType#RESOURCE})
    * @param source the source where to get the content
-   * @throws IllegalArgumentException if <code>type</code> is {@link Type#RESOURCE}
+   * @throws IllegalArgumentException if <code>type</code> is {@link SourceType#RESOURCE}
    * @throws IOException if an I/O error occurs while retrieving/creating the source
    */
   public KarafDistributionConfigurationFileContentOption(
       PaxExamInterpolator interpolator,
       Location location,
       String configurationFilePath,
-      Type type,
+      SourceType type,
       String source)
       throws IOException {
-    super(interpolator, configurationFilePath, type, source);
-    this.interpolator = interpolator;
-    this.location = location;
+    this(interpolator, location, configurationFilePath, type.toFile(source, interpolator, null));
   }
 
   /**
-   * Creates a new shell.init.script content PaxExam option.
+   * Creates a new file content PaxExam option.
    *
    * @param interpolator the interpolator from which to retrieve Karaf directory locations
    * @param location the location in the file where to add the content
@@ -74,9 +78,14 @@ public class KarafDistributionConfigurationFileContentOption
       String configurationFilePath,
       String... content)
       throws IOException {
-    super(interpolator, configurationFilePath, content);
-    this.interpolator = interpolator;
-    this.location = location;
+    this(
+        interpolator,
+        location,
+        configurationFilePath,
+        SourceType.CONTENT,
+        Stream.of(content)
+            .map(c -> StringUtils.appendIfMissing(c, interpolator.getLineSeparator()))
+            .collect(Collectors.joining()));
   }
 
   /**
@@ -87,7 +96,7 @@ public class KarafDistributionConfigurationFileContentOption
    * @param configurationFilePath the configuration file path to add content to
    * @param resource the resource where to get the content
    * @param resourceLoader the resource loader to use if required
-   * @throws IOException if an I/O error occurs while retrieving the source
+   * @throws IOException if an I/O error occurs while retrieving the resource
    */
   public KarafDistributionConfigurationFileContentOption(
       PaxExamInterpolator interpolator,
@@ -96,9 +105,30 @@ public class KarafDistributionConfigurationFileContentOption
       String resource,
       ResourceLoader resourceLoader)
       throws IOException {
-    super(configurationFilePath, resource, resourceLoader);
+    this(
+        interpolator,
+        location,
+        configurationFilePath,
+        SourceType.RESOURCE.toFile(resource, null, resourceLoader));
+  }
+
+  /**
+   * Creates a new file content PaxExam option with the specified source.
+   *
+   * @param interpolator the interpolator from which to retrieve Karaf directory locations
+   * @param location the location in the file where to add the content
+   * @param configurationFilePath the configuration file path to replace
+   * @param source the source where to get the content
+   */
+  protected KarafDistributionConfigurationFileContentOption(
+      PaxExamInterpolator interpolator,
+      Location location,
+      String configurationFilePath,
+      File source) {
+    super(configurationFilePath);
     this.interpolator = interpolator;
     this.location = location;
+    this.source = source;
   }
 
   /**
@@ -106,6 +136,7 @@ public class KarafDistributionConfigurationFileContentOption
    * override the {@link #getSource(File)} method in order to retrieve the source file to have its
    * content used to replace the original file.
    *
+   * @param interpolator the interpolator from which to retrieve Karaf directory locations
    * @param configurationFilePath the configuration file path to replace
    */
   protected KarafDistributionConfigurationFileContentOption(
@@ -113,9 +144,14 @@ public class KarafDistributionConfigurationFileContentOption
     super(configurationFilePath);
     this.interpolator = interpolator;
     this.location = null;
+    this.source = null;
   }
 
-  @Override
+  /**
+   * Gets the source for the content of the file to be copied over.
+   *
+   * @return the surce for the content of the file to be copied over
+   */
   public File getSource() {
     // find the original file so we can getSource it
     final String path = getConfigurationFilePath();
@@ -155,17 +191,17 @@ public class KarafDistributionConfigurationFileContentOption
    *
    * @param original the original file being replaced (it might not exist)
    * @return a file containing the content that should be copied over the original file
-   * @throws Exception if an I/O error occurred while putting together the source file
+   * @throws Exception if an error occurred while putting together the source file
    */
   @SuppressWarnings({
     "squid:S2095" /* closing of streams is handled by FileUtils.copy */,
-    "squid:S00112" /* Intended to allow subclasses to throw anything out */
+    "squid:S00112" /* intended to allow subclasses to throw anything out */
   })
   protected File getSource(File original) throws Exception {
-    final File source = super.getSource();
+    final File src = this.source;
 
     if (!original.exists()) { // nothing to append/prepend to
-      return source;
+      return src;
     }
     File tmp = null;
 
@@ -194,7 +230,14 @@ public class KarafDistributionConfigurationFileContentOption
     return tmp;
   }
 
-  private static File toFile(Path base, String location) {
+  /**
+   * Gets a path for the given location relative to the specified base directory.
+   *
+   * @param base the base directory
+   * @param location the relative location (any initial file separator is first stripped)
+   * @return a corresponding path
+   */
+  public static File toFile(Path base, String location) {
     if (location.startsWith("/")) {
       return base.resolve(location.substring(1)).toFile();
     }

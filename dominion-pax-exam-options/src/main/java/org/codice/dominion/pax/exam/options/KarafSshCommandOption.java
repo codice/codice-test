@@ -53,6 +53,11 @@ public class KarafSshCommandOption implements Option {
 
   @Override
   public String toString() {
-    return getClass().getSimpleName() + "{command=" + command + ", timeout=" + timeout + "}";
+    return KarafSshCommandOption.class.getSimpleName()
+        + "{command="
+        + command
+        + ", timeout="
+        + timeout
+        + "}";
   }
 }

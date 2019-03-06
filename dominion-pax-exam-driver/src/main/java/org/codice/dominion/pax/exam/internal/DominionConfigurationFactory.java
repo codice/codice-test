@@ -275,6 +275,14 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
                 + " with @"
                 + KarafOptions.DistributionConfiguration.class.getSimpleName());
       }
+      final String name = distros[0].getName();
+
+      if (StringUtils.isNotEmpty(name)) {
+        LOGGER.info(
+            "Setting up '{}' distribution for '{}' container", name, interpolator.getContainer());
+      } else {
+        LOGGER.info("Setting up distribution for '{}' container", interpolator.getContainer());
+      }
       this.distribution = distros[0];
     }
 

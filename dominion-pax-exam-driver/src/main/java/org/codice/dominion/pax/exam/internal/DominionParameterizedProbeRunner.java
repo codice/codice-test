@@ -16,6 +16,7 @@ package org.codice.dominion.pax.exam.internal;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -248,7 +249,7 @@ public class DominionParameterizedProbeRunner extends BlockJUnit4ClassRunner {
                   + " @ "
                   + address
                   + " Arguments: "
-                  + address.root().arguments());
+                  + Arrays.toString(address.root().arguments()));
         }
         try {
           stagedReactor.invoke(address);

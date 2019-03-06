@@ -13,22 +13,21 @@
  */
 package org.codice.dominion.pax.exam.options;
 
-import org.ops4j.pax.exam.karaf.options.ConfigurationPointer;
-
 /**
  * This option allows to remove configurations in each configuration file based on the <code>
  * {karaf.home}</code> location. The key identifies a property to remove completely from the
  * configuration file.
  */
-// cannot extend KarafDistributionConfigurationFileOption as it will be handle as an extend option
-// by PaxExam
 public class KarafDistributionConfigurationFileRemoveOption
     extends KarafDistributionConfigurationFilePostOption {
-  public KarafDistributionConfigurationFileRemoveOption(ConfigurationPointer pointer) {
-    super(pointer);
-  }
+  private final String key;
 
   public KarafDistributionConfigurationFileRemoveOption(String configurationFilePath, String key) {
-    super(configurationFilePath, key);
+    super(configurationFilePath);
+    this.key = key;
+  }
+
+  public String getKey() {
+    return key;
   }
 }

@@ -30,13 +30,13 @@ public class KarafShellInitFileContentOption
    * Creates a new shell.init.script content PaxExam option.
    *
    * @param interpolator the interpolator from which to retrieve Karaf directory locations
-   * @param type the type of the source (any except for {@link Type#RESOURCE})
+   * @param type the type of the source (any except for {@link SourceType#RESOURCE})
    * @param source the source where to get the content
-   * @throws IllegalArgumentException if <code>type</code> is {@link Type#RESOURCE}
+   * @throws IllegalArgumentException if <code>type</code> is {@link SourceType#RESOURCE}
    * @throws IOException if an I/O error occurs while retrieving/creating the source
    */
-  public KarafShellInitFileContentOption(PaxExamInterpolator interpolator, Type type, String source)
-      throws IOException {
+  public KarafShellInitFileContentOption(
+      PaxExamInterpolator interpolator, SourceType type, String source) throws IOException {
     super(
         interpolator,
         Location.APPEND,

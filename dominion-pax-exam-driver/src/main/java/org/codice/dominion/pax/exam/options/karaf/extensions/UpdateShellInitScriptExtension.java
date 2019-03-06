@@ -18,9 +18,9 @@ import java.util.stream.Stream;
 import org.codice.dominion.options.Utilities;
 import org.codice.dominion.options.karaf.KarafOptions.UpdateShellInitScript;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
-import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileReplaceOption.Type;
 import org.codice.dominion.pax.exam.options.KarafShellInitFileContentOption;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
+import org.codice.dominion.pax.exam.options.SourceType;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
 
@@ -59,9 +59,11 @@ public class UpdateShellInitScriptExtension implements Extension<UpdateShellInit
               + resourceLoader.getLocationClass().getName());
     }
     if (fileIsDefined) {
-      return new Option[] {new KarafShellInitFileContentOption(interpolator, Type.FILE, file)};
+      return new Option[] {
+        new KarafShellInitFileContentOption(interpolator, SourceType.FILE, file)
+      };
     } else if (urlIsDefined) {
-      return new Option[] {new KarafShellInitFileContentOption(interpolator, Type.URL, url)};
+      return new Option[] {new KarafShellInitFileContentOption(interpolator, SourceType.URL, url)};
     } else if (contentIsDefined) {
       return new Option[] {new KarafShellInitFileContentOption(interpolator, content)};
     }

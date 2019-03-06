@@ -182,11 +182,13 @@ public class KarafSshCommandOptionProcessor {
   }
 
   @SuppressWarnings(
-      "squid:S106" /* purposely tighing the SSH session to the current output streams*/)
+      "squid:S106" /* purposely tying the SSH session to the current output streams */)
   private void execute(KarafSshCommandOption command, ClientSession session) throws IOException {
-    LOGGER.debug("SSH: executing [{}] ...", command.getCommand());
+    final String cmd = command.getCommand();
+
+    LOGGER.debug("SSH: executing [{}] ...", cmd);
     try (final ChannelExec shell =
-        session.createExecChannel(StringUtils.appendIfMissing(command.getCommand(), "\n"))) {
+        session.createExecChannel(StringUtils.appendIfMissing(cmd, "\n"))) {
       shell.setIn(new EmptyInputStream());
       shell.setAgentForwarding(true);
       shell.setOut(new NoCloseOutputStream(System.out));
@@ -197,12 +199,11 @@ public class KarafSshCommandOptionProcessor {
       final Integer status = shell.getExitStatus();
 
       if (status == null) {
-        throw new IOException("command [" + command.getCommand() + "] failure; no exit status");
+        throw new IOException("command [" + cmd + "] failure; no exit status");
       } else if (status.intValue() != 0) {
-        throw new IOException(
-            "command [" + command.getCommand() + "] failure; exit status: " + status);
+        throw new IOException("command [" + cmd + "] failure; exit status: " + status);
       }
-      LOGGER.debug("SSH: [{}] successful", command.getCommand());
+      LOGGER.debug("SSH: [{}] successful", cmd);
     }
   }
 

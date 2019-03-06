@@ -22,6 +22,7 @@ import org.codice.dominion.pax.exam.internal.DominionConfigurationFactory.Annota
 import org.codice.dominion.pax.exam.internal.DominionKarafConfigurationFile;
 import org.codice.dominion.pax.exam.internal.DominionKarafConfigurationFileFactory;
 import org.codice.dominion.pax.exam.internal.PaxExamDriverInterpolator;
+import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileContentOption;
 import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFilePostOption;
 import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileRemoveOption;
 import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileRetractOption;
@@ -77,15 +78,24 @@ public class KarafDistributionConfigurationFilePostOptionProcessor {
       karafConfigFile.load();
       for (final KarafDistributionConfigurationFilePostOption optionToApply : optionsToApply) {
         if (optionToApply instanceof KarafDistributionConfigurationFileRetractOption) {
-          if (karafConfigFile.retract(
-              optionToApply.getKey(),
-              ((KarafDistributionConfigurationFileRetractOption) optionToApply).getValue())) {
+          final KarafDistributionConfigurationFileRetractOption retractOption =
+              (KarafDistributionConfigurationFileRetractOption) optionToApply;
+
+          if (karafConfigFile.retract(retractOption.getKey(), retractOption.getValue())) {
             store = true;
           }
         } else if (optionToApply instanceof KarafDistributionConfigurationFileRemoveOption) {
-          if (karafConfigFile.remove(optionToApply.getKey())) {
+          if (karafConfigFile.remove(
+              ((KarafDistributionConfigurationFileRemoveOption) optionToApply).getKey())) {
             store = true;
           }
+        } else if (optionToApply instanceof KarafDistributionConfigurationFileContentOption) {
+          if (store) { // first store what we have accumulated so far, in case getSource() loads it
+            karafConfigFile.store();
+            store = false;
+          }
+          karafConfigFile.replace(
+              ((KarafDistributionConfigurationFileContentOption) optionToApply).getSource());
         }
       }
       if (store) {

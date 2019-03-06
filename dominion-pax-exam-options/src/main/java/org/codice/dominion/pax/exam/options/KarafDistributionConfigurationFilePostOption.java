@@ -14,7 +14,6 @@
 package org.codice.dominion.pax.exam.options;
 
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.karaf.options.ConfigurationPointer;
 
 /**
  * Abstract class for file options that are processed by Dominion after all other standard PaxExam
@@ -24,22 +23,12 @@ import org.ops4j.pax.exam.karaf.options.ConfigurationPointer;
 // by PaxExam
 public abstract class KarafDistributionConfigurationFilePostOption implements Option {
   private final String configurationFilePath;
-  private final String key;
 
-  public KarafDistributionConfigurationFilePostOption(ConfigurationPointer pointer) {
-    this(pointer.getConfigurationFilePath(), pointer.getKey());
-  }
-
-  public KarafDistributionConfigurationFilePostOption(String configurationFilePath, String key) {
+  public KarafDistributionConfigurationFilePostOption(String configurationFilePath) {
     this.configurationFilePath = configurationFilePath;
-    this.key = key;
   }
 
   public String getConfigurationFilePath() {
     return configurationFilePath;
-  }
-
-  public String getKey() {
-    return key;
   }
 }
