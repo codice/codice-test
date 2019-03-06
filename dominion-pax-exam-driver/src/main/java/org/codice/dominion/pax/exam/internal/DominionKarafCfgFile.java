@@ -14,17 +14,63 @@
 package org.codice.dominion.pax.exam.internal;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Properties;
 import java.util.StringTokenizer;
-import org.ops4j.pax.exam.karaf.container.internal.KarafCfgFile;
+import javax.annotation.Nullable;
+import org.ops4j.pax.exam.karaf.container.internal.JoinUtil;
 
-public class DominionKarafCfgFile extends KarafCfgFile implements DominionKarafConfigurationFile {
+/** Class that supports Karaf <code>.cfg</code> configuration files. */
+public class DominionKarafCfgFile extends DominionKarafConfigurationFile {
+  private final Properties properties = new Properties();
+
   public DominionKarafCfgFile(File karafHome, String location) {
     super(karafHome, location);
   }
 
   @Override
+  public void store() throws IOException {
+    try (final FileOutputStream os = new FileOutputStream(file)) {
+      properties.store(os, "Modified by Dominion");
+    }
+  }
+
+  @Override
+  public void load() throws IOException {
+    if (!file.exists()) {
+      return;
+    }
+    try (final FileInputStream is = new FileInputStream(file)) {
+      properties.load(is);
+    }
+  }
+
+  @Override
+  public void put(String key, Object value) {
+    properties.put(key, value);
+  }
+
+  @Override
+  public boolean remove(String key) {
+    return properties.remove(key) != null;
+  }
+
+  @Override
+  public void extend(String key, Object value) {
+    final String current = properties.getProperty(key);
+
+    if (current == null) {
+      properties.put(key, value);
+    } else {
+      properties.put(key, JoinUtil.join(current, (String) value));
+    }
+  }
+
+  @Override
   public boolean retract(String key, Object value) {
-    final String current = (String) get(key);
+    final String current = properties.getProperty(key);
 
     if (current == null) {
       return false;
@@ -49,6 +95,12 @@ public class DominionKarafCfgFile extends KarafCfgFile implements DominionKarafC
       return true;
     }
     return false;
+  }
+
+  @Nullable
+  @Override
+  public Object get(String key) {
+    return properties.getProperty(key);
   }
 
   /**

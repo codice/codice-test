@@ -33,6 +33,11 @@
             <artifactId>dominion</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.codice.test</groupId>
+            <artifactId>internal</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
@@ -85,6 +90,9 @@
                         <Bundle-Category>osgi</Bundle-Category>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Vendor>Codice</Bundle-Vendor>
+                        <Embed-Dependency>
+                            internal
+                        </Embed-Dependency>
                         <Import-Package>
                             javax.annotation;version="[1.1,2)",
                             *

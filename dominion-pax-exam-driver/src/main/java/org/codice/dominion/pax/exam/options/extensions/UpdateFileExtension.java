@@ -17,10 +17,11 @@ import java.io.IOException;
 import java.util.stream.Stream;
 import org.apache.commons.io.FilenameUtils;
 import org.codice.dominion.options.Options.UpdateFile;
+import org.codice.dominion.options.Utilities;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileContentOption;
-import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileReplaceOption.Type;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
+import org.codice.dominion.pax.exam.options.SourceType;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
 
@@ -34,10 +35,10 @@ public class UpdateFileExtension implements Extension<UpdateFile> {
     final String url = annotation.url();
     final String[] content = annotation.content();
     final String resource = annotation.resource();
-    final boolean fileIsDefined = Utilities.isDefined(file);
-    final boolean urlIsDefined = Utilities.isDefined(url);
+    final boolean fileIsDefined = org.codice.dominion.options.Utilities.isDefined(file);
+    final boolean urlIsDefined = org.codice.dominion.options.Utilities.isDefined(url);
     final boolean contentIsDefined = Utilities.isDefined(content);
-    final boolean resourceIsDefined = Utilities.isDefined(resource);
+    final boolean resourceIsDefined = org.codice.dominion.options.Utilities.isDefined(resource);
     final long count =
         Stream.of(fileIsDefined, urlIsDefined, contentIsDefined, resourceIsDefined)
             .filter(Boolean.TRUE::equals)
@@ -64,7 +65,7 @@ public class UpdateFileExtension implements Extension<UpdateFile> {
             // separators to Unix is on purpose as PaxExam will analyze the target based on it
             // containing / and not \ and then convert it properly
             FilenameUtils.separatorsToUnix(annotation.target()),
-            Type.FILE,
+            SourceType.FILE,
             file)
       };
     } else if (urlIsDefined) {
@@ -75,7 +76,7 @@ public class UpdateFileExtension implements Extension<UpdateFile> {
             // separators to Unix is on purpose as PaxExam will analyze the target
             // based on it containing / and not \ and then convert it properly
             FilenameUtils.separatorsToUnix(annotation.target()),
-            Type.URL,
+            SourceType.URL,
             url)
       };
     } else if (contentIsDefined) {

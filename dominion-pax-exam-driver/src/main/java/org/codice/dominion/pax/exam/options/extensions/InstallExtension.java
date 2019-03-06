@@ -15,7 +15,6 @@ package org.codice.dominion.pax.exam.options.extensions;
 
 import org.codice.dominion.options.Options;
 import org.codice.dominion.options.Options.Install;
-import org.codice.dominion.options.Options.MavenUrl;
 import org.codice.dominion.options.Options.UpdateConfigFile;
 import org.codice.dominion.options.karaf.KarafOptions;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
@@ -39,17 +38,6 @@ import org.ops4j.pax.exam.Option;
           + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype"
 )
 @KarafOptions.PropagateOverriddenMavenLocalRepo
-@KarafOptions.Feature(
-  repository =
-      @MavenUrl(
-        groupId = Options.MavenUrl.AS_PROJECT,
-        artifactId = "dominion-pax-exam-feature",
-        version = Options.MavenUrl.AS_PROJECT,
-        type = "xml",
-        classifier = "features"
-      ),
-  names = "dominion-pax-exam"
-)
 @Options.SetSystemProperty(key = "pax.exam.invoker", value = "junit")
 public class InstallExtension implements Extension<Install> {
   @Override

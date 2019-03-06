@@ -16,6 +16,7 @@ package org.codice.dominion.pax.exam.options;
 import org.ops4j.pax.exam.Option;
 
 /** Pax Exam option for executing a shell command after the container has started. */
+// should be enhanced to support matching a string from the ssh output to detect success or failure
 public class KarafSshCommandOption implements Option {
   /** Ssh command to execute. */
   private final String command;
@@ -52,6 +53,11 @@ public class KarafSshCommandOption implements Option {
 
   @Override
   public String toString() {
-    return getClass().getSimpleName() + "{command=" + command + ", timeout=" + timeout + "}";
+    return KarafSshCommandOption.class.getSimpleName()
+        + "{command="
+        + command
+        + ", timeout="
+        + timeout
+        + "}";
   }
 }

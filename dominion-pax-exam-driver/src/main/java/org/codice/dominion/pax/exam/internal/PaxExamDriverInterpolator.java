@@ -71,6 +71,16 @@ public class PaxExamDriverInterpolator extends PaxExamInterpolator {
     LOGGER.debug("PaxExamDriverInterpolator({}, {}, {})", testClass, id, container);
   }
 
+  /**
+   * Initializes a new interpolator with all information from the provided interpolator.
+   *
+   * @param interpolator the interpolator to proxy
+   */
+  protected PaxExamDriverInterpolator(PaxExamDriverInterpolator interpolator) {
+    super(interpolator);
+    LOGGER.debug("PaxExamDriverInterpolator({})", interpolator);
+  }
+
   @Override
   @Nullable
   public String lookup(String key) {

@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.dominion.pax.exam.internal;
+package org.codice.dominion.pax.exam.internal.processors;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,8 +46,11 @@ import org.apache.sshd.common.config.keys.FilePasswordProvider;
 import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
 import org.apache.sshd.common.util.io.EmptyInputStream;
 import org.apache.sshd.common.util.io.NoCloseOutputStream;
+import org.codice.dominion.Dominion;
 import org.codice.dominion.options.OptionException;
+import org.codice.dominion.options.karaf.UserRoles;
 import org.codice.dominion.pax.exam.internal.DominionConfigurationFactory.AnnotationOptions;
+import org.codice.dominion.pax.exam.internal.PaxExamDriverInterpolator;
 import org.codice.dominion.pax.exam.options.KarafSshCommandOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +58,7 @@ import org.slf4j.LoggerFactory;
 /** Class used to process configured {@link KarafSshCommandOption}s. */
 public class KarafSshCommandOptionProcessor {
   private static final Logger LOGGER =
-      LoggerFactory.getLogger(KarafDistributionConfigurationFileRetractOptionProcessor.class);
+      LoggerFactory.getLogger(KarafDistributionConfigurationFilePostOptionProcessor.class);
 
   private static final String ROLE_DELIMITER = ",";
   private static final String GROUP_PREFIX = "_g_:";
@@ -117,14 +120,23 @@ public class KarafSshCommandOptionProcessor {
     this.idleTimeout =
         KarafSshCommandOptionProcessor.getLong(
             shellCfg, "sshIdleTimeout", KarafSshCommandOptionProcessor.DEFAULT_IDLE_TIMEOUT);
+    final String dominionUserId = interpolator.interpolate(Dominion.DOMINION_USER_ID);
     final Map.Entry<String, String> user =
         users
             .entrySet()
             .stream()
-            .filter(KarafSshCommandOptionProcessor::isUser)
+            .filter(e -> e.getKey().equals(dominionUserId))
             .filter(KarafSshCommandOptionProcessor::hasSshRole)
             .findAny()
-            .orElse(null);
+            .orElseGet(
+                () ->
+                    users
+                        .entrySet()
+                        .stream()
+                        .filter(KarafSshCommandOptionProcessor::isUser)
+                        .filter(KarafSshCommandOptionProcessor::hasSshRole)
+                        .findAny()
+                        .orElse(null));
 
     if (user == null) {
       throw new OptionException("no local users configured for ssh");
@@ -170,27 +182,28 @@ public class KarafSshCommandOptionProcessor {
   }
 
   @SuppressWarnings(
-      "squid:S106" /* purposely tighing the SSH session to the current output streams*/)
+      "squid:S106" /* purposely tying the SSH session to the current output streams */)
   private void execute(KarafSshCommandOption command, ClientSession session) throws IOException {
-    LOGGER.debug("SSH: executing [{}] ...", command.getCommand());
+    final String cmd = command.getCommand();
+
+    LOGGER.debug("SSH: executing [{}] ...", cmd);
     try (final ChannelExec shell =
-        session.createExecChannel(StringUtils.appendIfMissing(command.getCommand(), "\n"))) {
+        session.createExecChannel(StringUtils.appendIfMissing(cmd, "\n"))) {
       shell.setIn(new EmptyInputStream());
       shell.setAgentForwarding(true);
       shell.setOut(new NoCloseOutputStream(System.out));
       shell.setErr(new NoCloseOutputStream(System.err));
       shell.open().verify(5L, TimeUnit.SECONDS);
       shell.waitFor(
-          EnumSet.of(ClientChannelEvent.CLOSED), command.getTimeout() + 5000L); // padd 5 seconds
+          EnumSet.of(ClientChannelEvent.CLOSED), command.getTimeout() + 5000L); // pad 5 seconds
       final Integer status = shell.getExitStatus();
 
       if (status == null) {
-        throw new IOException("command [" + command.getCommand() + "] failure; no exit status");
+        throw new IOException("command [" + cmd + "] failure; no exit status");
       } else if (status.intValue() != 0) {
-        throw new IOException(
-            "command [" + command.getCommand() + "] failure; exit status: " + status);
+        throw new IOException("command [" + cmd + "] failure; exit status: " + status);
       }
-      LOGGER.debug("SSH: [{}] successful", command.getCommand());
+      LOGGER.debug("SSH: [{}] successful", cmd);
     }
   }
 
@@ -290,9 +303,9 @@ public class KarafSshCommandOptionProcessor {
       final int j = value.indexOf(KarafSshCommandOptionProcessor.ROLE_DELIMITER, i);
 
       if (j == -1) {
-        return "ssh".equals(value.substring(i));
+        return UserRoles.SSH.equals(value.substring(i));
       }
-      if ("ssh".equals(value.substring(i, j))) {
+      if (UserRoles.SSH.equals(value.substring(i, j))) {
         return true;
       }
       i = j + 1;

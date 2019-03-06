@@ -13,12 +13,11 @@
  */
 package org.codice.dominion.pax.exam.options.karaf.extensions;
 
-import java.io.IOException;
 import org.codice.dominion.options.Options.MavenUrl;
 import org.codice.dominion.options.karaf.KarafOptions.Feature;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
-import org.codice.dominion.pax.exam.options.extensions.Utilities;
+import org.codice.dominion.pax.exam.options.Utilities;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
@@ -27,12 +26,12 @@ import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 public class FeatureExtension implements Extension<Feature> {
   @Override
   public Option[] options(
-      Feature annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader)
-      throws IOException {
+      Feature annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader) {
     final MavenUrl mavenUrl = annotation.repository();
     final String url = annotation.repositoryUrl();
-    final boolean groupIsDefined = Utilities.isDefined(mavenUrl.groupId());
-    final boolean urlIsDefined = Utilities.isDefined(url);
+    final boolean groupIsDefined =
+        org.codice.dominion.options.Utilities.isDefined(mavenUrl.groupId());
+    final boolean urlIsDefined = org.codice.dominion.options.Utilities.isDefined(url);
     final String[] names = annotation.names();
 
     if (!groupIsDefined && !urlIsDefined) {

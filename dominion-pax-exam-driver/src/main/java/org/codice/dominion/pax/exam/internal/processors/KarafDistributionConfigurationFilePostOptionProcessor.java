@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.dominion.pax.exam.internal;
+package org.codice.dominion.pax.exam.internal.processors;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,15 +19,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.codice.dominion.pax.exam.internal.DominionConfigurationFactory.AnnotationOptions;
+import org.codice.dominion.pax.exam.internal.DominionKarafConfigurationFile;
+import org.codice.dominion.pax.exam.internal.DominionKarafConfigurationFileFactory;
+import org.codice.dominion.pax.exam.internal.PaxExamDriverInterpolator;
+import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileContentOption;
+import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFilePostOption;
+import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileRemoveOption;
 import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileRetractOption;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionBaseConfigurationOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Class used to process configured {@link KarafDistributionConfigurationFileRetractOption}s. */
-public class KarafDistributionConfigurationFileRetractOptionProcessor {
+public class KarafDistributionConfigurationFilePostOptionProcessor {
   private static final Logger LOGGER =
-      LoggerFactory.getLogger(KarafDistributionConfigurationFileRetractOptionProcessor.class);
+      LoggerFactory.getLogger(KarafDistributionConfigurationFilePostOptionProcessor.class);
 
   private final AnnotationOptions options;
 
@@ -35,7 +41,7 @@ public class KarafDistributionConfigurationFileRetractOptionProcessor {
 
   private final PaxExamDriverInterpolator interpolator;
 
-  public KarafDistributionConfigurationFileRetractOptionProcessor(AnnotationOptions options) {
+  public KarafDistributionConfigurationFilePostOptionProcessor(AnnotationOptions options) {
     this.options = options;
     this.distribution = options.getDistribution();
     this.interpolator = options.getInterpolator();
@@ -48,31 +54,48 @@ public class KarafDistributionConfigurationFileRetractOptionProcessor {
    */
   public void process() throws IOException {
     LOGGER.debug("{}::process()", this);
-    final Map<String, List<KarafDistributionConfigurationFileRetractOption>> configs =
-        options
-            .options(KarafDistributionConfigurationFileRetractOption.class)
+    final Map<String, List<KarafDistributionConfigurationFilePostOption>> options =
+        this.options
+            .options(KarafDistributionConfigurationFilePostOption.class)
             .collect(
                 Collectors.groupingBy(
-                    KarafDistributionConfigurationFileRetractOption::getConfigurationFilePath));
+                    KarafDistributionConfigurationFilePostOption::getConfigurationFilePath));
     // see KarafTestContainer.updateUserSetProperties() for logic on how to find the location of a
     // config file
     final File karafHome = interpolator.getKarafHome().toFile();
     final String karafData = distribution.getKarafData();
     final String karafEtc = distribution.getKarafEtc();
 
-    for (final Map.Entry<String, List<KarafDistributionConfigurationFileRetractOption>> e :
-        configs.entrySet()) {
+    for (final Map.Entry<String, List<KarafDistributionConfigurationFilePostOption>> e :
+        options.entrySet()) {
       final String configFile = e.getKey();
-      final List<KarafDistributionConfigurationFileRetractOption> optionsToApply = e.getValue();
+      final List<KarafDistributionConfigurationFilePostOption> optionsToApply = e.getValue();
       final DominionKarafConfigurationFile karafConfigFile =
-          KarafDistributionConfigurationFileRetractOptionProcessor.getConfigFile(
+          KarafDistributionConfigurationFilePostOptionProcessor.getConfigFile(
               configFile, karafHome, karafData, karafEtc);
       boolean store = false;
 
       karafConfigFile.load();
-      for (final KarafDistributionConfigurationFileRetractOption optionToApply : optionsToApply) {
-        if (karafConfigFile.retract(optionToApply.getKey(), optionToApply.getValue())) {
-          store = true;
+      for (final KarafDistributionConfigurationFilePostOption optionToApply : optionsToApply) {
+        if (optionToApply instanceof KarafDistributionConfigurationFileRetractOption) {
+          final KarafDistributionConfigurationFileRetractOption retractOption =
+              (KarafDistributionConfigurationFileRetractOption) optionToApply;
+
+          if (karafConfigFile.retract(retractOption.getKey(), retractOption.getValue())) {
+            store = true;
+          }
+        } else if (optionToApply instanceof KarafDistributionConfigurationFileRemoveOption) {
+          if (karafConfigFile.remove(
+              ((KarafDistributionConfigurationFileRemoveOption) optionToApply).getKey())) {
+            store = true;
+          }
+        } else if (optionToApply instanceof KarafDistributionConfigurationFileContentOption) {
+          if (store) { // first store what we have accumulated so far, in case getSource() loads it
+            karafConfigFile.store();
+            store = false;
+          }
+          karafConfigFile.replace(
+              ((KarafDistributionConfigurationFileContentOption) optionToApply).getSource());
         }
       }
       if (store) {
