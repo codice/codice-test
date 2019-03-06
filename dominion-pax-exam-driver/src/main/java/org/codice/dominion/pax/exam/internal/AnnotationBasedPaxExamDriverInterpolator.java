@@ -19,12 +19,17 @@ import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.Objects;
 import javax.annotation.Nullable;
+import org.codice.dominion.interpolate.InterpolationException;
 
 /**
  * Version of the interpolator which will support interpolating attributes of a given annotation as
  * long as the attribute is prefixed with <code>"annotation."</code>.
  */
 public class AnnotationBasedPaxExamDriverInterpolator extends PaxExamDriverInterpolator {
+  private static final String ANNOTATION_PREFIX = "annotation.";
+  private static final int ANNOTATION_PREFIX_LENGTH =
+      AnnotationBasedPaxExamDriverInterpolator.ANNOTATION_PREFIX.length();
+
   private final Annotation annotation;
 
   private final PaxExamDriverInterpolator interpolator;
@@ -42,15 +47,22 @@ public class AnnotationBasedPaxExamDriverInterpolator extends PaxExamDriverInter
     String value = interpolator.lookup(key);
 
     if (value == null) {
-      if (key.startsWith("annotation.")) {
-        final String attribute = key.substring(11);
+      if (key.startsWith(AnnotationBasedPaxExamDriverInterpolator.ANNOTATION_PREFIX)) {
+        final String attribute =
+            key.substring(AnnotationBasedPaxExamDriverInterpolator.ANNOTATION_PREFIX_LENGTH);
 
         try {
           final Method method = annotation.annotationType().getMethod(attribute);
           final Object obj = method.invoke(annotation);
 
           value = Objects.toString(obj, null);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+        } catch (NoSuchMethodException | IllegalAccessException e) {
+          throw new InterpolationException(
+              "failed to find annotation attribute '" + attribute + "' for: " + annotation, e);
+        } catch (InvocationTargetException e) {
+          throw new InterpolationException(
+              "failed to find annotation attribute '" + attribute + "' for: " + annotation,
+              e.getTargetException());
         }
       }
     }
