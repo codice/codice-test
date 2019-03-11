@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.codice.test</groupId>
         <artifactId>codice-test</artifactId>
-        <version>0.4</version>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
     <name>Codice Test :: Dominion :: Pax Exam Feature</name>
