@@ -12,14 +12,12 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.codice.test</groupId>
     <artifactId>codice-test</artifactId>
-    <version>0.4-SNAPSHOT</version>
+    <version>0.4</version>
     <packaging>pom</packaging>
     <name>Codice Test</name>
     <description>Codice Generic Test Utilities and Classes</description>
@@ -91,7 +89,7 @@
         <url>https://github.com/codice/codice-test</url>
         <connection>scm:git:https://github.com/codice/codice-test.git</connection>
         <developerConnection>scm:git:https://github.com/codice/codice-test.git</developerConnection>
-        <tag>codice-test-0.3</tag>
+        <tag>codice-test-0.4</tag>
     </scm>
 
     <distributionManagement>
