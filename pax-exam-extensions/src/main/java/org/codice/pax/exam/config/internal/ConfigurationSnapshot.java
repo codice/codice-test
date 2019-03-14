@@ -78,4 +78,24 @@ public class ConfigurationSnapshot {
   public Dictionary<String, Object> getProperties() {
     return properties;
   }
+
+  @Override
+  public String toString() {
+    if (factoryPid != null) {
+      return "config[factoryPid="
+          + factoryPid
+          + ", bundleLocation="
+          + bundleLocation
+          + ", properties="
+          + properties
+          + "]";
+    }
+    return "config[pid="
+        + pid
+        + ", bundleLocation="
+        + bundleLocation
+        + ", properties="
+        + properties
+        + "]";
+  }
 }

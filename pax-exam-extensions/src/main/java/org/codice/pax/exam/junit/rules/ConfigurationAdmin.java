@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -39,6 +38,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.felix.cm.file.ConfigurationHandler;
+import org.codice.junit.rules.EmptyStatement;
 import org.codice.pax.exam.config.ConfigException;
 import org.codice.pax.exam.config.ConfigTimeoutException;
 import org.codice.pax.exam.config.Configuration;
@@ -93,8 +93,6 @@ public class ConfigurationAdmin extends InjectedService<org.osgi.service.cm.Conf
   // config admin creates 2 threads in this group: CM Configuration Updater, and CM Event Dispatcher
   private static final int EXPECTED_THREADS = 2;
 
-  private static final long STABILIZE_TIMEOUT = TimeUnit.MINUTES.toMillis(2L);
-
   private static volatile ThreadGroup threadGroup = null;
 
   private static final Map<String, ConfigurationSnapshot> snapshotConfigs =
@@ -106,13 +104,39 @@ public class ConfigurationAdmin extends InjectedService<org.osgi.service.cm.Conf
 
   private volatile Configuration internalConfig = null;
 
+  private final long stabilizeTimeout;
+
   /**
    * Injects the configuration admin service while waiting for it for a default amount of time
-   * defined by the {@link org.ops4j.pax.exam.Constants#EXAM_SERVICE_TIMEOUT_KEY} system properties
+   * defined by the {@link org.ops4j.pax.exam.Constants#EXAM_SERVICE_TIMEOUT_KEY} system property
    * (defaults to {@link org.ops4j.pax.exam.Constants#EXAM_SERVICE_TIMEOUT_DEFAULT} milliseconds).
+   * The service will also wait for configuration to stabilize before a test for a default amount of
+   * time defined by the {@link
+   * org.codice.pax.exam.junit.ConfigurationAdmin#EXAM_CONFIG_STABILIZE_TIMEOUT_KEY} system property
+   * (defaults to {@link
+   * org.codice.pax.exam.junit.ConfigurationAdmin#EXAM_CONFIG_STABILIZE_TIMEOUT_DEFAULT}
+   * milliseconds).
    */
   public ConfigurationAdmin() {
     super(org.osgi.service.cm.ConfigurationAdmin.class);
+    this.stabilizeTimeout = ConfigurationAdmin.getStabilizeTimeout();
+  }
+
+  /**
+   * Injects the configuration admin service while waiting for it for the specified amount of time.
+   * The service will also wait for configuration to stabilize before a test for a default amount of
+   * time defined by the {@link
+   * org.codice.pax.exam.junit.ConfigurationAdmin#EXAM_CONFIG_STABILIZE_TIMEOUT_KEY} system property
+   * (defaults to {@link
+   * org.codice.pax.exam.junit.ConfigurationAdmin#EXAM_CONFIG_STABILIZE_TIMEOUT_DEFAULT}
+   * milliseconds).
+   *
+   * @param timeout the maximum number of milliseconds to wait for the service or <code>-1</code> to
+   *     use the {@link org.ops4j.pax.exam.Constants#EXAM_SERVICE_TIMEOUT_KEY} system property value
+   *     as described in {@link #ConfigurationAdmin()}
+   */
+  public ConfigurationAdmin(long timeout) {
+    this(timeout, -1L);
   }
 
   /**
@@ -120,20 +144,27 @@ public class ConfigurationAdmin extends InjectedService<org.osgi.service.cm.Conf
    *
    * @param timeout the maximum number of milliseconds to wait for the service or <code>-1</code> to
    *     use the {@link org.ops4j.pax.exam.Constants#EXAM_SERVICE_TIMEOUT_KEY} system property value
-   *     as described in {@link #ConfigurationAdmin(long)}
+   *     as described in {@link #ConfigurationAdmin()}
+   * @param stabilizeTimeout the maximum number of milliseconds to wait for configurations to
+   *     stabilized before a test starts or <code>-1</code> to use the {@link
+   *     org.codice.pax.exam.junit.ConfigurationAdmin#EXAM_CONFIG_STABILIZE_TIMEOUT_KEY} system
+   *     property value as described in {@link #ConfigurationAdmin()}
    */
-  public ConfigurationAdmin(long timeout) {
+  public ConfigurationAdmin(long timeout, long stabilizeTimeout) {
     super(org.osgi.service.cm.ConfigurationAdmin.class, timeout);
+    this.stabilizeTimeout =
+        (stabilizeTimeout != -1) ? stabilizeTimeout : ConfigurationAdmin.getStabilizeTimeout();
   }
 
   /**
-   * This constructor is designed to be used by the {@link org.codice.pax.exam.config.Configuration}
-   * annotation in order to initialize this method rule automatically.
+   * This constructor is designed to be used by the {@link
+   * org.codice.pax.exam.junit.ConfigurationAdmin} annotation in order to initialize this method
+   * rule automatically.
    *
    * @param annotation the annotation referencing this method rule
    */
   public ConfigurationAdmin(org.codice.pax.exam.junit.ConfigurationAdmin annotation) {
-    this(annotation.timeout());
+    this(annotation.timeout(), annotation.stabilizeTimeout());
   }
 
   // --- OSGi ConfigurationAdmin API
@@ -201,8 +232,8 @@ public class ConfigurationAdmin extends InjectedService<org.osgi.service.cm.Conf
   // --- Extended ConfigurationAdmin API
 
   /**
-   * Waits a maximum of time for the configuration admin to stabilize. This methods attempts to
-   * ensure that the configuration admin service is done dispatching all configuration events.
+   * Waits a maximum amount of time for the configuration admin to stabilize. This methods attempts
+   * to ensure that the configuration admin service is done dispatching all configuration events.
    *
    * @param timeout the maximum amount of time in milliseconds to wait for the config admin to
    *     stabilize
@@ -349,43 +380,40 @@ public class ConfigurationAdmin extends InjectedService<org.osgi.service.cm.Conf
     }
   }
 
-  // - JUnit Rule API (not to be called directly)
+  // --- JUnit Rule API (not to be called directly)
 
   @Override
-  public Statement apply(Statement statement, FrameworkMethod method, Object target) {
-    // super.apply() will make sure to inject the config admin service before calling our statement
-    return super.apply(
-        new Statement() {
-          @Override
-          public void evaluate() throws Throwable {
-            try {
-              findConfigurationAdminThreadGroup();
-              ConfigurationAdmin.this.internalConfig =
-                  ((Configuration) getConfiguration(ConfigurationAdmin.INTERNAL_PID));
+  public Statement apply(Statement base, FrameworkMethod method, Object target) {
+    // we know that the InjectedService base class pre-injects its required service when apply() is
+    // called and returns the passed statement intact so we must first call it with an empty
+    // statement and be done with it
+    super.apply(EmptyStatement.EMPTY, method, target);
+    // take the snapshot outside of the statements to make sure it gets taken before any changes
+    // to the system is performed by any rules
+    takeSnapshot();
+    return new Statement() {
+      @Override
+      public void evaluate() throws Throwable {
+        try {
+          final Map<String, ToUpdate> toUpdate = new LinkedHashMap<>();
 
-              takeSnapshot();
+          processClassAnnotations(toUpdate, target);
+          processConfigurationBefores(toUpdate, method, target);
+          processMethodAnnotations(toUpdate, method, target);
 
-              final Map<String, ToUpdate> toUpdate = new LinkedHashMap<>();
-
-              processClassAnnotations(toUpdate, target);
-              processConfigurationBefores(toUpdate, method, target);
-              processMethodAnnotations(toUpdate, method, target);
-
-              if (!toUpdate.isEmpty()) {
-                toUpdate.values().forEach(ToUpdate::execute);
-                // stabilize to let the configuration initialization update happens
-                stabilize(ConfigurationAdmin.STABILIZE_TIMEOUT);
-              }
-
-              // proceed with the test method
-              statement.evaluate();
-            } finally {
-              restoreSnapshot();
-            }
+          if (!toUpdate.isEmpty()) {
+            toUpdate.values().forEach(ToUpdate::execute);
+            // stabilize to let the configuration initialization update happens
+            stabilize(stabilizeTimeout);
           }
-        },
-        method,
-        target);
+
+          // proceed with the test method
+          base.evaluate();
+        } finally {
+          restoreSnapshot();
+        }
+      }
+    };
   }
 
   private void findConfigurationAdminThreadGroup() {
@@ -429,15 +457,25 @@ public class ConfigurationAdmin extends InjectedService<org.osgi.service.cm.Conf
 
   // --- Snapshots
 
-  private void takeSnapshot() throws InterruptedException {
+  private void takeSnapshot() {
+    findConfigurationAdminThreadGroup();
+    try {
+      this.internalConfig = ((Configuration) getConfiguration(ConfigurationAdmin.INTERNAL_PID));
+    } catch (Exception e) {
+      throw new ConfigException(e);
+    }
     // only take a snapshot the first time around
     synchronized (ConfigurationAdmin.snapshotConfigs) {
       if (ConfigurationAdmin.snapshotConfigs.isEmpty()) {
-        // stabilize the system before taking a snapshot
-        stabilize(ConfigurationAdmin.STABILIZE_TIMEOUT);
+        try { // stabilize the system before taking a snapshot
+          stabilize(stabilizeTimeout);
+        } catch (InterruptedException e) { // propagate interruption
+          Thread.currentThread().interrupt();
+        }
         LOGGER.info("Snapshooting OSGi configuration");
         configurations()
             .map(ConfigurationSnapshot::new)
+            .peek(c -> LOGGER.debug("snapshooting: {}", c))
             .forEach(c -> ConfigurationAdmin.snapshotConfigs.put(c.getPid(), c));
       }
     }
@@ -447,7 +485,7 @@ public class ConfigurationAdmin extends InjectedService<org.osgi.service.cm.Conf
     final Map<String, Configuration> currentConfigs =
         configurations().collect(Collectors.toMap(Configuration::getPid, Function.identity()));
 
-    LOGGER.info("Resetting OSGi configuration");
+    LOGGER.info("Restoring OSGi configurations");
     // start by deleting config objects that shouldn't be there and updating those that changes
     currentConfigs.forEach(
         (pid, current) -> {
@@ -466,7 +504,7 @@ public class ConfigurationAdmin extends InjectedService<org.osgi.service.cm.Conf
         .filter(e -> !currentConfigs.containsKey(e.getKey()))
         .forEach(this::recreate);
     // finally, make sure everything is stable before continuing
-    stabilize(ConfigurationAdmin.STABILIZE_TIMEOUT);
+    stabilize(stabilizeTimeout);
   }
 
   // --- class and method annotations
@@ -789,7 +827,7 @@ public class ConfigurationAdmin extends InjectedService<org.osgi.service.cm.Conf
             "unknown @Configuration.Property.SetXXXX annotation: "
                 + a
                 + "; ("
-                + a.getClass().getName()
+                + a.annotationType().getName()
                 + ')');
       }
       ConfigurationAdmin.validate(object, a);
@@ -925,6 +963,7 @@ public class ConfigurationAdmin extends InjectedService<org.osgi.service.cm.Conf
     final Dictionary<String, Object> properties = snapshot.getProperties();
     final org.osgi.service.cm.Configuration cfg;
 
+    LOGGER.debug("recreating: {}", snapshot);
     if (fpid != null) {
       try {
         cfg = getService().createFactoryConfiguration(fpid, bundleLocation);
@@ -1127,5 +1166,22 @@ public class ConfigurationAdmin extends InjectedService<org.osgi.service.cm.Conf
           }
         });
     return destination;
+  }
+
+  private static final long getStabilizeTimeout() {
+    final String str =
+        System.getProperty(
+            org.codice.pax.exam.junit.ConfigurationAdmin.EXAM_CONFIG_STABILIZE_TIMEOUT_KEY);
+    long timeout = -1L;
+
+    if (str != null) {
+      try {
+        timeout = Long.parseLong(str);
+      } catch (NumberFormatException e) { // ignore and continue with default
+      }
+    }
+    return (timeout >= 0L)
+        ? timeout
+        : org.codice.pax.exam.junit.ConfigurationAdmin.EXAM_CONFIG_STABILIZE_TIMEOUT_DEFAULT;
   }
 }

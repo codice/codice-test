@@ -30,7 +30,7 @@ import org.osgi.framework.BundleReference;
  *
  * @param <S> the type of the service to be injected
  */
-public abstract class InjectedService<S> implements MethodRule {
+public class InjectedService<S> implements MethodRule {
   private final Class<S> serviceClass;
   private final String filter;
   private final long timeout;
@@ -117,15 +117,17 @@ public abstract class InjectedService<S> implements MethodRule {
     return bundleContext;
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p><i>Note:</i> Does nothing except for injecting its required service.
+   *
+   * @return the same statement received in parameters
+   */
   @Override
-  public Statement apply(Statement statement, FrameworkMethod method, Object target) {
-    return new Statement() {
-      @Override
-      public void evaluate() throws Throwable {
-        injectService(target.getClass());
-        statement.evaluate();
-      }
-    };
+  public Statement apply(Statement base, FrameworkMethod method, Object target) {
+    injectService(target.getClass());
+    return base;
   }
 
   /**
@@ -142,7 +144,7 @@ public abstract class InjectedService<S> implements MethodRule {
     return service;
   }
 
-  protected void injectService(Class<?> targetClass) {
+  private void injectService(Class<?> targetClass) {
     if (service != null) {
       return;
     }
