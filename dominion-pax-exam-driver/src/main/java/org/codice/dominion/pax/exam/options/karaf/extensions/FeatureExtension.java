@@ -13,12 +13,12 @@
  */
 package org.codice.dominion.pax.exam.options.karaf.extensions;
 
-import org.codice.dominion.options.Options.MavenUrl;
 import org.codice.dominion.options.karaf.KarafOptions.Feature;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
-import org.codice.dominion.pax.exam.options.Utilities;
+import org.codice.dominion.pax.exam.options.PaxExamUtilities;
 import org.codice.dominion.resources.ResourceLoader;
+import org.codice.maven.MavenUrl;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 
@@ -37,7 +37,7 @@ public class FeatureExtension implements Extension<Feature> {
     if (!groupIsDefined && !urlIsDefined) {
       return new Option[] {
         KarafDistributionOption.features(
-            Utilities.getProjectReference(annotation, resourceLoader)
+            PaxExamUtilities.getProjectReference(annotation, resourceLoader)
                 .type("xml")
                 .classifier("features"),
             names)
@@ -52,7 +52,7 @@ public class FeatureExtension implements Extension<Feature> {
       }
       return new Option[] {
         KarafDistributionOption.features(
-            Utilities.toReference(annotation, mavenUrl, resourceLoader), names)
+            PaxExamUtilities.toReference(mavenUrl, annotation, resourceLoader), names)
       };
     }
     return new Option[] {KarafDistributionOption.features(url, names)};

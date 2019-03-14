@@ -23,7 +23,7 @@ import org.codice.test.commons.ReflectionUtils.AnnotationEntry;
  * an annotation was used.
  */
 class AnnotationResourceLoader implements ResourceLoader {
-  AnnotationEntry<?> entry;
+  private final AnnotationEntry<?> entry;
 
   AnnotationResourceLoader(AnnotationEntry<?> entry) {
     this.entry = entry;

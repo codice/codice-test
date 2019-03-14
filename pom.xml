@@ -232,6 +232,16 @@
                 <version>${karaf.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.karaf.bundle</groupId>
+                <artifactId>org.apache.karaf.bundle.core</artifactId>
+                <version>${karaf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.karaf.features</groupId>
+                <artifactId>org.apache.karaf.features.core</artifactId>
+                <version>${karaf.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.configadmin</artifactId>
                 <version>${felix.configadmin.version}</version>
@@ -503,6 +513,7 @@
         <module>mockito-extensions</module>
         <module>spock-extensions</module>
         <module>failsafe-controller</module>
+        <module>maven-extensions</module>
         <module>pax-exam-extensions</module>
         <module>dominion</module>
         <module>dominion-pax-exam</module>

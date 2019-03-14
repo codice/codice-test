@@ -35,12 +35,11 @@ import org.codice.dominion.interpolate.ContainerNotStagedException;
 import org.codice.dominion.interpolate.InterpolationException;
 import org.codice.dominion.options.Option;
 import org.codice.dominion.options.OptionException;
-import org.codice.dominion.options.Options;
-import org.codice.dominion.options.Options.MavenUrl;
 import org.codice.dominion.options.karaf.KarafOptions;
 import org.codice.dominion.pax.exam.internal.processors.KarafDistributionConfigurationFilePostOptionProcessor;
 import org.codice.dominion.pax.exam.internal.processors.KarafSshCommandOptionProcessor;
 import org.codice.dominion.pax.exam.options.PaxExamOption;
+import org.codice.maven.MavenUrl;
 import org.codice.test.commons.ReflectionUtils;
 import org.codice.test.commons.ReflectionUtils.AnnotationEntry;
 import org.ops4j.pax.exam.ConfigurationFactory;
@@ -60,9 +59,9 @@ import org.slf4j.LoggerFactory;
 @KarafOptions.Feature(
   repository =
       @MavenUrl(
-        groupId = Options.MavenUrl.AS_PROJECT,
+        groupId = MavenUrl.AS_PROJECT,
         artifactId = "dominion-pax-exam-feature",
-        version = Options.MavenUrl.AS_PROJECT,
+        version = MavenUrl.AS_PROJECT,
         type = "xml",
         classifier = "features"
       ),

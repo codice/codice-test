@@ -12,9 +12,7 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -23,8 +21,8 @@
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>Codice Test :: Dominion :: API</name>
-    <artifactId>dominion</artifactId>
+    <name>Codice Test :: Maven Extensions</name>
+    <artifactId>maven-extensions</artifactId>
     <packaging>bundle</packaging>
 
     <dependencies>
@@ -33,37 +31,18 @@
             <artifactId>internal</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.codice.test</groupId>
-            <artifactId>junit-extensions</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.test</groupId>
-            <artifactId>maven-extensions</artifactId>
-            <version>${project.version}</version>
-        </dependency>
 
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.jsr305</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-text</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
         </dependency>
 
         <dependency>
@@ -107,12 +86,7 @@
                             *
                         </Import-Package>
                         <Export-Package>
-                            org.codice.dominion,
-                            org.codice.dominion.conditions,
-                            org.codice.dominion.interpolate,
-                            org.codice.dominion.options,
-                            org.codice.dominion.options.karaf,
-                            org.codice.dominion.resources
+                            org.codice.maven
                         </Export-Package>
                         <!-- This ensures that the maven bundle plugin properly includes the
                              dependencies file created by the depends-bundle-plugin which it

@@ -36,6 +36,7 @@
         </bundle>
 
         <bundle>mvn:org.codice.test/junit-extensions/${project.version}</bundle>
+        <bundle>mvn:org.codice.test/maven-extensions/${project.version}</bundle>
         <bundle>mvn:org.codice.test/pax-exam-extensions/${project.version}</bundle>
         <bundle>mvn:org.codice.test/dominion/${project.version}</bundle>
         <bundle>mvn:org.codice.test/dominion-pax-exam/${project.version}</bundle>

@@ -25,8 +25,8 @@ import org.codice.dominion.conditions.Conditions;
 import org.codice.dominion.interpolate.Interpolate;
 import org.codice.dominion.options.Option;
 import org.codice.dominion.options.Options;
-import org.codice.dominion.options.Options.MavenUrl;
 import org.codice.dominion.options.Options.UpdateConfigFile;
+import org.codice.maven.MavenUrl;
 
 /**
  * This class defines annotations that can be used to configure specific Karaf distribution options

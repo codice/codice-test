@@ -11,27 +11,21 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.dominion.resources;
+package org.codice.maven;
 
 import java.io.InputStream;
 import javax.annotation.Nullable;
 
 /**
- * A resource loader is capable of loading resources associated with where a particular annotation
- * was used. This could be either another annotation or a class. It allows a resource defined in the
- * same jar to be loaded. Resource names follow the same conventions as {@link
- * ClassLoader#getResourceAsStream(String)}.
+ * A resource loader is capable of loading resources. Resource names follow the same conventions as
+ * {@link ClassLoader#getResourceAsStream(String)}.
  */
-public interface ResourceLoader extends org.codice.maven.ResourceLoader {
+public interface ResourceLoader {
   /**
-   * Gets the class associated with the location from which the resources will be loaded. This is
-   * typically the element where the annotation was defined. For normal annotations, this will be
-   * the annotated element (i.e. the class or the class defining the annotated method, field, or
-   * constructor). For meta annotations, this will be the annotation class.
+   * Gets the class associated with the location from which the resources will be loaded.
    *
-   * @return the class associated with the element where the annotation was defined
+   * @return the class associated with the location from which the resources will be loaded
    */
-  @Override
   public Class<?> getLocationClass();
 
   /**
@@ -40,7 +34,6 @@ public interface ResourceLoader extends org.codice.maven.ResourceLoader {
    * @param name the name of the resource to be loaded
    * @return a corresponding input stream or <code>null</code> if the resource could not be found
    */
-  @Override
   @Nullable
   public InputStream getResourceAsStream(String name);
 }

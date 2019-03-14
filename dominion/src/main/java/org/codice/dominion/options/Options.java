@@ -48,63 +48,6 @@ public class Options {
     APPEND
   }
 
-  /** Annotation used to specify a maven URL reference. */
-  @Retention(RetentionPolicy.RUNTIME)
-  @Inherited
-  @Documented
-  public @interface MavenUrl {
-    /**
-     * Constant to use when the actual version, type, and/or classifier of the referenced artifact
-     * should be retrieved from the maven project's <code>dependencies.properties</code> file where
-     * the annotation is used. It does require the project to use the depends-maven-plugin plugin in
-     * order for the file to be generated and added to the jar/bundle artifact.
-     */
-    public static final String AS_IN_PROJECT = "_as_in_project_";
-
-    /**
-     * Constant to use when the group id, artifact id, or version of the current project's artifact
-     * should be retrieved from the maven project's <code>dependencies.properties</code> file where
-     * the annotation is used. It does require the project to use the depends-maven-plugin plugin in
-     * order for the file to be generated and added to the jar/bundle artifact.
-     */
-    public static final String AS_PROJECT = "_as_project_";
-
-    /**
-     * Specifies the maven group id.
-     *
-     * @return the maven group id
-     */
-    String groupId();
-
-    /**
-     * Specifies the maven artifact id.
-     *
-     * @return the marven artifact id
-     */
-    String artifactId();
-
-    /**
-     * Specifies the optional maven artifact version.
-     *
-     * @return the optional marven artifact version
-     */
-    String version() default Options.NOT_DEFINED;
-
-    /**
-     * Specifies the maven artifact type.
-     *
-     * @return the marven artifact type
-     */
-    String type() default Options.NOT_DEFINED;
-
-    /**
-     * Specifies the maven artifact classifier.
-     *
-     * @return the marven artifact classifier
-     */
-    String classifier() default Options.NOT_DEFINED;
-  }
-
   /** Option to install the Dominion driver specific configuration. */
   // make sure we have at least one user capable of SSH to the container
   @SuppressWarnings("squid:S2068" /* hard-coded password is for testing */)
