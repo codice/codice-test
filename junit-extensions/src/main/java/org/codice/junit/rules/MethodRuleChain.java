@@ -14,8 +14,10 @@
 package org.codice.junit.rules;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 import org.junit.rules.MethodRule;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
@@ -62,6 +64,15 @@ public class MethodRuleChain implements MethodRule {
   }
 
   /**
+   * Instantiates a new <code>MethodRuleChain</code> object.
+   *
+   * @param rules the non-<code>null</code> method rules
+   */
+  public MethodRuleChain(MethodRule... rules) {
+    this(Arrays.asList(rules));
+  }
+
+  /**
    * Create a new <code>MethodRuleChain</code>, which encloses the specified rule with the rules of
    * the current chain.
    *
@@ -74,6 +85,15 @@ public class MethodRuleChain implements MethodRule {
     rules.add(enclosedRule);
     rules.addAll(this.rules);
     return new MethodRuleChain(rules);
+  }
+
+  /**
+   * Gets the rules defined in the current chain.
+   *
+   * @return a stream of all rules defined in the current chain
+   */
+  public Stream<MethodRule> rules() {
+    return rules.stream();
   }
 
   /**
