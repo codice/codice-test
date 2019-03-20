@@ -23,6 +23,7 @@ import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileRe
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.pax.exam.options.SourceType;
 import org.codice.dominion.resources.ResourceLoader;
+import org.codice.maven.MavenUrl;
 import org.ops4j.pax.exam.Option;
 
 /** Extension point for the {@link ReplaceFile} option annotation. */
@@ -33,26 +34,29 @@ public class ReplaceFileExtension implements Extension<ReplaceFile> {
       throws IOException {
     final String file = annotation.file();
     final String url = annotation.url();
+    final MavenUrl mavenUrl = annotation.artifact();
     final String[] content = annotation.content();
     final String resource = annotation.resource();
-    final boolean fileIsDefined = org.codice.dominion.options.Utilities.isDefined(file);
-    final boolean urlIsDefined = org.codice.dominion.options.Utilities.isDefined(url);
+    final boolean fileIsDefined = Utilities.isDefined(file);
+    final boolean urlIsDefined = Utilities.isDefined(url);
+    final boolean mavenUrlIsDefined = Utilities.isDefined(mavenUrl.groupId());
     final boolean contentIsDefined = Utilities.isDefined(content);
-    final boolean resourceIsDefined = org.codice.dominion.options.Utilities.isDefined(resource);
+    final boolean resourceIsDefined = Utilities.isDefined(resource);
     final long count =
-        Stream.of(fileIsDefined, urlIsDefined, contentIsDefined, resourceIsDefined)
+        Stream.of(
+                fileIsDefined, urlIsDefined, mavenUrlIsDefined, contentIsDefined, resourceIsDefined)
             .filter(Boolean.TRUE::equals)
             .count();
 
     if (count == 0L) {
       throw new IllegalArgumentException(
-          "must specify one of file(), url(), content(), or resource() in "
+          "must specify one of file(), url(), artifact(), content(), or resource() in "
               + annotation
               + " for "
               + resourceLoader.getLocationClass().getName());
     } else if (count > 1L) {
       throw new IllegalArgumentException(
-          "specify only one of file(), url(), content(), or resource() in "
+          "specify only one of file(), url(), artifact(), content(), or resource() in "
               + annotation
               + " for "
               + resourceLoader.getLocationClass().getName());
@@ -76,6 +80,13 @@ public class ReplaceFileExtension implements Extension<ReplaceFile> {
             FilenameUtils.separatorsToUnix(annotation.target()),
             SourceType.URL,
             url)
+      };
+    } else if (mavenUrlIsDefined) {
+      return new Option[] {
+        new KarafDistributionConfigurationFileReplaceOption(
+            // separators to Unix is on purpose as PaxExam will analyze the target based on it
+            // containing / and not \ and then convert it properly
+            FilenameUtils.separatorsToUnix(annotation.target()), mavenUrl, resourceLoader)
       };
     } else if (contentIsDefined) {
       return new Option[] {

@@ -17,6 +17,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Properties;
 import org.apache.commons.io.IOUtils;
 import org.codice.test.commons.MavenUtils;
@@ -105,7 +107,10 @@ public class Utilities {
       InputStream is = null;
 
       try {
-        is = resourceLoader.getResourceAsStream(MavenUtils.DEPENDENCIES_FILE);
+        is =
+            AccessController.doPrivileged(
+                (PrivilegedAction<InputStream>)
+                    () -> resourceLoader.getResourceAsStream(MavenUtils.DEPENDENCIES_FILE));
         if (is == null) {
           throw new FileNotFoundException(
               "File '"

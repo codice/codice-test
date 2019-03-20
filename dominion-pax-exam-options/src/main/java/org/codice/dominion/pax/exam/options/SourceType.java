@@ -25,6 +25,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.resources.ResourceLoader;
+import org.codice.maven.MavenUrl;
+import org.codice.maven.MavenUrlReference;
 
 /** Different types for the source content. */
 public enum SourceType {
@@ -46,6 +48,16 @@ public enum SourceType {
         String source,
         @Nullable PaxExamInterpolator interpolator,
         @Nullable ResourceLoader resourceLoader)
+        throws IOException {
+      return SourceType.fromUrlToFile(source);
+    }
+  },
+
+  /** Source is from a Maven artifact URL. */
+  ARTIFACT {
+    @Override
+    public File toFile(
+        String source, @Nullable PaxExamInterpolator interpolator, ResourceLoader resourceLoader)
         throws IOException {
       return SourceType.fromUrlToFile(source);
     }
@@ -93,6 +105,18 @@ public enum SourceType {
       throws IOException;
 
   /**
+   * Converts a source of this type to a file.
+   *
+   * @param source the maven artifact url of source to retrieve
+   * @param resourceLoader the resource loader to use when loading resources
+   * @return a corresponding temporary file with the content of the specified resource of this type
+   * @throws IOException if an I/O error occurred
+   */
+  public static File toFile(MavenUrl source, ResourceLoader resourceLoader) throws IOException {
+    return SourceType.fromArtifactToFile(source, resourceLoader);
+  }
+
+  /**
    * Converts a source url to a file.
    *
    * @param url the source url to retrieve and create a file with
@@ -103,6 +127,20 @@ public enum SourceType {
     try (final InputStream is = new URL(url).openStream()) {
       return SourceType.fromStreamToFile(is);
     }
+  }
+
+  /**
+   * Converts a maven artifact url to a file.
+   *
+   * @param mavenUrl the maven artifact url to retrieve and create a file with
+   * @param resourceLoader the loader to use for loading <code>dependencies.properties</code>
+   * @return a corresponding temporary file with the content of the specified maven url
+   * @throws IOException if an I/O error occurred
+   */
+  private static File fromArtifactToFile(MavenUrl mavenUrl, ResourceLoader resourceLoader)
+      throws IOException {
+    return SourceType.fromUrlToFile(
+        MavenUrlReference.resolve(mavenUrl, mavenUrl, resourceLoader).getURL());
   }
 
   /**

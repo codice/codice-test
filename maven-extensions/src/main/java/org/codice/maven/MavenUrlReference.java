@@ -17,10 +17,14 @@ import java.lang.annotation.Annotation;
 import java.util.Objects;
 import java.util.Properties;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.StringUtils;
 import org.codice.test.commons.MavenUtils;
+import org.ops4j.pax.url.mvn.Handler;
 
 /** This class is used to represent a maven URL. */
 public class MavenUrlReference {
+  private static final String PROTOCOL_HANDLER_PKGS_KEY = "java.protocol.handler.pkgs";
+
   /**
    * Resolves a given maven url annotation to a maven url reference. If this one references the
    * project in anyway (i.e. {@link MavenUrl#AS_IN_PROJECT} or {@link MavenUrl#AS_PROJECT}) then the
@@ -233,6 +237,8 @@ public class MavenUrlReference {
     if (classifier != null) {
       sb.append("/").append(classifier);
     }
+    // make sure we register the protocol handler for the mvn protocol
+    MavenUrlReference.initMavenUrlHandler();
     return sb.toString();
   }
 
@@ -258,5 +264,18 @@ public class MavenUrlReference {
   @Override
   public String toString() {
     return getURL();
+  }
+
+  private static void initMavenUrlHandler() {
+    final String pkgs = System.getProperty(MavenUrlReference.PROTOCOL_HANDLER_PKGS_KEY);
+    final String pkg = StringUtils.removeEnd(Handler.class.getPackage().getName(), ".mvn");
+
+    if (StringUtils.isEmpty(pkgs)) {
+      System.setProperty(MavenUrlReference.PROTOCOL_HANDLER_PKGS_KEY, pkg);
+    } else if (!('|' + pkgs + '|').contains(pkg)) {
+      System.setProperty(
+          MavenUrlReference.PROTOCOL_HANDLER_PKGS_KEY,
+          StringUtils.appendIfMissing(pkgs, "|") + pkg);
+    }
   }
 }

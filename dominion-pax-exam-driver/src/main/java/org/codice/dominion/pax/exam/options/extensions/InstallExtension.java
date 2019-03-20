@@ -13,13 +13,17 @@
  */
 package org.codice.dominion.pax.exam.options.extensions;
 
+import java.io.FilePermission;
+import java.nio.file.Paths;
 import org.codice.dominion.options.Options;
 import org.codice.dominion.options.Options.Install;
 import org.codice.dominion.options.Options.UpdateConfigFile;
+import org.codice.dominion.options.Permission;
 import org.codice.dominion.options.karaf.KarafOptions;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
+import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
 
 /** Extension point for the {@link Install} option annotation. */
@@ -39,10 +43,30 @@ import org.ops4j.pax.exam.Option;
 )
 @KarafOptions.PropagateOverriddenMavenLocalRepo
 @Options.SetSystemProperty(key = "pax.exam.invoker", value = "junit")
+@Options.GrantPermission(
+  codebase =
+      "file:/PAXEXAM-PROBE/org.ops4j.pax.exam.invoker.junit/org.ops4j.pax.swissbox.core/org.ops4j.pax.exam.rbc/org.ops4j.pax.tipi.junit/dominion-pax-exam-invokers/maven-extensions/pax-exam-extensions",
+  permission = {
+    @Permission(clazz = RuntimePermission.class, name = "createClassLoader"),
+    @Permission(
+      clazz = FilePermission.class,
+      name = "<<ALL FILES>>",
+      actions = "read,write,delete,execute"
+    )
+  }
+)
 public class InstallExtension implements Extension<Install> {
   @Override
   public Option[] options(
       Install annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader) {
-    return new Option[0];
+    final String cwd = Paths.get("").toAbsolutePath().toString();
+
+    return new Option[] {
+      // this will help using the MavenUrl annotation inside a running container which uses the
+      // org.codice.test.commons.ReflectionUtils.AnnotationEntry.getEnclosingResourceAsStream
+      // method to find resources directly from disk if it can find them via a class'
+      // code source or classloader
+      CoreOptions.systemProperty("project.basedir").value(cwd)
+    };
   }
 }

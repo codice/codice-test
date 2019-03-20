@@ -25,8 +25,10 @@ import org.codice.dominion.Dominion;
 import org.codice.dominion.conditions.Conditions;
 import org.codice.dominion.interpolate.Interpolate;
 import org.codice.dominion.options.Option.Annotation;
+import org.codice.dominion.options.Options.Repeatables.GrantPermissions;
 import org.codice.dominion.options.karaf.KarafOptions;
 import org.codice.dominion.options.karaf.UserRoles;
+import org.codice.maven.MavenUrl;
 
 /**
  * This class defines annotations that can be used to configure containers. It is solely used for
@@ -98,8 +100,8 @@ public class Options {
     /**
      * Specifies the filename to copy its content to the target file.
      *
-     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
-     * must be specified.
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #artifact()}, {@link #content}, or
+     * {@link #resource} must be specified.
      *
      * @return the source filename to copy
      */
@@ -109,8 +111,8 @@ public class Options {
     /**
      * Specifies the url to copy its content to the target file.
      *
-     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
-     * must be specified.
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #artifact()}, {@link #content}, or
+     * {@link #resource} must be specified.
      *
      * @return the source url to copy
      */
@@ -118,11 +120,22 @@ public class Options {
     String url() default Options.NOT_DEFINED;
 
     /**
+     * Specifies the Maven url of an artifact to copy its content to the target file.
+     *
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #artifact()}, {@link #content}, or
+     * {@link #resource} must be specified.
+     *
+     * @return the artifact maven url to copy
+     */
+    MavenUrl artifact() default
+        @MavenUrl(groupId = Options.NOT_DEFINED, artifactId = Options.NOT_DEFINED);
+
+    /**
      * Specifies the text to copy to the target file. Each entry will represent a different line in
      * the target file.
      *
-     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
-     * must be specified.
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #artifact()}, {@link #content}, or
+     * {@link #resource} must be specified.
      *
      * @return the content text to copy
      */
@@ -132,8 +145,8 @@ public class Options {
     /**
      * Specifies the resource name to copy to the target file.
      *
-     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
-     * must be specified.
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #artifact()}, {@link #content}, or
+     * {@link #resource} must be specified.
      *
      * @return the resource name to copy
      */
@@ -165,8 +178,8 @@ public class Options {
     /**
      * Specifies the filename to copy its content to the target file.
      *
-     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
-     * must be specified.
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #artifact()}, {@link #content}, or
+     * {@link #resource} must be specified.
      *
      * @return the source filename to copy
      */
@@ -176,8 +189,8 @@ public class Options {
     /**
      * Specifies the url to copy its content to the target file.
      *
-     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
-     * must be specified.
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #artifact()}, {@link #content}, or
+     * {@link #resource} must be specified.
      *
      * @return the source url to copy
      */
@@ -185,11 +198,22 @@ public class Options {
     String url() default Options.NOT_DEFINED;
 
     /**
+     * Specifies the Maven url of an artifact to copy its content to the target file.
+     *
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #artifact()}, {@link #content}, or
+     * {@link #resource} must be specified.
+     *
+     * @return the artifact maven url to copy
+     */
+    MavenUrl artifact() default
+        @MavenUrl(groupId = Options.NOT_DEFINED, artifactId = Options.NOT_DEFINED);
+
+    /**
      * Specifies the text to copy to the target file. Each entry will represent a different line in
      * the target file.
      *
-     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
-     * must be specified.
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #artifact()}, {@link #content}, or
+     * {@link #resource} must be specified.
      *
      * @return the content text to copy
      */
@@ -199,8 +223,8 @@ public class Options {
     /**
      * Specifies the resource name to copy to the target file.
      *
-     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
-     * must be specified.
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #artifact()}, {@link #content}, or
+     * {@link #resource} must be specified.
      *
      * @return the resource name to copy
      */
@@ -604,7 +628,40 @@ public class Options {
   @Inherited
   @Documented
   public @interface EnableRemoteDebugging {
-    public static final String PROPERTY_KEY = "waitForDebug";
+    public static final String PROPERTY_KEY = "remote.debug";
+  }
+
+  /**
+   * Option to grant permission(s) to a given codebase.
+   *
+   * <p><i>Note:</i> Dominion doesn't provide extension support for this option. Therefore unless an
+   * extension point for this option is provided by a registered {@link Option.Factory}, any
+   * references will be ignored. This is because security permissions are provided to system in
+   * different ways. DDF, for example, supports them in a directory named <code>default/xxxx.policy
+   * </code> in a format defined by ProGrade. A different application might be expecting something
+   * completely different. from somewhere
+   */
+  @Annotation
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Inherited
+  @Documented
+  @Repeatable(GrantPermissions.class)
+  public @interface GrantPermission {
+    /**
+     * Specifies the codebase for which we are granting the permission(s).
+     *
+     * @return the codebase we are granting the permission(s)
+     */
+    @Interpolate
+    String codebase();
+
+    /**
+     * Specifies the permission(s) to be granted to the specified codebase.
+     *
+     * @return the set of permission(s) to be granted
+     */
+    Permission[] permission();
   }
 
   /** This interface is defined purely to provide scoping. */
@@ -706,6 +763,15 @@ public class Options {
     /** Defines several {@link Options.SetLogLevels} annotations. */
     public @interface SetLogLevelss {
       Options.SetLogLevels[] value();
+    }
+
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Inherited
+    @Documented
+    /** Defines several {@link GrantPermission} annotations. */
+    public @interface GrantPermissions {
+      GrantPermission[] value();
     }
   }
 

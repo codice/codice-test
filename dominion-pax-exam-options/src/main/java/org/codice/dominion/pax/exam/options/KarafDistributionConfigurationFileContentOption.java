@@ -29,6 +29,7 @@ import org.codice.dominion.DominionException;
 import org.codice.dominion.options.Options.Location;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.resources.ResourceLoader;
+import org.codice.maven.MavenUrl;
 
 /**
  * Provides an extension to PaxExam's file options which supports adding content to an existing
@@ -110,6 +111,26 @@ public class KarafDistributionConfigurationFileContentOption
         location,
         configurationFilePath,
         SourceType.RESOURCE.toFile(resource, null, resourceLoader));
+  }
+
+  /**
+   * Creates a new file content PaxExam option.
+   *
+   * @param interpolator the interpolator from which to retrieve Karaf directory locations
+   * @param configurationFilePath the configuration file path to replace
+   * @param location the location in the file where to add the content
+   * @param artfact the maven artifact url where to get the content
+   * @param resourceLoader the resource loader to use if required
+   * @throws IOException if an I/O error occurs while retrieving/creating the resource
+   */
+  public KarafDistributionConfigurationFileContentOption(
+      PaxExamInterpolator interpolator,
+      Location location,
+      String configurationFilePath,
+      MavenUrl artfact,
+      ResourceLoader resourceLoader)
+      throws IOException {
+    this(interpolator, location, configurationFilePath, SourceType.toFile(artfact, resourceLoader));
   }
 
   /**

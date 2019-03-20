@@ -29,12 +29,12 @@ public class FeatureExtension implements Extension<Feature> {
       Feature annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader) {
     final MavenUrl mavenUrl = annotation.repository();
     final String url = annotation.repositoryUrl();
-    final boolean groupIsDefined =
+    final boolean mavenUrlIsDefined =
         org.codice.dominion.options.Utilities.isDefined(mavenUrl.groupId());
     final boolean urlIsDefined = org.codice.dominion.options.Utilities.isDefined(url);
     final String[] names = annotation.names();
 
-    if (!groupIsDefined && !urlIsDefined) {
+    if (!mavenUrlIsDefined && !urlIsDefined) {
       return new Option[] {
         KarafDistributionOption.features(
             PaxExamUtilities.getProjectReference(annotation, resourceLoader)
@@ -42,7 +42,7 @@ public class FeatureExtension implements Extension<Feature> {
                 .classifier("features"),
             names)
       };
-    } else if (groupIsDefined) {
+    } else if (mavenUrlIsDefined) {
       if (urlIsDefined) {
         throw new IllegalArgumentException(
             "specify only one of Feature.repository() or Feature.repositoryUrl() in "

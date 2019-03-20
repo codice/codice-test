@@ -21,6 +21,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.resources.ResourceLoader;
+import org.codice.maven.MavenUrl;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionConfigurationFileReplacementOption;
 
 /**
@@ -37,7 +38,6 @@ public class KarafDistributionConfigurationFileReplaceOption
    * @param configurationFilePath the configuration file path to replace
    * @param type the type of the source (any except for {@link SourceType#RESOURCE})
    * @param source the source where to get the content
-   * @throws IllegalArgumentException if <code>type</code> is {@link SourceType#RESOURCE}
    * @throws IOException if an I/O error occurs while retrieving/creating the source
    */
   public KarafDistributionConfigurationFileReplaceOption(
@@ -93,6 +93,20 @@ public class KarafDistributionConfigurationFileReplaceOption
   public KarafDistributionConfigurationFileReplaceOption(
       String configurationFilePath, @Nullable File source) {
     super(configurationFilePath, source);
+  }
+
+  /**
+   * Creates a new file replace PaxExam option.
+   *
+   * @param configurationFilePath the configuration file path to replace
+   * @param artifact the maven artifact url where to get the content
+   * @param resourceLoader the resource loader to use if required
+   * @throws IOException if an I/O error occurs while retrieving/creating the resource
+   */
+  public KarafDistributionConfigurationFileReplaceOption(
+      String configurationFilePath, MavenUrl artifact, ResourceLoader resourceLoader)
+      throws IOException {
+    super(configurationFilePath, SourceType.toFile(artifact, resourceLoader));
   }
 
   /**

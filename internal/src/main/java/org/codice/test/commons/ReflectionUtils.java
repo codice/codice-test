@@ -42,6 +42,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /** Sets of reflection useful functions. */
 public class ReflectionUtils {
@@ -505,6 +506,19 @@ public class ReflectionUtils {
      * the class or the class defining the annotated method, field, or constructor) is defined. For
      * meta annotations, this will be a resource defined with the enclosing annotation class.
      *
+     * <p>The implementation provided here will attempt to load the resource as follow until it is
+     * located:
+     *
+     * <ol>
+     *   <li>from the annotation's code source
+     *   <li>from the annotation's classloader
+     *   <li>from a thread context's registered classloader
+     *   <li>under <code>target/test-classes</code> defined under a directory defined by Maven's
+     *       model property <code>${project.basedir}</code>
+     *   <li>under <code>target/classes</code> defined under a directory defined by Maven's model
+     *       property <code>${project.basedir}</code>
+     * </ol>
+     *
      * @return an input stream for reading the resource, or <code>null</code> if the resource could
      *     not be found
      */
@@ -535,10 +549,20 @@ public class ReflectionUtils {
         is = AnnotationEntry.getResourceAsStreamFromThreadContextClassLoader(name);
       }
       if (is == null) { // fallback to a test resource under target
-        is = AnnotationEntry.getResourceAsStreamFromFile("target/test-classes/", name);
+        String buildDir = System.getProperty("project.basedir", "");
+
+        if (!buildDir.isEmpty()) {
+          buildDir = StringUtils.appendIfMissing(buildDir, "/");
+        }
+        is = AnnotationEntry.getResourceAsStreamFromFile(buildDir + "target/test-classes/", name);
       }
       if (is == null) { // finally fallback to a resource under target
-        is = AnnotationEntry.getResourceAsStreamFromFile("target/classes/", name);
+        String buildDir = System.getProperty("project.basedir", "");
+
+        if (!buildDir.isEmpty()) {
+          buildDir = StringUtils.appendIfMissing(buildDir, "/");
+        }
+        is = AnnotationEntry.getResourceAsStreamFromFile(buildDir + "target/classes/", name);
       }
       return is;
     }
@@ -618,6 +642,7 @@ public class ReflectionUtils {
     return Stream.of(
         ReflectionUtils.annotations.computeIfAbsent(element, ReflectionUtils::getAnnotations0));
   }
+
   // this method properly expands containers for repeatable annotations
   private static Annotation[] getAnnotations0(AnnotatedElement element) {
     return Stream.of(element.getAnnotations())

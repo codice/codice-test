@@ -21,9 +21,12 @@ import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Extension point for the {@link SetLogLevel} option annotation. */
 public class SetLogLevelExtension implements Extension<SetLogLevel> {
+  private static final Logger LOGGER = LoggerFactory.getLogger(SetLogLevelExtension.class);
   private static final String LOGGER_PREFIX = "log4j2.logger.";
   private static final String LOGGER_FILE = "etc/org.ops4j.pax.logging.cfg";
 
@@ -40,6 +43,7 @@ public class SetLogLevelExtension implements Extension<SetLogLevel> {
     }
     final String loggerKey = name.replace('.', '_').toLowerCase();
 
+    LOGGER.info("Enabling '{}' logs at: {}", name, level);
     return Stream.of(
         KarafDistributionOption.editConfigurationFilePut(
             SetLogLevelExtension.LOGGER_FILE,
