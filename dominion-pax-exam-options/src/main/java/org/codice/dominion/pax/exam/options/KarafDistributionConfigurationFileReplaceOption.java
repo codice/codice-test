@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
+import org.codice.dominion.options.SourceType;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.resources.ResourceLoader;
 import org.codice.maven.MavenUrl;
@@ -106,7 +107,7 @@ public class KarafDistributionConfigurationFileReplaceOption
   public KarafDistributionConfigurationFileReplaceOption(
       String configurationFilePath, MavenUrl artifact, ResourceLoader resourceLoader)
       throws IOException {
-    super(configurationFilePath, SourceType.toFile(artifact, resourceLoader));
+    super(configurationFilePath, SourceType.fromArtifactToFile(artifact, resourceLoader));
   }
 
   /**

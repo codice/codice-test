@@ -39,9 +39,6 @@ public class KarafOptions {
   /** Users properties file. */
   public static final String USER_PROPERTIES = "etc/users.properties";
 
-  /** Users attributes file. */
-  public static final String USER_ATTRIBUTES = "etc/users.attributes";
-
   /**
    * Option for installing one or more features from a Karaf features descriptor.
    *
@@ -265,10 +262,9 @@ public class KarafOptions {
    */
   @Conditions.NotBlankSystemProperty("maven.repo.local")
   @UpdateConfigFile(
-    target = KarafOptions.PAX_URL_MVN_CFG,
-    key = "org.ops4j.pax.url.mvn.localRepository",
-    value = "{maven.repo.local:-}"
-  )
+      target = KarafOptions.PAX_URL_MVN_CFG,
+      key = "org.ops4j.pax.url.mvn.localRepository",
+      value = "{maven.repo.local:-}")
   @Target(ElementType.TYPE)
   @Retention(RetentionPolicy.RUNTIME)
   @Inherited

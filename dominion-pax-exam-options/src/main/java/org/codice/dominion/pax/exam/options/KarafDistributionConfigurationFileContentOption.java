@@ -27,6 +27,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codice.dominion.DominionException;
 import org.codice.dominion.options.Options.Location;
+import org.codice.dominion.options.SourceType;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.resources.ResourceLoader;
 import org.codice.maven.MavenUrl;
@@ -130,7 +131,11 @@ public class KarafDistributionConfigurationFileContentOption
       MavenUrl artfact,
       ResourceLoader resourceLoader)
       throws IOException {
-    this(interpolator, location, configurationFilePath, SourceType.toFile(artfact, resourceLoader));
+    this(
+        interpolator,
+        location,
+        configurationFilePath,
+        SourceType.fromArtifactToFile(artfact, resourceLoader));
   }
 
   /**
@@ -141,7 +146,7 @@ public class KarafDistributionConfigurationFileContentOption
    * @param configurationFilePath the configuration file path to replace
    * @param source the source where to get the content
    */
-  protected KarafDistributionConfigurationFileContentOption(
+  public KarafDistributionConfigurationFileContentOption(
       PaxExamInterpolator interpolator,
       Location location,
       String configurationFilePath,
