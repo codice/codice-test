@@ -268,19 +268,7 @@ public class ConfigurationAdmin extends InjectedService<org.osgi.service.cm.Conf
    * @throws ConfigException if a failure occur while attempting to retrieve the config object
    */
   public Optional<Configuration> configuration(String pid) {
-    try {
-      // we use listConfigurations() to not bind the config object to our bundle if it was not bound
-      // yet as we want to make sure that it will be bound to its corresponding service
-      final String filter = String.format("(%s=%s)", Constants.SERVICE_PID, pid);
-      final org.osgi.service.cm.Configuration[] configs = listConfigurations(filter);
-
-      return ((configs != null) && (configs.length > 0))
-          ? Optional.of(configs[0]).map(Configuration.class::cast)
-          : Optional.empty();
-    } catch (IOException | InvalidSyntaxException e) {
-      // InvalidSyntaxException should not happen as we are hardcoding the filter
-      throw new ConfigException("failed to retrieved existing configuration: " + pid, e);
-    }
+    return configuration0(pid).map(Configuration.class::cast);
   }
 
   /**
@@ -924,6 +912,22 @@ public class ConfigurationAdmin extends InjectedService<org.osgi.service.cm.Conf
 
   // --- miscellaneous
 
+  private Optional<org.osgi.service.cm.Configuration> configuration0(String pid) {
+    try {
+      // we use listConfigurations() to not bind the config object to our bundle if it was not bound
+      // yet as we want to make sure that it will be bound to its corresponding service
+      final String filter = String.format("(%s=%s)", Constants.SERVICE_PID, pid);
+      final org.osgi.service.cm.Configuration[] configs = listConfigurations(filter);
+
+      return ((configs != null) && (configs.length > 0))
+          ? Optional.of(configs[0])
+          : Optional.empty();
+    } catch (IOException | InvalidSyntaxException e) {
+      // InvalidSyntaxException should not happen as we are hardcoding the filter
+      throw new ConfigException("failed to retrieved existing configuration: " + pid, e);
+    }
+  }
+
   private Optional<Configuration> get(Configuration.Id cid) {
     final String fpid = cid.factoryPid();
 
@@ -940,6 +944,7 @@ public class ConfigurationAdmin extends InjectedService<org.osgi.service.cm.Conf
     final String fpid = cid.factoryPid();
 
     if (!fpid.isEmpty()) {
+      LOGGER.info("Creating factory configuration: {}", fpid);
       try {
         return (Configuration) createFactoryConfiguration(fpid, null);
       } catch (IOException e) {
@@ -948,6 +953,7 @@ public class ConfigurationAdmin extends InjectedService<org.osgi.service.cm.Conf
     }
     final String pid = cid.pid();
 
+    LOGGER.info("Creating configuration: {}", pid);
     try {
       return (Configuration) getConfiguration(pid, null);
     } catch (IOException e) {
@@ -965,12 +971,14 @@ public class ConfigurationAdmin extends InjectedService<org.osgi.service.cm.Conf
 
     LOGGER.debug("recreating: {}", snapshot);
     if (fpid != null) {
+      LOGGER.info("Creating factory configuration: {}", fpid);
       try {
         cfg = getService().createFactoryConfiguration(fpid, bundleLocation);
       } catch (IOException e) {
         throw new ConfigException("failed to recreate factory configuration: " + fpid, e);
       }
     } else {
+      LOGGER.info("Creating configuration: {}", pid);
       try {
         cfg = getService().getConfiguration(pid, bundleLocation);
       } catch (IOException e) {
@@ -989,6 +997,7 @@ public class ConfigurationAdmin extends InjectedService<org.osgi.service.cm.Conf
 
   private void delete(Configuration cfg) {
     try {
+      LOGGER.info("Deleting configuration: {}", cfg.getPid());
       cfg.delete();
     } catch (IOException ioe) {
       throw new ConfigException("failed to delete configuration: " + cfg.getPid(), ioe);
@@ -1004,6 +1013,7 @@ public class ConfigurationAdmin extends InjectedService<org.osgi.service.cm.Conf
       current.setBundleLocation(bundleLocation);
     }
     if (!ConfigurationAdmin.equals(properties, current.getProperties())) {
+      LOGGER.info("Updating configuration: {}", current.getPid());
       try {
         current.update(properties);
       } catch (IOException e) {
