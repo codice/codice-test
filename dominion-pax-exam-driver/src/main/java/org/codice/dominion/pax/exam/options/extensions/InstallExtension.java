@@ -17,9 +17,7 @@ import java.io.FilePermission;
 import java.nio.file.Paths;
 import org.codice.dominion.options.Options;
 import org.codice.dominion.options.Options.Install;
-import org.codice.dominion.options.Options.UpdateConfigFile;
 import org.codice.dominion.options.Permission;
-import org.codice.dominion.options.karaf.KarafOptions;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
@@ -28,8 +26,8 @@ import org.ops4j.pax.exam.Option;
 
 /** Extension point for the {@link Install} option annotation. */
 // Required so pax-exam can include it's own pax-exam related artifacts during test runtime
-@UpdateConfigFile(
-  target = KarafOptions.PAX_URL_MVN_CFG,
+@Options.UpdateConfigProperty(
+  target = InstallExtension.PAX_URL_MVN_CFG,
   key = "org.ops4j.pax.url.mvn.repositories",
   value =
       "http://repo1.maven.org/maven2@id=central,"
@@ -41,7 +39,7 @@ import org.ops4j.pax.exam.Option;
           + "http://repository.springsource.com/maven/bundles/external@id=springsourceext,"
           + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype"
 )
-@KarafOptions.PropagateOverriddenMavenLocalRepo
+@Options.PropagateOverriddenMavenLocalRepository
 @Options.SetSystemProperty(key = "pax.exam.invoker", value = "junit")
 @Options.GrantPermission(
   codebase =
@@ -56,6 +54,8 @@ import org.ops4j.pax.exam.Option;
   }
 )
 public class InstallExtension implements Extension<Install> {
+  public static final String PAX_URL_MVN_CFG = "etc/org.ops4j.pax.url.mvn.cfg";
+
   @Override
   public Option[] options(
       Install annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader) {

@@ -48,7 +48,7 @@ import org.apache.sshd.common.util.io.EmptyInputStream;
 import org.apache.sshd.common.util.io.NoCloseOutputStream;
 import org.codice.dominion.Dominion;
 import org.codice.dominion.options.OptionException;
-import org.codice.dominion.options.karaf.UserRoles;
+import org.codice.dominion.options.UserRoles;
 import org.codice.dominion.pax.exam.internal.DominionConfigurationFactory.AnnotationOptions;
 import org.codice.dominion.pax.exam.internal.PaxExamDriverInterpolator;
 import org.codice.dominion.pax.exam.options.KarafSshCommandOption;

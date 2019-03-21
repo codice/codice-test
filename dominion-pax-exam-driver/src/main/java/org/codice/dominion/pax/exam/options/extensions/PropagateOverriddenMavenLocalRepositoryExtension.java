@@ -11,27 +11,30 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.dominion.pax.exam.options.karaf.extensions;
+package org.codice.dominion.pax.exam.options.extensions;
 
-import org.codice.dominion.options.Utilities;
-import org.codice.dominion.options.karaf.KarafOptions.LocalUser;
+import org.codice.dominion.options.Options;
+import org.codice.dominion.options.Options.PropagateOverriddenMavenLocalRepository;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
-import org.codice.dominion.pax.exam.options.KarafUsersPropertiesFileUserPutOption;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
 
-/** Extension point for the {@link LocalUser} option annotation. */
-public class LocalUserExtension implements Extension<LocalUser> {
+/** Extension point for the {@link PropagateOverriddenMavenLocalRepository} option annotation. */
+@Options.UpdateConfigProperty(
+  target = PropagateOverriddenMavenLocalRepositoryExtension.PAX_URL_MVN_CFG,
+  key = "org.ops4j.pax.url.mvn.localRepository",
+  value = "{maven.repo.local:-}"
+)
+public class PropagateOverriddenMavenLocalRepositoryExtension
+    implements Extension<PropagateOverriddenMavenLocalRepository> {
+  public static final String PAX_URL_MVN_CFG = "etc/org.ops4j.pax.url.mvn.cfg";
+
   @Override
   public Option[] options(
-      LocalUser annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader) {
-    final KarafUsersPropertiesFileUserPutOption option =
-        new KarafUsersPropertiesFileUserPutOption(annotation.userId());
-
-    org.codice.dominion.options.Utilities.applyIfDefined(
-        annotation.roles(), option, option::addRoles);
-    Utilities.applyIfDefined(annotation.groups(), option, option::addGroups);
-    return new Option[] {option};
+      PropagateOverriddenMavenLocalRepository annotation,
+      PaxExamInterpolator interpolator,
+      ResourceLoader resourceLoader) {
+    return new Option[] {};
   }
 }

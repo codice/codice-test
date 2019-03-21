@@ -25,9 +25,11 @@ import org.codice.dominion.Dominion;
 import org.codice.dominion.conditions.Conditions;
 import org.codice.dominion.interpolate.Interpolate;
 import org.codice.dominion.options.Option.Annotation;
+import org.codice.dominion.options.Options.Repeatables.AddLocalGroups;
+import org.codice.dominion.options.Options.Repeatables.AddLocalUsers;
 import org.codice.dominion.options.Options.Repeatables.GrantPermissions;
-import org.codice.dominion.options.karaf.KarafOptions;
-import org.codice.dominion.options.karaf.UserRoles;
+import org.codice.dominion.options.Options.Repeatables.RemoveConfigProperties;
+import org.codice.dominion.options.Options.Repeatables.UpdateConfigProperties;
 import org.codice.maven.MavenUrl;
 
 /**
@@ -53,7 +55,7 @@ public class Options {
   /** Option to install the Dominion driver specific configuration. */
   // make sure we have at least one user capable of SSH to the container
   @SuppressWarnings("squid:S2068" /* hard-coded password is for testing */)
-  @KarafOptions.LocalUser(
+  @Options.AddLocalUser(
     userId = Dominion.DOMINION_USER_ID,
     password = "{dominion.password:-dominion}",
     roles = {
@@ -233,17 +235,17 @@ public class Options {
   }
 
   /**
-   * This option allows to set a specific key in a configuration file with a given value or to add a
-   * value to the set of values associated with a specific key in a configuration file. If the key
-   * doesn't exist, one is added with the specified value.
+   * This option allows to set a specific configuration propertyin a configuration file with a given
+   * value or to add a value to the set of values associated with a specific key in a configuration
+   * file. If the key doesn't exist, one is added with the specified value.
    */
   @Option.Annotation
   @Target(ElementType.TYPE)
   @Retention(RetentionPolicy.RUNTIME)
   @Inherited
   @Documented
-  @Repeatable(Options.Repeatables.UpdateConfigFiles.class)
-  public @interface UpdateConfigFile {
+  @Repeatable(UpdateConfigProperties.class)
+  public @interface UpdateConfigProperty {
     /**
      * Specifies the target configuration file to update relative from the home directory where the
      * distribution was expanded (e.g. <code>"{karaf.home}"</code>).
@@ -296,14 +298,17 @@ public class Options {
     }
   }
 
-  /** This option allows to remove a specific key (and its value) from a configuration file */
+  /**
+   * This option allows to remove a specific configuration property given its key (and its value)
+   * from a configuration file
+   */
   @Option.Annotation
   @Target(ElementType.TYPE)
   @Retention(RetentionPolicy.RUNTIME)
   @Inherited
   @Documented
-  @Repeatable(Options.Repeatables.RemoveFromConfigFiles.class)
-  public @interface RemoveFromConfigFile {
+  @Repeatable(RemoveConfigProperties.class)
+  public @interface RemoveConfigProperty {
     /**
      * Specifies the target configuration file to update relative from the home directory where the
      * distribution was expanded (e.g. <code>"{karaf.home}"</code>).
@@ -632,6 +637,88 @@ public class Options {
   }
 
   /**
+   * Option that ensures that information about the overridden location of the local Maven
+   * repository user using the <code>maven.repo.local</code> will be passed to the container.
+   */
+  @Conditions.NotBlankSystemProperty("maven.repo.local")
+  @Annotation
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Inherited
+  @Documented
+  public @interface PropagateOverriddenMavenLocalRepository {}
+
+  /** Options for adding a new local user or replacing an existing user. */
+  @Annotation
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Inherited
+  @Documented
+  @Repeatable(AddLocalUsers.class)
+  public @interface AddLocalUser {
+    /**
+     * Specifies the unique user id.
+     *
+     * @return the unique user id
+     */
+    @Interpolate
+    String userId();
+
+    /**
+     * Specifies the password for the user.
+     *
+     * @return the password for the user
+     */
+    @Interpolate
+    String password();
+
+    /**
+     * Specifies optional roles to be added to the user (see {@link UserRoles} for known roles).
+     *
+     * <p><i>Note:</i> At least one role or group must be specified.
+     *
+     * @return optional roles to be added to the user
+     */
+    @Interpolate
+    String[] roles() default NOT_DEFINED;
+
+    /**
+     * Specifies optional groups to be added to the user.
+     *
+     * <p><i>Note:</i> At least one role or group must be specified.
+     *
+     * @return optional groups to be added to the user
+     */
+    @Interpolate
+    String[] groups() default NOT_DEFINED;
+  }
+
+  /** Options for adding a new local group or replacing an existing group. */
+  @Annotation
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Inherited
+  @Documented
+  @Repeatable(AddLocalGroups.class)
+  public @interface AddLocalGroup {
+    /**
+     * Specifies the unique group id.
+     *
+     * @return the unique group id
+     */
+    @Interpolate
+    String groupId();
+
+    /**
+     * Specifies roles to be added to the group (see {@link UserRoles} for known roles).
+     *
+     * @return roles to be added to the group
+     */
+    @Interpolate
+    String[] roles();
+  }
+
+  /**
    * Option to grant permission(s) to a given codebase.
    *
    * <p><i>Note:</i> Dominion doesn't provide extension support for this option. Therefore unless an
@@ -684,22 +771,22 @@ public class Options {
       ReplaceFile[] value();
     }
 
-    /** Defines several {@link UpdateConfigFile} annotations. */
+    /** Defines several {@link UpdateConfigProperty} annotations. */
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.RUNTIME)
     @Inherited
     @Documented
-    @interface UpdateConfigFiles {
-      UpdateConfigFile[] value();
+    @interface UpdateConfigProperties {
+      UpdateConfigProperty[] value();
     }
 
-    /** Defines several {@link RemoveFromConfigFile} annotations. */
+    /** Defines several {@link RemoveConfigProperty} annotations. */
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.RUNTIME)
     @Inherited
     @Documented
-    @interface RemoveFromConfigFiles {
-      Options.RemoveFromConfigFile[] value();
+    @interface RemoveConfigProperties {
+      RemoveConfigProperty[] value();
     }
 
     @Target(ElementType.TYPE)
@@ -763,6 +850,24 @@ public class Options {
     /** Defines several {@link Options.SetLogLevels} annotations. */
     public @interface SetLogLevelss {
       Options.SetLogLevels[] value();
+    }
+
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Inherited
+    @Documented
+    /** Defines several {@link AddLocalUser} annotations. */
+    public @interface AddLocalUsers {
+      AddLocalUser[] value();
+    }
+
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Inherited
+    @Documented
+    /** Defines several {@link AddLocalGroup} annotations. */
+    public @interface AddLocalGroups {
+      AddLocalGroup[] value();
     }
 
     @Target(ElementType.TYPE)
