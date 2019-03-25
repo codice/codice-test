@@ -90,6 +90,8 @@ public class ConfigurationAdmin extends InjectedService<org.osgi.service.cm.Conf
 
   private static final String TIME_KEY = "time";
 
+  private static final long USE_SYSTEM_PROPERTY = -1L;
+
   // config admin creates 2 threads in this group: CM Configuration Updater, and CM Event Dispatcher
   private static final int EXPECTED_THREADS = 2;
 
@@ -136,7 +138,7 @@ public class ConfigurationAdmin extends InjectedService<org.osgi.service.cm.Conf
    *     as described in {@link #ConfigurationAdmin()}
    */
   public ConfigurationAdmin(long timeout) {
-    this(timeout, -1L);
+    this(timeout, ConfigurationAdmin.USE_SYSTEM_PROPERTY);
   }
 
   /**
