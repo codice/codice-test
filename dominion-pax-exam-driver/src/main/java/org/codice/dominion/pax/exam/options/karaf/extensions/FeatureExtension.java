@@ -13,7 +13,7 @@
  */
 package org.codice.dominion.pax.exam.options.karaf.extensions;
 
-import org.codice.dominion.options.karaf.KarafOptions.Feature;
+import org.codice.dominion.options.karaf.KarafOptions.InstallFeature;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.pax.exam.options.PaxExamUtilities;
@@ -22,11 +22,11 @@ import org.codice.maven.MavenUrl;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 
-/** Extension point for the {@link Feature} option annotation. */
-public class FeatureExtension implements Extension<Feature> {
+/** Extension point for the {@link InstallFeature} option annotation. */
+public class FeatureExtension implements Extension<InstallFeature> {
   @Override
   public Option[] options(
-      Feature annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader) {
+      InstallFeature annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader) {
     final MavenUrl mavenUrl = annotation.repository();
     final String url = annotation.repositoryUrl();
     final boolean mavenUrlIsDefined =

@@ -82,7 +82,7 @@ public class OptionExtensionFactory implements Option.Factory {
 
     map.put(KarafOptions.DistributionConfiguration.class, new DistributionConfigurationExtension());
     map.put(KarafOptions.ExecuteShellCommand.class, new ExecuteShellCommandExtension());
-    map.put(KarafOptions.Feature.class, new FeatureExtension());
+    map.put(KarafOptions.InstallFeature.class, new FeatureExtension());
     map.put(
         KarafOptions.SetLogLevel.class,
         new org.codice.dominion.pax.exam.options.karaf.extensions.SetLogLevelExtension());

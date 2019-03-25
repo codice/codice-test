@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
  * Implementation of PaxExam {@link ConfigurationFactory} capable of extracting all {@link
  * Option.Annotation} meta-annotations in order to configure the container.
  */
-@KarafOptions.Feature(
+@KarafOptions.InstallFeature(
   repository =
       @MavenUrl(
         groupId = MavenUrl.AS_PROJECT,

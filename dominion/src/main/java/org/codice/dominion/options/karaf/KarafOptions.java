@@ -48,8 +48,8 @@ public class KarafOptions {
   @Retention(RetentionPolicy.RUNTIME)
   @Inherited
   @Documented
-  @Repeatable(Repeatables.Features.class)
-  public @interface Feature {
+  @Repeatable(Repeatables.InstallFeatures.class)
+  public @interface InstallFeature {
     /**
      * Specifies the maven repository url where the feature(s) is(are) defined.
      *
@@ -358,9 +358,9 @@ public class KarafOptions {
     @Retention(RetentionPolicy.RUNTIME)
     @Inherited
     @Documented
-    /** Defines several {@link Feature} annotations. */
-    public @interface Features {
-      Feature[] value();
+    /** Defines several {@link InstallFeature} annotations. */
+    public @interface InstallFeatures {
+      InstallFeature[] value();
     }
 
     @Target(ElementType.TYPE)
