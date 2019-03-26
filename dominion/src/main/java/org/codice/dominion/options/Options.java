@@ -727,6 +727,9 @@ public class Options {
    * different ways. DDF, for example, supports them in a directory named <code>default/xxxx.policy
    * </code> in a format defined by ProGrade. A different application might be expecting something
    * completely different. from somewhere
+   *
+   * <p><i>Note:</i> If none of {@link #codebase} or {@link #artifact} are specified, it will
+   * default to the artifact defined by the maven project where this annotation is used.
    */
   @Annotation
   @Target(ElementType.TYPE)
@@ -736,12 +739,20 @@ public class Options {
   @Repeatable(GrantPermissions.class)
   public @interface GrantPermission {
     /**
-     * Specifies the codebase for which we are granting the permission(s).
+     * Specifies the maven urls for artifacts for which we are granting the permission(s).
      *
-     * @return the codebase we are granting the permission(s)
+     * @return the maven urls for artifacts we are granting the permission(s)
+     */
+    MavenUrl[] artifact() default
+        @MavenUrl(groupId = Options.NOT_DEFINED, artifactId = Options.NOT_DEFINED);
+
+    /**
+     * Specifies the codebases for which we are granting the permission(s).
+     *
+     * @return the codebases we are granting the permission(s)
      */
     @Interpolate
-    String codebase();
+    String[] codebase() default Options.NOT_DEFINED;
 
     /**
      * Specifies the permission(s) to be granted to the specified codebase.

@@ -13,6 +13,7 @@
  */
 package org.codice.dominion.pax.exam.invoker;
 
+import org.codice.dominion.DominionException;
 import org.ops4j.pax.exam.ProbeInvoker;
 import org.ops4j.pax.exam.ProbeInvokerFactory;
 import org.ops4j.pax.exam.TestContainerException;
@@ -39,6 +40,8 @@ public class DominionProbeInvokerFactory implements ProbeInvokerFactory {
 
     try {
       return new DominionProbeInvoker(bundleContext.getBundle().loadClass(clazz), method, injector);
+    } catch (DominionException e) {
+      throw new TestContainerException(e);
     } catch (ClassNotFoundException e) {
       LOGGER.error(
           "DominionProbeInvokerFactory::createProbeInvoker({}, {}) - failed to locate test class",

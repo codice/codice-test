@@ -1443,6 +1443,8 @@ public class ServiceAdmin extends MethodRuleChain
     // class  as its statement so we must first call super.apply() with an empty statement and be
     // done with it
     super.apply(EmptyStatement.EMPTY, method, target);
+    final Profile toProcess = new Profile(true);
+
     // take the snapshot outside of the statements to make sure it gets taken before any changes
     // to the system is performed by any rules
     takeSnapshot();
@@ -1634,9 +1636,9 @@ public class ServiceAdmin extends MethodRuleChain
    * @return a stream of the snapshot bundles
    */
   private Stream<BundleSnapshot> snapshotBundles() {
-    final BundleProcessor processor = new BundleProcessor(service(BundleContext.class));
+    final BundleProcessor processor = new BundleProcessor();
 
-    return Stream.of(processor.listBundles())
+    return Stream.of(processor.listBundles(service(BundleContext.class)))
         .map(BundleSnapshot::new)
         .peek(b -> LOGGER.debug("snapshooting: {}", b));
   }
@@ -1653,13 +1655,13 @@ public class ServiceAdmin extends MethodRuleChain
    * @return <code>true</code> if all were restored successfully; <code>false</code> otherwise
    */
   private boolean restoreBundles(Profile profile, SnapshotReport report) {
-    final BundleProcessor processor = new BundleProcessor(service(BundleContext.class));
+    final BundleProcessor processor = new BundleProcessor();
     final TaskList tasks = new TaskList("bundle", report);
 
     // loop until we can determine that all bundles that should be started. stopped, installed, or
     // uninstalled are or until we get an error or exceeds the max number of attempts
     while (true) {
-      processor.processBundlesAndPopulateTaskList(profile, tasks);
+      processor.processBundlesAndPopulateTaskList(service(BundleContext.class), profile, tasks);
       if (tasks.isEmpty()) {
         LOGGER.trace("No (or no more) bundles to restore");
         return true;

@@ -56,7 +56,7 @@ public @interface MavenUrl {
   /**
    * Specifies the optional maven artifact version.
    *
-   * @return the optional marven artifact version
+   * @return the optional maven artifact version
    */
   String version() default "";
 

@@ -116,8 +116,15 @@ public class MavenUrlReference {
    *
    * @param groupId the group id
    * @param artifactId the artifact id
+   * @throws IllegalArgumentException if <code>groupId</code> or <code>artifactId</code> are invalid
    */
   public MavenUrlReference(String groupId, String artifactId) {
+    if (StringUtils.isEmpty(groupId) || MavenUrl.AS_PROJECT.equals(groupId)) {
+      throw new IllegalArgumentException("invalid maven group id: " + groupId);
+    }
+    if (StringUtils.isEmpty(artifactId) || MavenUrl.AS_PROJECT.equals(artifactId)) {
+      throw new IllegalArgumentException("invalid maven artifact id: " + artifactId);
+    }
     this.groupId = groupId;
     this.artifactId = artifactId;
   }

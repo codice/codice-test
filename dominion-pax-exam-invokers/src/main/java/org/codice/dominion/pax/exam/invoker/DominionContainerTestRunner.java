@@ -52,7 +52,7 @@ public class DominionContainerTestRunner extends ContainerTestRunner implements 
 
   @Override
   public String toString() {
-    return "DominionContainerTestRunner(" + getTestClass() + ")";
+    return "DominionContainerTestRunner(" + getTestClass().getName() + ")";
   }
 
   /**

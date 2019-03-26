@@ -79,6 +79,7 @@ public class MavenUtils {
    * @return the corresponding attribute value or <code>null</code> if no dependencies provided or
    *     if the attribute was not found in the dependencies
    */
+  @Nullable
   public static String getProjectAttribute(Class<?> clazz, String name) {
     return MavenUtils.getProjectAttribute(MavenUtils.getDependenciesFrom(clazz), name);
   }
@@ -91,6 +92,7 @@ public class MavenUtils {
    * @return the corresponding attribute value or <code>null</code> if no dependencies provided or
    *     if the attribute was not found in the dependencies
    */
+  @Nullable
   public static String getProjectAttribute(@Nullable Properties dependencies, String name) {
     return (dependencies != null) ? dependencies.getProperty(name) : null;
   }
@@ -105,6 +107,7 @@ public class MavenUtils {
    * @return the corresponding attribute value or <code>null</code> if no dependencies provided or
    *     if the attribute was not found in the dependencies
    */
+  @Nullable
   public static String getArtifactAttribute(
       @Nullable Properties dependencies, String groupId, String artifactId, String name) {
     return (dependencies != null)

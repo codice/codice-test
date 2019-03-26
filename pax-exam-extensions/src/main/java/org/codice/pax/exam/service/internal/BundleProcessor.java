@@ -32,23 +32,13 @@ import org.slf4j.LoggerFactory;
 public class BundleProcessor {
   private static final Logger LOGGER = LoggerFactory.getLogger(BundleProcessor.class);
 
-  private final BundleContext context;
-
-  /**
-   * Creates a new bundle processor with the specified bundle context.
-   *
-   * @param context the bundle context from which to retrieve bundles
-   */
-  public BundleProcessor(BundleContext context) {
-    this.context = context;
-  }
-
   /**
    * Gets all available bundles from memory.
    *
+   * @param context the bundle context from which to retrieve bundles
    * @return an array of all available bundles
    */
-  public Bundle[] listBundles() {
+  public Bundle[] listBundles(BundleContext context) {
     final Bundle[] bundles = context.getBundles();
 
     if (LOGGER.isTraceEnabled()) {
@@ -64,12 +54,13 @@ public class BundleProcessor {
   /**
    * Installs the specified bundle.
    *
+   * @param context the bundle context to use for installing bundles
    * @param report the report where to record errors if unable to install the bundle
    * @param bundle the bundle to install
    * @return <code>true</code> if the bundle was installed successfully; <code>false</code>
    *     otherwise
    */
-  public boolean installBundle(SnapshotReport report, Bundle bundle) {
+  public boolean installBundle(BundleContext context, SnapshotReport report, Bundle bundle) {
     return run(
         report, bundle, Operation.INSTALL, () -> context.installBundle(bundle.getLocation()));
   }
@@ -77,13 +68,15 @@ public class BundleProcessor {
   /**
    * Installs the specified bundle.
    *
+   * @param context the bundle context to use for installing bundles
    * @param report the report where to record errors if unable to install the bundle
    * @param name the name of the bundle to install
    * @param location the location for the bundle to install
    * @return <code>true</code> if the bundle was installed successfully; <code>false</code>
    *     otherwise
    */
-  public boolean installBundle(SnapshotReport report, String name, String location) {
+  public boolean installBundle(
+      BundleContext context, SnapshotReport report, String name, String location) {
     return run(
         report,
         name,
@@ -130,12 +123,15 @@ public class BundleProcessor {
    * Processes bundles by recording tasks to start, stop, install, or uninstall bundles that were
    * originally in the corresponding state.
    *
+   * @param context the bundle context to use for managing bundles
    * @param profile the profile where to retrieve the set of bundles from the snapshot
    * @param tasks the task list where to record tasks to be executed
    */
-  public void processBundlesAndPopulateTaskList(Profile profile, TaskList tasks) {
+  public void processBundlesAndPopulateTaskList(
+      BundleContext context, Profile profile, TaskList tasks) {
     LOGGER.trace("Processing bundles");
-    final Map<String, Bundle> leftover = processSnapshotBundlesAndPopulateTaskList(profile, tasks);
+    final Map<String, Bundle> leftover =
+        processSnapshotBundlesAndPopulateTaskList(context, profile, tasks);
 
     if (!profile.shouldOnlyProcessSnapshot()) {
       processLeftoverBundlesAndPopulateTaskList(leftover, tasks);
@@ -146,15 +142,16 @@ public class BundleProcessor {
    * Processes bundles that were exported by recording tasks to start, stop, install, or uninstall
    * bundles that were originally in the corresponding state.
    *
+   * @param context the bundle context to use for managing bundles
    * @param profile the profile where to retrieve the set of bundles from the snapshot
    * @param tasks the task list where to record tasks to be executed
    * @return the set of bundles in memory not defined in the provided snapshot
    */
   public Map<String, Bundle> processSnapshotBundlesAndPopulateTaskList(
-      Profile profile, TaskList tasks) {
+      BundleContext context, Profile profile, TaskList tasks) {
     LOGGER.trace("Processing snapshot bundles");
     final Map<String, Bundle> bundles =
-        Stream.of(listBundles())
+        Stream.of(listBundles(context))
             .collect(Collectors.toMap(BundleSnapshot::getFullName, Function.identity()));
 
     profile
@@ -162,6 +159,7 @@ public class BundleProcessor {
         .forEach(
             b ->
                 processBundleAndPopulateTaskList(
+                    context,
                     b,
                     bundles.remove(b.getFullName()), // remove from bundles when we find it
                     tasks));
@@ -195,25 +193,29 @@ public class BundleProcessor {
    * <p><i>Note:</i> Stopped or installed are handled the same way. Started is handled as making the
    * bundle active.
    *
+   * @param context the bundle context to use for installing bundles
    * @param snapshotBundle the original bundle information
    * @param bundle the current bundle from memory or <code>null</code> if it is not installed
    * @param tasks the task list where to record tasks to be executed
    */
   public void processBundleAndPopulateTaskList(
-      BundleSnapshot snapshotBundle, @Nullable Bundle bundle, TaskList tasks) {
+      BundleContext context,
+      BundleSnapshot snapshotBundle,
+      @Nullable Bundle bundle,
+      TaskList tasks) {
     if (bundle == null) {
-      processMissingBundleAndPopulateTaskList(snapshotBundle, tasks);
+      processMissingBundleAndPopulateTaskList(context, snapshotBundle, tasks);
     } else {
       switch (snapshotBundle.getSimpleState()) {
         case UNINSTALLED:
           processUninstalledBundleAndPopulateTaskList(bundle, tasks);
           break;
         case ACTIVE:
-          processActiveBundleAndPopulateTaskList(bundle, tasks);
+          processActiveBundleAndPopulateTaskList(context, bundle, tasks);
           break;
         case INSTALLED:
         default: // assume any other states we don't know about is treated as if we should stop
-          processInstalledBundleAndPopulateTaskList(bundle, tasks);
+          processInstalledBundleAndPopulateTaskList(context, bundle, tasks);
           break;
       }
     }
@@ -229,15 +231,17 @@ public class BundleProcessor {
    * installed instead of missing like it is right now such that it can then be finally uninstalled
    * or started as it was snapshot.
    *
+   * @param context the bundle context to use for installing bundles
    * @param bundle the original bundle information
    * @param tasks the task list where to record tasks to be executed
    */
-  public void processMissingBundleAndPopulateTaskList(BundleSnapshot bundle, TaskList tasks) {
+  public void processMissingBundleAndPopulateTaskList(
+      BundleContext context, BundleSnapshot bundle, TaskList tasks) {
     // we need to force an install and on the next round, whatever it used to be.
     // Even if it was uninstall because we need to reserve its spot in the bundle order
     final String name = bundle.getFullName();
 
-    tasks.add(Operation.INSTALL, name, r -> installBundle(r, name, bundle.getLocation()));
+    tasks.add(Operation.INSTALL, name, r -> installBundle(context, r, name, bundle.getLocation()));
   }
 
   /**
@@ -269,16 +273,18 @@ public class BundleProcessor {
    * round will see the state of the bundle in memory as installed instead of uninstalled like it is
    * right now such that it can then be finally started as it was snapshot.
    *
+   * @param context the bundle context to use for installing bundles
    * @param bundle the current bundle from memory
    * @param tasks the task list where to record tasks to be executed
    */
-  public void processActiveBundleAndPopulateTaskList(Bundle bundle, TaskList tasks) {
+  public void processActiveBundleAndPopulateTaskList(
+      BundleContext context, Bundle bundle, TaskList tasks) {
     final BundleSnapshot.SimpleState state = BundleSnapshot.getSimpleState(bundle);
     final String name = BundleSnapshot.getFullName(bundle);
 
     if (state == BundleSnapshot.SimpleState.UNINSTALLED) {
       // we need to first install it and on the next round, start it
-      tasks.add(Operation.INSTALL, name, r -> installBundle(r, bundle));
+      tasks.add(Operation.INSTALL, name, r -> installBundle(context, r, bundle));
     } else if (state != BundleSnapshot.SimpleState.ACTIVE) {
       tasks.add(Operation.START, name, r -> startBundle(r, bundle));
     }
@@ -290,15 +296,17 @@ public class BundleProcessor {
    * <p><i>Note:</i> A bundle that is active in memory will need to be stopped in order to be in the
    * same installed state it was snapshot.
    *
+   * @param context the bundle context to use for installing bundles
    * @param bundle the current bundle from memory
    * @param tasks the task list where to record tasks to be executed
    */
-  public void processInstalledBundleAndPopulateTaskList(Bundle bundle, TaskList tasks) {
+  public void processInstalledBundleAndPopulateTaskList(
+      BundleContext context, Bundle bundle, TaskList tasks) {
     final BundleSnapshot.SimpleState state = BundleSnapshot.getSimpleState(bundle);
     final String name = BundleSnapshot.getFullName(bundle);
 
     if (state == BundleSnapshot.SimpleState.UNINSTALLED) {
-      tasks.add(Operation.INSTALL, name, r -> installBundle(r, bundle));
+      tasks.add(Operation.INSTALL, name, r -> installBundle(context, r, bundle));
     } else if (state == BundleSnapshot.SimpleState.ACTIVE) {
       tasks.add(Operation.STOP, name, r -> stopBundle(r, bundle));
     }

@@ -169,17 +169,17 @@ class InterpolatedAnnotationHandler<A extends Annotation> implements InvocationH
     } else if (!toInterpolate.contains(method)) {
       return o;
     }
-    return toInterpolatedObject(o);
+    return toInterpolatedObject(method, o);
   }
 
-  private Object toInterpolatedObject(Object o) {
+  private Object toInterpolatedObject(Method method, Object o) {
     if (o instanceof String[]) {
       return interpolator.interpolate((String[]) o);
     } else if (o instanceof String) {
       return interpolator.interpolate((String) o);
     }
     throw new InterpolationException(
-        "Can only interpolate annotated methods that returns String or String[]");
+        "Can only interpolate annotated methods that returns String or String[] for: " + method);
   }
 
   private String toInterpolatedString(Method method) {
@@ -187,7 +187,7 @@ class InterpolatedAnnotationHandler<A extends Annotation> implements InvocationH
 
     try {
       // Note. Annotation methods cannot have arguments!
-      final Object o = toInterpolatedObject(method.invoke(annotation));
+      final Object o = toInterpolatedObject(method, method.invoke(annotation));
 
       if (o instanceof String[]) {
         s = Arrays.toString((String[]) o);

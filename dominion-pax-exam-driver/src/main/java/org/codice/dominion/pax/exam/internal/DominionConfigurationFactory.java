@@ -65,7 +65,7 @@ import org.slf4j.LoggerFactory;
         type = "xml",
         classifier = "features"
       ),
-  names = "dominion-pax-exam"
+  name = "dominion-pax-exam"
 )
 public class DominionConfigurationFactory implements ConfigurationFactory {
   private static final Logger LOGGER = LoggerFactory.getLogger(DominionConfigurationFactory.class);

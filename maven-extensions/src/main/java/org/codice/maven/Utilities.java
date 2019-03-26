@@ -20,6 +20,7 @@ import java.lang.annotation.Annotation;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Properties;
+import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.codice.test.commons.MavenUtils;
 
@@ -89,6 +90,26 @@ public class Utilities {
   }
 
   /**
+   * Gets the maven url for a particular project from the provided dependencies properties.
+   *
+   * @param annotation the annotation instance for which to retrieve the artifact info
+   * @param resourceLoader the resource loader the dependencies.properties file was loaded from
+   * @param dependencies the loaded dependencies.properties information
+   * @return the corresponding maven url
+   */
+  public static MavenUrlReference getProjectUrl(
+      Annotation annotation, ResourceLoader resourceLoader, Properties dependencies) {
+    return new MavenUrlReference(
+            Utilities.getProjectAttribute(
+                annotation, resourceLoader, MavenUtils.GROUP_ID, dependencies),
+            Utilities.getProjectAttribute(
+                annotation, resourceLoader, MavenUtils.ARTIFACT_ID, dependencies))
+        .version(MavenUtils.getProjectAttribute(dependencies, MavenUtils.VERSION))
+        .type(MavenUtils.getProjectAttribute(dependencies, MavenUtils.TYPE))
+        .classifier(MavenUtils.getProjectAttribute(dependencies, MavenUtils.CLASSIFIER));
+  }
+
+  /**
    * Loads the dependencies.properties for the provided annotation using the provided resource
    * loader.
    *
@@ -96,13 +117,13 @@ public class Utilities {
    * @param resourceLoader the resource loader to use to load the dependencies.properties file
    * @param dependencies the loaded dependencies.properties information or <code>null</code> if not
    *     yet loaded
-   * @return the loaded depdencies.properties or <code>properties</code> if not <code>null</code>
+   * @return the loaded dependencies.properties or <code>properties</code> if not <code>null</code>
    */
   @SuppressWarnings(
       "squid:CallToDeprecatedMethod" /* perfectly acceptable to not care about errors closing the
                                      file once we have retrieved the info we want from it */)
   public static Properties getDependencies(
-      Annotation annotation, ResourceLoader resourceLoader, Properties dependencies) {
+      Annotation annotation, ResourceLoader resourceLoader, @Nullable Properties dependencies) {
     if (dependencies == null) {
       InputStream is = null;
 

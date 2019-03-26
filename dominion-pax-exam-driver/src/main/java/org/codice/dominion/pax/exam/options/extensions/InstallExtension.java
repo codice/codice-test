@@ -21,6 +21,7 @@ import org.codice.dominion.options.Permission;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
+import org.codice.maven.MavenUrl;
 import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
 
@@ -42,8 +43,18 @@ import org.ops4j.pax.exam.Option;
 @Options.PropagateOverriddenMavenLocalRepository
 @Options.SetSystemProperty(key = "pax.exam.invoker", value = "junit")
 @Options.GrantPermission(
-  codebase =
-      "file:/PAXEXAM-PROBE/org.ops4j.pax.exam.invoker.junit/org.ops4j.pax.swissbox.core/org.ops4j.pax.exam.rbc/org.ops4j.pax.tipi.junit/dominion-pax-exam-invokers/maven-extensions/pax-exam-extensions",
+  artifact = {
+    @MavenUrl(groupId = MavenUrl.AS_PROJECT, artifactId = "dominion-pax-exam-invokers"),
+    @MavenUrl(groupId = MavenUrl.AS_PROJECT, artifactId = "maven-extensions"),
+    @MavenUrl(groupId = MavenUrl.AS_PROJECT, artifactId = "pax-exam-extensions")
+  },
+  codebase = {
+    "PAXEXAM-PROBE",
+    "org.ops4j.pax.exam.invoker.junit",
+    "org.ops4j.pax.swissbox.core",
+    "org.ops4j.pax.exam.rbc",
+    "org.ops4j.pax.tipi.junit"
+  },
   permission = {
     @Permission(clazz = RuntimePermission.class, name = "createClassLoader"),
     @Permission(

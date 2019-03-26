@@ -45,7 +45,9 @@ import org.codice.dominion.pax.exam.options.extensions.UpdateFileExtension;
 import org.codice.dominion.pax.exam.options.extensions.VMOptionExtension;
 import org.codice.dominion.pax.exam.options.karaf.extensions.DistributionConfigurationExtension;
 import org.codice.dominion.pax.exam.options.karaf.extensions.ExecuteShellCommandExtension;
-import org.codice.dominion.pax.exam.options.karaf.extensions.FeatureExtension;
+import org.codice.dominion.pax.exam.options.karaf.extensions.InstallBundleExtension;
+import org.codice.dominion.pax.exam.options.karaf.extensions.InstallFeatureExtension;
+import org.codice.dominion.pax.exam.options.karaf.extensions.InstallJarExtension;
 import org.codice.dominion.pax.exam.options.karaf.extensions.UpdateShellInitScriptExtension;
 
 /** Factory implementation for PaxExam option extensions. */
@@ -82,7 +84,9 @@ public class OptionExtensionFactory implements Option.Factory {
 
     map.put(KarafOptions.DistributionConfiguration.class, new DistributionConfigurationExtension());
     map.put(KarafOptions.ExecuteShellCommand.class, new ExecuteShellCommandExtension());
-    map.put(KarafOptions.InstallFeature.class, new FeatureExtension());
+    map.put(KarafOptions.InstallBundle.class, new InstallBundleExtension());
+    map.put(KarafOptions.InstallFeature.class, new InstallFeatureExtension());
+    map.put(KarafOptions.InstallJar.class, new InstallJarExtension());
     map.put(
         KarafOptions.SetLogLevel.class,
         new org.codice.dominion.pax.exam.options.karaf.extensions.SetLogLevelExtension());

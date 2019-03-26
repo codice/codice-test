@@ -35,6 +35,38 @@ public class KarafOptions {
   public static final String USER_PROPERTIES = "etc/users.properties";
 
   /**
+   * Option for installing a Karaf bundle.
+   *
+   * <p><i>Note:</i> If none of {@link #bundle} or {@link #bundleUrl} is specified, it will default
+   * to a url referencing the artifact defined by the maven project where this annotation is used
+   * (i.e. <code></code>@MavenUrl(groupId=MavenUrl.AS_PROJECT, artifactId=MavenUrl.AS_PROJECT,
+   * version=MavenUrl.AS_PROJECT</code>).
+   */
+  @Option.Annotation
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Inherited
+  @Documented
+  @Repeatable(Repeatables.InstallBundles.class)
+  public @interface InstallBundle {
+    /**
+     * Specifies the maven url where the bundle is defined.
+     *
+     * @return the maven url where the bundle is defined
+     */
+    MavenUrl bundle() default
+        @MavenUrl(groupId = Options.NOT_DEFINED, artifactId = Options.NOT_DEFINED);
+
+    /**
+     * Specifies the maven url where the bundle is defined.
+     *
+     * @return the maven url where the bundle is defined
+     */
+    @Interpolate
+    String bundleUrl() default Options.NOT_DEFINED;
+  }
+
+  /**
    * Option for installing one or more features from a Karaf features descriptor.
    *
    * <p><i>Note:</i> If none of {@link #repository} or {@link #repositoryUrl} is specified, it will
@@ -72,7 +104,39 @@ public class KarafOptions {
      * @return the name(s) of the features to install
      */
     @Interpolate
-    String[] names();
+    String[] name();
+  }
+
+  /**
+   * Option for installing a jar file as a Karaf bundle by wrapping (osgifying) it.
+   *
+   * <p><i>Note:</i> If none of {@link #jar} or {@link #jarUrl} is specified, it will default to a
+   * url referencing the artifact defined by the maven project where this annotation is used (i.e.
+   * <code></code>@MavenUrl(groupId=MavenUrl.AS_PROJECT, artifactId=MavenUrl.AS_PROJECT,
+   * version=MavenUrl.AS_PROJECT</code>).
+   */
+  @Option.Annotation
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Inherited
+  @Documented
+  @Repeatable(Repeatables.InstallJars.class)
+  public @interface InstallJar {
+    /**
+     * Specifies the maven url where the jar is defined.
+     *
+     * @return the maven url where the jar is defined
+     */
+    MavenUrl jar() default
+        @MavenUrl(groupId = Options.NOT_DEFINED, artifactId = Options.NOT_DEFINED);
+
+    /**
+     * Specifies the maven url where the jar is defined.
+     *
+     * @return the maven url where the jar is defined
+     */
+    @Interpolate
+    String jarUrl() default Options.NOT_DEFINED;
   }
 
   /** Option to configure Karaf's log level. */
@@ -358,9 +422,27 @@ public class KarafOptions {
     @Retention(RetentionPolicy.RUNTIME)
     @Inherited
     @Documented
+    /** Defines several {@link InstallBundle} annotations. */
+    public @interface InstallBundles {
+      InstallBundle[] value();
+    }
+
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Inherited
+    @Documented
     /** Defines several {@link InstallFeature} annotations. */
     public @interface InstallFeatures {
       InstallFeature[] value();
+    }
+
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Inherited
+    @Documented
+    /** Defines several {@link InstallJar} annotations. */
+    public @interface InstallJars {
+      InstallJar[] value();
     }
 
     @Target(ElementType.TYPE)

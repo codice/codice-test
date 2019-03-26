@@ -57,7 +57,11 @@ public class DominionParameterizedContainerTestRunner extends ParameterizedConta
 
   @Override
   public String toString() {
-    return "DominionParameterizedContainerTestRunner(" + getTestClass() + ", " + index + ")";
+    return "DominionParameterizedContainerTestRunner("
+        + getTestClass().getName()
+        + ", "
+        + index
+        + ")";
   }
 
   /**

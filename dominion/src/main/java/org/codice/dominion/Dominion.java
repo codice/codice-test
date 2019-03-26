@@ -17,6 +17,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 import javax.annotation.Nullable;
+import org.codice.dominion.interpolate.Interpolator;
 import org.codice.test.commons.MavenUtils;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
@@ -70,6 +71,7 @@ public class Dominion extends Runner implements Filterable, Sortable {
 
   protected Dominion(Class<?> testClass, Runner delegate) {
     LOGGER.debug("Dominion({}, {})", testClass.getName(), delegate);
+    Interpolator.validate(testClass);
     this.testClass = testClass;
     this.delegate = delegate;
     if (delegate instanceof Filterable) {

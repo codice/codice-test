@@ -13,48 +13,42 @@
  */
 package org.codice.dominion.pax.exam.options.karaf.extensions;
 
-import org.codice.dominion.options.karaf.KarafOptions.InstallFeature;
+import org.codice.dominion.options.karaf.KarafOptions.InstallBundle;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.pax.exam.options.PaxExamUtilities;
 import org.codice.dominion.resources.ResourceLoader;
 import org.codice.maven.MavenUrl;
+import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 
-/** Extension point for the {@link InstallFeature} option annotation. */
-public class FeatureExtension implements Extension<InstallFeature> {
+/** Extension point for the {@link InstallBundle} option annotation. */
+public class InstallBundleExtension implements Extension<InstallBundle> {
   @Override
   public Option[] options(
-      InstallFeature annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader) {
-    final MavenUrl mavenUrl = annotation.repository();
-    final String url = annotation.repositoryUrl();
+      InstallBundle annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader) {
+    final MavenUrl mavenUrl = annotation.bundle();
+    final String url = annotation.bundleUrl();
     final boolean mavenUrlIsDefined =
         org.codice.dominion.options.Utilities.isDefined(mavenUrl.groupId());
     final boolean urlIsDefined = org.codice.dominion.options.Utilities.isDefined(url);
-    final String[] names = annotation.names();
 
     if (!mavenUrlIsDefined && !urlIsDefined) {
       return new Option[] {
-        KarafDistributionOption.features(
-            PaxExamUtilities.getProjectReference(annotation, resourceLoader)
-                .type("xml")
-                .classifier("features"),
-            names)
+        CoreOptions.mavenBundle(PaxExamUtilities.getProjectReference(annotation, resourceLoader))
       };
     } else if (mavenUrlIsDefined) {
       if (urlIsDefined) {
         throw new IllegalArgumentException(
-            "specify only one of Feature.repository() or Feature.repositoryUrl() in "
+            "specify only one of InstallBundle.bundle() or InstallBundle.bundleUrl() in "
                 + annotation
                 + " for "
                 + resourceLoader.getLocationClass().getName());
       }
       return new Option[] {
-        KarafDistributionOption.features(
-            PaxExamUtilities.toReference(mavenUrl, annotation, resourceLoader), names)
+        CoreOptions.mavenBundle(PaxExamUtilities.toReference(mavenUrl, annotation, resourceLoader))
       };
     }
-    return new Option[] {KarafDistributionOption.features(url, names)};
+    return new Option[] {CoreOptions.provision(url)};
   }
 }
