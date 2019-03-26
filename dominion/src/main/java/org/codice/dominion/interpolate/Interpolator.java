@@ -274,11 +274,7 @@ public class Interpolator implements Closeable, StringLookup {
    *     be interpolated)
    */
   public Field interpolate(Field field) {
-    final int modifiers = field.getModifiers();
-
-    if (!Modifier.isStatic(modifiers)) {
-      throw new InterpolationException("Can only interpolate annotated static fields");
-    }
+    Interpolator.validate(field);
     try {
       final Class<?> type = field.getType();
 
@@ -287,9 +283,6 @@ public class Interpolator implements Closeable, StringLookup {
         field.set(null, interpolate((String) field.get(null)));
       } else if (String[].class.equals(type)) {
         field.set(null, interpolate((String[]) field.get(null)));
-      } else {
-        throw new InterpolationException(
-            "Can only interpolate annotated static fields of type String or String[]");
       }
     } catch (SecurityException | IllegalAccessException e) {
       throw new InterpolationException("Unable to interpolate field: " + field, e);
@@ -410,6 +403,38 @@ public class Interpolator implements Closeable, StringLookup {
     // force those to the system values
     replacements.put("/", File.separator);
     replacements.put("%n", System.lineSeparator());
+  }
+
+  /**
+   * Validates the specified class from the interpolator's perspective.
+   *
+   * @param clazz the class to validate
+   * @throws InterpolationException if the class is not properly annotated
+   */
+  public static void validate(Class<?> clazz) {
+    ReflectionUtils.getAllAnnotationsForFieldsAnnotatedWith(clazz, Interpolate.class, true)
+        .keySet()
+        .forEach(Interpolator::validate);
+  }
+
+  private static void validate(Field field) {
+    final int modifiers = field.getModifiers();
+
+    if (!Modifier.isStatic(modifiers)) {
+      throw new InterpolationException("Can only interpolate annotated static fields: " + field);
+    } else if (Modifier.isFinal(modifiers)) {
+      throw new InterpolationException("Can only interpolate non-final static fields: " + field);
+    }
+    try {
+      final Class<?> type = field.getType();
+
+      if (!String.class.equals(type) && !String[].class.equals(type)) {
+        throw new InterpolationException(
+            "Can only interpolate annotated static fields of type String or String[]: " + field);
+      }
+    } catch (SecurityException e) {
+      throw new InterpolationException("Unable to interpolate field: " + field, e);
+    }
   }
 
   /** Matcher to match '{' as the prefix as long as it is not preceded with $. */

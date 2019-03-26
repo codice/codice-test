@@ -28,8 +28,11 @@ import org.codice.dominion.pax.exam.options.extensions.EnvironmentExtension;
 import org.codice.dominion.pax.exam.options.extensions.InstallExtension;
 import org.codice.dominion.pax.exam.options.extensions.KeepCachesExtension;
 import org.codice.dominion.pax.exam.options.extensions.KeepRuntimeFolderExtension;
+import org.codice.dominion.pax.exam.options.extensions.LocalGroupExtension;
+import org.codice.dominion.pax.exam.options.extensions.LocalUserExtension;
+import org.codice.dominion.pax.exam.options.extensions.PropagateOverriddenMavenLocalRepositoryExtension;
 import org.codice.dominion.pax.exam.options.extensions.PropagateSystemPropertyExtension;
-import org.codice.dominion.pax.exam.options.extensions.RemoveFromConfigFileExtension;
+import org.codice.dominion.pax.exam.options.extensions.RemoveConfigPropertyExtension;
 import org.codice.dominion.pax.exam.options.extensions.ReplaceFileExtension;
 import org.codice.dominion.pax.exam.options.extensions.SetFrameworkPropertyExtension;
 import org.codice.dominion.pax.exam.options.extensions.SetLogLevelExtension;
@@ -37,14 +40,14 @@ import org.codice.dominion.pax.exam.options.extensions.SetLogLevelsExtension;
 import org.codice.dominion.pax.exam.options.extensions.SetRootLogLevelExtension;
 import org.codice.dominion.pax.exam.options.extensions.SetSystemPropertyExtension;
 import org.codice.dominion.pax.exam.options.extensions.SetSystemTimeoutExtension;
-import org.codice.dominion.pax.exam.options.extensions.UpdateConfigFileExtension;
+import org.codice.dominion.pax.exam.options.extensions.UpdateConfigPropertyExtension;
 import org.codice.dominion.pax.exam.options.extensions.UpdateFileExtension;
 import org.codice.dominion.pax.exam.options.extensions.VMOptionExtension;
 import org.codice.dominion.pax.exam.options.karaf.extensions.DistributionConfigurationExtension;
 import org.codice.dominion.pax.exam.options.karaf.extensions.ExecuteShellCommandExtension;
-import org.codice.dominion.pax.exam.options.karaf.extensions.FeatureExtension;
-import org.codice.dominion.pax.exam.options.karaf.extensions.LocalGroupExtension;
-import org.codice.dominion.pax.exam.options.karaf.extensions.LocalUserExtension;
+import org.codice.dominion.pax.exam.options.karaf.extensions.InstallBundleExtension;
+import org.codice.dominion.pax.exam.options.karaf.extensions.InstallFeatureExtension;
+import org.codice.dominion.pax.exam.options.karaf.extensions.InstallJarExtension;
 import org.codice.dominion.pax.exam.options.karaf.extensions.UpdateShellInitScriptExtension;
 
 /** Factory implementation for PaxExam option extensions. */
@@ -54,6 +57,8 @@ public class OptionExtensionFactory implements Option.Factory {
   static {
     final Map<Class<? extends Annotation>, Option.Extension> map = new HashMap<>();
 
+    map.put(Options.AddLocalGroup.class, new LocalGroupExtension());
+    map.put(Options.AddLocalUser.class, new LocalUserExtension());
     map.put(Options.CleanCaches.class, new CleanCachesExtension());
     map.put(Options.DeleteRuntimeFolder.class, new DeleteRuntimeFolderExtension());
     map.put(Options.EnableRemoteDebugging.class, new EnableRemoteDebuggingExtension());
@@ -61,8 +66,11 @@ public class OptionExtensionFactory implements Option.Factory {
     map.put(Options.Install.class, new InstallExtension());
     map.put(Options.KeepCaches.class, new KeepCachesExtension());
     map.put(Options.KeepRuntimeFolder.class, new KeepRuntimeFolderExtension());
+    map.put(
+        Options.PropagateOverriddenMavenLocalRepository.class,
+        new PropagateOverriddenMavenLocalRepositoryExtension());
     map.put(Options.PropagateSystemProperty.class, new PropagateSystemPropertyExtension());
-    map.put(Options.RemoveFromConfigFile.class, new RemoveFromConfigFileExtension());
+    map.put(Options.RemoveConfigProperty.class, new RemoveConfigPropertyExtension());
     map.put(Options.ReplaceFile.class, new ReplaceFileExtension());
     map.put(Options.SetFrameworkProperty.class, new SetFrameworkPropertyExtension());
     map.put(Options.SetLogLevel.class, new SetLogLevelExtension());
@@ -70,15 +78,15 @@ public class OptionExtensionFactory implements Option.Factory {
     map.put(Options.SetRootLogLevel.class, new SetRootLogLevelExtension());
     map.put(Options.SetSystemProperty.class, new SetSystemPropertyExtension());
     map.put(Options.SetSystemTimeout.class, new SetSystemTimeoutExtension());
-    map.put(Options.UpdateConfigFile.class, new UpdateConfigFileExtension());
+    map.put(Options.UpdateConfigProperty.class, new UpdateConfigPropertyExtension());
     map.put(Options.UpdateFile.class, new UpdateFileExtension());
     map.put(Options.VMOption.class, new VMOptionExtension());
 
     map.put(KarafOptions.DistributionConfiguration.class, new DistributionConfigurationExtension());
     map.put(KarafOptions.ExecuteShellCommand.class, new ExecuteShellCommandExtension());
-    map.put(KarafOptions.Feature.class, new FeatureExtension());
-    map.put(KarafOptions.LocalGroup.class, new LocalGroupExtension());
-    map.put(KarafOptions.LocalUser.class, new LocalUserExtension());
+    map.put(KarafOptions.InstallBundle.class, new InstallBundleExtension());
+    map.put(KarafOptions.InstallFeature.class, new InstallFeatureExtension());
+    map.put(KarafOptions.InstallJar.class, new InstallJarExtension());
     map.put(
         KarafOptions.SetLogLevel.class,
         new org.codice.dominion.pax.exam.options.karaf.extensions.SetLogLevelExtension());

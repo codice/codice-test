@@ -150,5 +150,102 @@ class ReflectionUtilsSpec extends Specification {
       }).collect(Collectors.toList()) == [Target, Retention, Inherited, Repeatable]
       entries[0].enclosedAnnotations().filter({ it.enclosingAnnotation == entries[0] }).count() == 4
   }
+
+  def "test annotationsByTypes() finds recursively from a class including itself annotated with no filters"() {
+    when:
+      def entries = ReflectionUtils.annotationsByTypes(BClass, OptionAnnotation, OtherAnnotation).collect(Collectors.toList())
+
+    then:
+      entries.size() == 7
+
+      println entries[0]
+      entries[0].metaAnnotation
+      entries[0].isInstanceOf(OptionAnnotation)
+      entries[0].annotation.value() == "OA5"
+      entries[0].enclosingAnnotation.isInstanceOf(Option1)
+      entries[0].enclosingAnnotation.enclosingAnnotation.isInstanceOf(CompoundOption)
+      entries[0].enclosingAnnotation.enclosingAnnotation.enclosingAnnotation == null
+      entries[0].annotatedElement == BClass
+      entries[0].annotations().map({
+        it.annotation.annotationType()
+      }).collect(Collectors.toList()) == [Target, Retention, Inherited, Repeatable]
+      entries[0].enclosedAnnotations().filter({ it.enclosingAnnotation == entries[0] }).count() == 4
+
+      println entries[1]
+      entries[1].metaAnnotation
+      entries[1].isInstanceOf(OptionAnnotation)
+      entries[1].annotation.value() == "OA1"
+      entries[1].enclosingAnnotation.isInstanceOf(OptionA)
+      entries[1].enclosingAnnotation.enclosingAnnotation.isInstanceOf(Option1)
+      entries[1].enclosingAnnotation.enclosingAnnotation.enclosingAnnotation.isInstanceOf(CompoundOption)
+      entries[1].annotatedElement == BClass
+      entries[1].annotations().map({
+        it.annotation.annotationType()
+      }).collect(Collectors.toList()) == [Target, Retention, Inherited, Repeatable]
+      entries[1].enclosedAnnotations().filter({ it.enclosingAnnotation == entries[1] }).count() == 4
+
+      println entries[2]
+      entries[2].metaAnnotation
+      entries[2].isInstanceOf(OptionAnnotation)
+      entries[2].annotation.value() == "OA1.1"
+      entries[2].enclosingAnnotation.isInstanceOf(OptionA)
+      entries[2].enclosingAnnotation.enclosingAnnotation.isInstanceOf(Option1)
+      entries[2].enclosingAnnotation.enclosingAnnotation.enclosingAnnotation.isInstanceOf(CompoundOption)
+      entries[2].annotatedElement == BClass
+      entries[2].annotations().map({
+        it.annotation.annotationType()
+      }).collect(Collectors.toList()) == [Target, Retention, Inherited, Repeatable]
+      entries[2].enclosedAnnotations().filter({ it.enclosingAnnotation == entries[2] }).count() == 4
+
+      println entries[3]
+      entries[3].metaAnnotation
+      entries[3].isInstanceOf(OptionAnnotation)
+      entries[3].annotation.value() == "OA2"
+      entries[3].enclosingAnnotation.isInstanceOf(OptionB)
+      entries[3].enclosingAnnotation.enclosingAnnotation.isInstanceOf(Option1)
+      entries[3].enclosingAnnotation.enclosingAnnotation.enclosingAnnotation.isInstanceOf(CompoundOption)
+      entries[3].annotatedElement == BClass
+      entries[3].annotations().map({
+        it.annotation.annotationType()
+      }).collect(Collectors.toList()) == [Target, Retention, Inherited, Repeatable]
+      entries[3].enclosedAnnotations().filter({ it.enclosingAnnotation == entries[3] }).count() == 4
+
+      println entries[4]
+      entries[4].metaAnnotation
+      entries[4].isInstanceOf(OptionAnnotation)
+      entries[4].annotation.value() == "OA3"
+      entries[4].enclosingAnnotation.isInstanceOf(OptionC)
+      entries[4].enclosingAnnotation.enclosingAnnotation.isInstanceOf(Option2)
+      entries[4].enclosingAnnotation.enclosingAnnotation.enclosingAnnotation.isInstanceOf(CompoundOption)
+      entries[4].annotatedElement == BClass
+      entries[4].annotations().map({
+        it.annotation.annotationType()
+      }).collect(Collectors.toList()) == [Target, Retention, Inherited, Repeatable]
+      entries[4].enclosedAnnotations().filter({ it.enclosingAnnotation == entries[4] }).count() == 4
+
+      println entries[5]
+      entries[5].metaAnnotation
+      entries[5].isInstanceOf(OptionAnnotation)
+      entries[5].annotation.value() == "OA4"
+      entries[5].enclosingAnnotation.isInstanceOf(OptionD)
+      entries[5].enclosingAnnotation.enclosingAnnotation.isInstanceOf(CompoundOption)
+      entries[5].enclosingAnnotation.enclosingAnnotation.enclosingAnnotation == null
+      entries[5].annotatedElement == BClass
+      entries[5].annotations().map({
+        it.annotation.annotationType()
+      }).collect(Collectors.toList()) == [Target, Retention, Inherited, Repeatable]
+      entries[5].enclosedAnnotations().filter({ it.enclosingAnnotation == entries[5] }).count() == 4
+
+      println entries[6]
+      !entries[6].metaAnnotation
+      entries[6].isInstanceOf(OptionAnnotation)
+      entries[6].annotation.value() == "OA0"
+      entries[6].enclosingAnnotation == null
+      entries[6].annotatedElement == BClass
+      entries[6].annotations().map({
+        it.annotation.annotationType()
+      }).collect(Collectors.toList()) == [Target, Retention, Inherited, Repeatable]
+      entries[6].enclosedAnnotations().filter({ it.enclosingAnnotation == entries[6] }).count() == 4
+  }
 }
 

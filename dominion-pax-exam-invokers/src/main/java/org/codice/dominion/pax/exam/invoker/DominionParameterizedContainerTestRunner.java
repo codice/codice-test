@@ -14,6 +14,7 @@
 package org.codice.dominion.pax.exam.invoker;
 
 import java.util.List;
+import org.codice.junit.rules.EmptyStatement;
 import org.codice.junit.rules.MethodRuleAnnotationProcessor;
 import org.junit.rules.MethodRule;
 import org.junit.runner.notification.RunNotifier;
@@ -56,7 +57,11 @@ public class DominionParameterizedContainerTestRunner extends ParameterizedConta
 
   @Override
   public String toString() {
-    return "DominionParameterizedContainerTestRunner(" + getTestClass() + ", " + index + ")";
+    return "DominionParameterizedContainerTestRunner("
+        + getTestClass().getName()
+        + ", "
+        + index
+        + ")";
   }
 
   /**

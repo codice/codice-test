@@ -28,12 +28,17 @@
     <dependencies>
         <dependency>
             <groupId>org.codice.test</groupId>
-            <artifactId>dominion</artifactId>
+            <artifactId>internal</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codice.test</groupId>
-            <artifactId>internal</artifactId>
+            <artifactId>maven-extensions</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.test</groupId>
+            <artifactId>dominion</artifactId>
             <version>${project.version}</version>
         </dependency>
 

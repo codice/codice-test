@@ -134,6 +134,11 @@ public class Option {
    * options, it will provide an interpolator that adds support for the <code>"annotation."</code>
    * prefix allowing these additional options a chance to retrieve specific attributes of the
    * annotation for which the extension is registered for.
+   *
+   * <p><i>Future enhancement:</i> An extension could also be registered as a service retrievable
+   * via Java's {@link java.util.ServiceLoader}. Dominion would automatically load all these
+   * registered extensions and combined their definitions to all the other ones discovered from the
+   * test class via annotations.
    */
   public interface Extension {}
 

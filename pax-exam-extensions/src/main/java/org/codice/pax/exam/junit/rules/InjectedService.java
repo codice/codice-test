@@ -30,10 +30,11 @@ import org.osgi.framework.BundleReference;
  *
  * @param <S> the type of the service to be injected
  */
-public abstract class InjectedService<S> implements MethodRule {
+public class InjectedService<S> implements MethodRule {
   private final Class<S> serviceClass;
   private final String filter;
   private final long timeout;
+  private Class<?> targetClass = null;
   private BundleContext bundleContext = null;
   private S service = null;
 
@@ -114,18 +115,24 @@ public abstract class InjectedService<S> implements MethodRule {
               + serviceClass.getName()
               + " has not been injected; bundle context is not available");
     }
-    return bundleContext;
+    // we want to make sure w always get the latest bundle context so retrieve it dynamically
+    // all the times even though it was saved during injection. This ensures we do not return
+    // a bundle context that is no longer valid
+    return getBundleContext(targetClass, timeout);
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p><i>Note:</i> Does nothing except for injecting its required service.
+   *
+   * @return the same statement received in parameters
+   */
   @Override
-  public Statement apply(Statement statement, FrameworkMethod method, Object target) {
-    return new Statement() {
-      @Override
-      public void evaluate() throws Throwable {
-        injectService(target.getClass());
-        statement.evaluate();
-      }
-    };
+  public Statement apply(Statement base, FrameworkMethod method, Object target) {
+    this.targetClass = target.getClass();
+    injectService(targetClass);
+    return base;
   }
 
   /**
@@ -139,10 +146,16 @@ public abstract class InjectedService<S> implements MethodRule {
       throw new TestContainerException(
           "service " + serviceClass.getName() + " has not been injected");
     }
+    if (BundleContext.class == serviceClass) {
+      // we want to make sure w always get the latest bundle context so retrieve it dynamically
+      // all the times even though it was saved during injection. This ensures we do not return
+      // a bundle context that is no longer valid
+      return (S) getBundleContext(targetClass, timeout);
+    }
     return service;
   }
 
-  protected void injectService(Class<?> targetClass) {
+  private void injectService(Class<?> targetClass) {
     if (service != null) {
       return;
     }

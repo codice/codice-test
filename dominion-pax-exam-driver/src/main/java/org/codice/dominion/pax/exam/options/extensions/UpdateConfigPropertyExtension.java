@@ -15,7 +15,7 @@ package org.codice.dominion.pax.exam.options.extensions;
 
 import java.io.File;
 import org.apache.commons.io.FilenameUtils;
-import org.codice.dominion.options.Options.UpdateConfigFile;
+import org.codice.dominion.options.Options.UpdateConfigProperty;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileRetractOption;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
@@ -23,11 +23,11 @@ import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 
-/** Extension point for the {@link UpdateConfigFile} option annotation. */
-public class UpdateConfigFileExtension implements Extension<UpdateConfigFile> {
+/** Extension point for the {@link UpdateConfigProperty} option annotation. */
+public class UpdateConfigPropertyExtension implements Extension<UpdateConfigProperty> {
   @Override
   public Option[] options(
-      UpdateConfigFile annotation,
+      UpdateConfigProperty annotation,
       PaxExamInterpolator interpolator,
       ResourceLoader resourceLoader) {
     final Option option;

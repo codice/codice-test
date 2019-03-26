@@ -13,26 +13,20 @@
  */
 package org.codice.dominion.pax.exam.options.extensions;
 
-import org.apache.commons.io.FilenameUtils;
-import org.codice.dominion.options.Options.RemoveFromConfigFile;
+import org.codice.dominion.options.Options.AddLocalGroup;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
-import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileRemoveOption;
+import org.codice.dominion.pax.exam.options.KarafUsersPropertiesFileUserPutOption;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
 
-/** Extension point for the {@link RemoveFromConfigFile} option annotation. */
-public class RemoveFromConfigFileExtension implements Extension<RemoveFromConfigFile> {
+/** Extension point for the {@link AddLocalGroup} option annotation. */
+public class LocalGroupExtension implements Extension<AddLocalGroup> {
   @Override
   public Option[] options(
-      RemoveFromConfigFile annotation,
-      PaxExamInterpolator interpolator,
-      ResourceLoader resourceLoader) {
+      AddLocalGroup annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader) {
     return new Option[] {
-      new KarafDistributionConfigurationFileRemoveOption(
-          // separators to Unix is on purpose as PaxExam will analyze the target based on it
-          // containing / and not \ and then convert it properly
-          FilenameUtils.separatorsToUnix(annotation.target()), annotation.key())
+      new KarafUsersPropertiesFileUserPutOption(annotation.groupId(), annotation.roles())
     };
   }
 }

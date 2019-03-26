@@ -21,26 +21,50 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.concurrent.TimeUnit;
-import org.codice.dominion.conditions.Conditions;
 import org.codice.dominion.interpolate.Interpolate;
 import org.codice.dominion.options.Option;
 import org.codice.dominion.options.Options;
-import org.codice.dominion.options.Options.MavenUrl;
-import org.codice.dominion.options.Options.UpdateConfigFile;
+import org.codice.maven.MavenUrl;
 
 /**
  * This class defines annotations that can be used to configure specific Karaf distribution options
  * for containers. It is solely used for scoping.
  */
 public class KarafOptions {
-  /** Maven configuration file. */
-  public static final String PAX_URL_MVN_CFG = "etc/org.ops4j.pax.url.mvn.cfg";
-
   /** Users properties file. */
   public static final String USER_PROPERTIES = "etc/users.properties";
 
-  /** Users attributes file. */
-  public static final String USER_ATTRIBUTES = "etc/users.attributes";
+  /**
+   * Option for installing a Karaf bundle.
+   *
+   * <p><i>Note:</i> If none of {@link #bundle} or {@link #bundleUrl} is specified, it will default
+   * to a url referencing the artifact defined by the maven project where this annotation is used
+   * (i.e. <code></code>@MavenUrl(groupId=MavenUrl.AS_PROJECT, artifactId=MavenUrl.AS_PROJECT,
+   * version=MavenUrl.AS_PROJECT</code>).
+   */
+  @Option.Annotation
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Inherited
+  @Documented
+  @Repeatable(Repeatables.InstallBundles.class)
+  public @interface InstallBundle {
+    /**
+     * Specifies the maven url where the bundle is defined.
+     *
+     * @return the maven url where the bundle is defined
+     */
+    MavenUrl bundle() default
+        @MavenUrl(groupId = Options.NOT_DEFINED, artifactId = Options.NOT_DEFINED);
+
+    /**
+     * Specifies the maven url where the bundle is defined.
+     *
+     * @return the maven url where the bundle is defined
+     */
+    @Interpolate
+    String bundleUrl() default Options.NOT_DEFINED;
+  }
 
   /**
    * Option for installing one or more features from a Karaf features descriptor.
@@ -56,8 +80,8 @@ public class KarafOptions {
   @Retention(RetentionPolicy.RUNTIME)
   @Inherited
   @Documented
-  @Repeatable(Repeatables.Features.class)
-  public @interface Feature {
+  @Repeatable(Repeatables.InstallFeatures.class)
+  public @interface InstallFeature {
     /**
      * Specifies the maven repository url where the feature(s) is(are) defined.
      *
@@ -80,7 +104,39 @@ public class KarafOptions {
      * @return the name(s) of the features to install
      */
     @Interpolate
-    String[] names();
+    String[] name();
+  }
+
+  /**
+   * Option for installing a jar file as a Karaf bundle by wrapping (osgifying) it.
+   *
+   * <p><i>Note:</i> If none of {@link #jar} or {@link #jarUrl} is specified, it will default to a
+   * url referencing the artifact defined by the maven project where this annotation is used (i.e.
+   * <code></code>@MavenUrl(groupId=MavenUrl.AS_PROJECT, artifactId=MavenUrl.AS_PROJECT,
+   * version=MavenUrl.AS_PROJECT</code>).
+   */
+  @Option.Annotation
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Inherited
+  @Documented
+  @Repeatable(Repeatables.InstallJars.class)
+  public @interface InstallJar {
+    /**
+     * Specifies the maven url where the jar is defined.
+     *
+     * @return the maven url where the jar is defined
+     */
+    MavenUrl jar() default
+        @MavenUrl(groupId = Options.NOT_DEFINED, artifactId = Options.NOT_DEFINED);
+
+    /**
+     * Specifies the maven url where the jar is defined.
+     *
+     * @return the maven url where the jar is defined
+     */
+    @Interpolate
+    String jarUrl() default Options.NOT_DEFINED;
   }
 
   /** Option to configure Karaf's log level. */
@@ -260,100 +316,6 @@ public class KarafOptions {
   }
 
   /**
-   * Option that ensures that information about the overridden location of the local Maven
-   * repository user using the <code>maven.repo.local</code> will be passed to the container.
-   */
-  @Conditions.NotBlankSystemProperty("maven.repo.local")
-  @UpdateConfigFile(
-    target = KarafOptions.PAX_URL_MVN_CFG,
-    key = "org.ops4j.pax.url.mvn.localRepository",
-    value = "{maven.repo.local:-}"
-  )
-  @Target(ElementType.TYPE)
-  @Retention(RetentionPolicy.RUNTIME)
-  @Inherited
-  @Documented
-  public @interface PropagateOverriddenMavenLocalRepo {}
-
-  /**
-   * Options for adding a new local user or replacing an existing user.
-   *
-   * <p>This option will be updating the files <code>etc/users.properties</code> file.
-   */
-  @Option.Annotation
-  @Target(ElementType.TYPE)
-  @Retention(RetentionPolicy.RUNTIME)
-  @Inherited
-  @Documented
-  @Repeatable(Repeatables.LocalUsers.class)
-  public @interface LocalUser {
-    /**
-     * Specifies the unique user id.
-     *
-     * @return the unique user id
-     */
-    @Interpolate
-    String userId();
-
-    /**
-     * Specifies the password for the user.
-     *
-     * @return the password for the user
-     */
-    @Interpolate
-    String password();
-
-    /**
-     * Specifies optional roles to be added to the user (see {@link UserRoles} for known roles).
-     *
-     * <p><i>Note:</i> At least one role or group must be specified.
-     *
-     * @return optional roles to be added to the user
-     */
-    @Interpolate
-    String[] roles() default Options.NOT_DEFINED;
-
-    /**
-     * Specifies optional groups to be added to the user.
-     *
-     * <p><i>Note:</i> At least one role or group must be specified.
-     *
-     * @return optional groups to be added to the user
-     */
-    @Interpolate
-    String[] groups() default Options.NOT_DEFINED;
-  }
-
-  /**
-   * Options for adding a new local group or replacing an existing group.
-   *
-   * <p>This option will be updating the files <code>etc/users.properties</code> file.
-   */
-  @Option.Annotation
-  @Target(ElementType.TYPE)
-  @Retention(RetentionPolicy.RUNTIME)
-  @Inherited
-  @Documented
-  @Repeatable(Repeatables.LocalGroups.class)
-  public @interface LocalGroup {
-    /**
-     * Specifies the unique group id.
-     *
-     * @return the unique group id
-     */
-    @Interpolate
-    String groupId();
-
-    /**
-     * Specifies roles to be added to the group (see {@link UserRoles} for known roles).
-     *
-     * @return roles to be added to the group
-     */
-    @Interpolate
-    String[] roles();
-  }
-
-  /**
    * Options for appending commands to Karaf's <code>etc/shell.init.script</code> before it is
    * started.
    *
@@ -460,9 +422,27 @@ public class KarafOptions {
     @Retention(RetentionPolicy.RUNTIME)
     @Inherited
     @Documented
-    /** Defines several {@link Feature} annotations. */
-    public @interface Features {
-      Feature[] value();
+    /** Defines several {@link InstallBundle} annotations. */
+    public @interface InstallBundles {
+      InstallBundle[] value();
+    }
+
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Inherited
+    @Documented
+    /** Defines several {@link InstallFeature} annotations. */
+    public @interface InstallFeatures {
+      InstallFeature[] value();
+    }
+
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Inherited
+    @Documented
+    /** Defines several {@link InstallJar} annotations. */
+    public @interface InstallJars {
+      InstallJar[] value();
     }
 
     @Target(ElementType.TYPE)
@@ -490,24 +470,6 @@ public class KarafOptions {
     /** Defines several {@link ExecuteShellCommand} annotations. */
     public @interface ExecuteShellCommands {
       ExecuteShellCommand[] value();
-    }
-
-    @Target(ElementType.TYPE)
-    @Retention(RetentionPolicy.RUNTIME)
-    @Inherited
-    @Documented
-    /** Defines several {@link LocalUser} annotations. */
-    public @interface LocalUsers {
-      LocalUser[] value();
-    }
-
-    @Target(ElementType.TYPE)
-    @Retention(RetentionPolicy.RUNTIME)
-    @Inherited
-    @Documented
-    /** Defines several {@link LocalGroup} annotations. */
-    public @interface LocalGroups {
-      LocalGroup[] value();
     }
   }
 

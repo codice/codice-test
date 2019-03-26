@@ -13,19 +13,22 @@
  */
 package org.codice.dominion.pax.exam.options.extensions;
 
+import java.io.FilePermission;
+import java.nio.file.Paths;
 import org.codice.dominion.options.Options;
 import org.codice.dominion.options.Options.Install;
-import org.codice.dominion.options.Options.UpdateConfigFile;
-import org.codice.dominion.options.karaf.KarafOptions;
+import org.codice.dominion.options.Permission;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
+import org.codice.maven.MavenUrl;
+import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
 
 /** Extension point for the {@link Install} option annotation. */
 // Required so pax-exam can include it's own pax-exam related artifacts during test runtime
-@UpdateConfigFile(
-  target = KarafOptions.PAX_URL_MVN_CFG,
+@Options.UpdateConfigProperty(
+  target = InstallExtension.PAX_URL_MVN_CFG,
   key = "org.ops4j.pax.url.mvn.repositories",
   value =
       "http://repo1.maven.org/maven2@id=central,"
@@ -37,12 +40,44 @@ import org.ops4j.pax.exam.Option;
           + "http://repository.springsource.com/maven/bundles/external@id=springsourceext,"
           + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype"
 )
-@KarafOptions.PropagateOverriddenMavenLocalRepo
+@Options.PropagateOverriddenMavenLocalRepository
 @Options.SetSystemProperty(key = "pax.exam.invoker", value = "junit")
+@Options.GrantPermission(
+  artifact = {
+    @MavenUrl(groupId = MavenUrl.AS_PROJECT, artifactId = "dominion-pax-exam-invokers"),
+    @MavenUrl(groupId = MavenUrl.AS_PROJECT, artifactId = "maven-extensions"),
+    @MavenUrl(groupId = MavenUrl.AS_PROJECT, artifactId = "pax-exam-extensions")
+  },
+  codebase = {
+    "PAXEXAM-PROBE",
+    "org.ops4j.pax.exam.invoker.junit",
+    "org.ops4j.pax.swissbox.core",
+    "org.ops4j.pax.exam.rbc",
+    "org.ops4j.pax.tipi.junit"
+  },
+  permission = {
+    @Permission(clazz = RuntimePermission.class, name = "createClassLoader"),
+    @Permission(
+      clazz = FilePermission.class,
+      name = "<<ALL FILES>>",
+      actions = "read,write,delete,execute"
+    )
+  }
+)
 public class InstallExtension implements Extension<Install> {
+  public static final String PAX_URL_MVN_CFG = "etc/org.ops4j.pax.url.mvn.cfg";
+
   @Override
   public Option[] options(
       Install annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader) {
-    return new Option[0];
+    final String cwd = Paths.get("").toAbsolutePath().toString();
+
+    return new Option[] {
+      // this will help using the MavenUrl annotation inside a running container which uses the
+      // org.codice.test.commons.ReflectionUtils.AnnotationEntry.getEnclosingResourceAsStream
+      // method to find resources directly from disk if it can find them via a class'
+      // code source or classloader
+      CoreOptions.systemProperty("project.basedir").value(cwd)
+    };
   }
 }

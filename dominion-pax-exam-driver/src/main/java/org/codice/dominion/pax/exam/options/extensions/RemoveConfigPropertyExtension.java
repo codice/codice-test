@@ -11,22 +11,28 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.dominion.pax.exam.options.karaf.extensions;
+package org.codice.dominion.pax.exam.options.extensions;
 
-import org.codice.dominion.options.karaf.KarafOptions.LocalGroup;
+import org.apache.commons.io.FilenameUtils;
+import org.codice.dominion.options.Options.RemoveConfigProperty;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
-import org.codice.dominion.pax.exam.options.KarafUsersPropertiesFileUserPutOption;
+import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileRemoveOption;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
 
-/** Extension point for the {@link LocalGroup} option annotation. */
-public class LocalGroupExtension implements Extension<LocalGroup> {
+/** Extension point for the {@link RemoveConfigProperty} option annotation. */
+public class RemoveConfigPropertyExtension implements Extension<RemoveConfigProperty> {
   @Override
   public Option[] options(
-      LocalGroup annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader) {
+      RemoveConfigProperty annotation,
+      PaxExamInterpolator interpolator,
+      ResourceLoader resourceLoader) {
     return new Option[] {
-      new KarafUsersPropertiesFileUserPutOption(annotation.groupId(), annotation.roles())
+      new KarafDistributionConfigurationFileRemoveOption(
+          // separators to Unix is on purpose as PaxExam will analyze the target based on it
+          // containing / and not \ and then convert it properly
+          FilenameUtils.separatorsToUnix(annotation.target()), annotation.key())
     };
   }
 }

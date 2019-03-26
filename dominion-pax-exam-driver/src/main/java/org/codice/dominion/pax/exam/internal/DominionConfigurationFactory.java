@@ -24,9 +24,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.codehaus.plexus.util.StringUtils;
 import org.codice.dominion.Dominion;
 import org.codice.dominion.DominionException;
 import org.codice.dominion.conditions.Condition;
@@ -35,12 +35,11 @@ import org.codice.dominion.interpolate.ContainerNotStagedException;
 import org.codice.dominion.interpolate.InterpolationException;
 import org.codice.dominion.options.Option;
 import org.codice.dominion.options.OptionException;
-import org.codice.dominion.options.Options;
-import org.codice.dominion.options.Options.MavenUrl;
 import org.codice.dominion.options.karaf.KarafOptions;
 import org.codice.dominion.pax.exam.internal.processors.KarafDistributionConfigurationFilePostOptionProcessor;
 import org.codice.dominion.pax.exam.internal.processors.KarafSshCommandOptionProcessor;
 import org.codice.dominion.pax.exam.options.PaxExamOption;
+import org.codice.maven.MavenUrl;
 import org.codice.test.commons.ReflectionUtils;
 import org.codice.test.commons.ReflectionUtils.AnnotationEntry;
 import org.ops4j.pax.exam.ConfigurationFactory;
@@ -57,16 +56,16 @@ import org.slf4j.LoggerFactory;
  * Implementation of PaxExam {@link ConfigurationFactory} capable of extracting all {@link
  * Option.Annotation} meta-annotations in order to configure the container.
  */
-@KarafOptions.Feature(
+@KarafOptions.InstallFeature(
   repository =
       @MavenUrl(
-        groupId = Options.MavenUrl.AS_PROJECT,
+        groupId = MavenUrl.AS_PROJECT,
         artifactId = "dominion-pax-exam-feature",
-        version = Options.MavenUrl.AS_PROJECT,
+        version = MavenUrl.AS_PROJECT,
         type = "xml",
         classifier = "features"
       ),
-  names = "dominion-pax-exam"
+  name = "dominion-pax-exam"
 )
 public class DominionConfigurationFactory implements ConfigurationFactory {
   private static final Logger LOGGER = LoggerFactory.getLogger(DominionConfigurationFactory.class);

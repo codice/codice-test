@@ -11,17 +11,8 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.dominion.pax.exam.invoker;
+package org.codice.test.commons;
 
-import org.junit.runners.model.Statement;
-
-/** Provides a JUnit statement that does nothing. */
-public class EmptyStatement extends Statement {
-  public static final Statement EMPTY = new EmptyStatement();
-
-  private EmptyStatement() {}
-
-  @Override
-  public void evaluate() { // nothing to do
-  }
-}
+@CompoundOption
+@OptionAnnotation("OA0")
+public class BClass {}

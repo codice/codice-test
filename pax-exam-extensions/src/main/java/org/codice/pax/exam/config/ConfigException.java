@@ -27,6 +27,15 @@ public class ConfigException extends RuntimeException {
   /**
    * Creates a new config exception with the specified message and cause.
    *
+   * @param cause the cause for this exception
+   */
+  public ConfigException(Throwable cause) {
+    super(cause);
+  }
+
+  /**
+   * Creates a new config exception with the specified message and cause.
+   *
    * @param message the error message
    * @param cause the cause for this exception
    */

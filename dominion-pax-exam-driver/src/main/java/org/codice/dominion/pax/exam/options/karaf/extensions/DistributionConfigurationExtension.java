@@ -17,12 +17,12 @@ import java.io.File;
 import java.util.stream.Stream;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.codice.dominion.options.Options.MavenUrl;
 import org.codice.dominion.options.karaf.KarafOptions.DistributionConfiguration;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
-import org.codice.dominion.pax.exam.options.Utilities;
+import org.codice.dominion.pax.exam.options.PaxExamUtilities;
 import org.codice.dominion.resources.ResourceLoader;
+import org.codice.maven.MavenUrl;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionKitConfigurationOption;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionKitConfigurationOption.Platform;
@@ -73,7 +73,10 @@ public class DistributionConfigurationExtension implements Extension<Distributio
       }
       cfg =
           new KarafDistributionKitConfigurationOption(
-              Utilities.toReference(annotation, mavenUrl, resourceLoader), name, version, platform);
+              PaxExamUtilities.toReference(mavenUrl, annotation, resourceLoader),
+              name,
+              version,
+              platform);
     } else {
       cfg = new KarafDistributionKitConfigurationOption(url, name, version, platform);
     }

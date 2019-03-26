@@ -15,6 +15,7 @@ package org.codice.dominion.pax.exam.options;
 
 import java.io.IOException;
 import org.codice.dominion.options.Options.Location;
+import org.codice.dominion.options.SourceType;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.resources.ResourceLoader;
 

@@ -33,6 +33,11 @@
         </dependency>
         <dependency>
             <groupId>org.codice.test</groupId>
+            <artifactId>maven-extensions</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.test</groupId>
             <artifactId>dominion</artifactId>
             <version>${project.version}</version>
         </dependency>

@@ -14,6 +14,7 @@
 package org.codice.dominion.pax.exam.invoker;
 
 import java.util.List;
+import org.codice.junit.rules.EmptyStatement;
 import org.codice.junit.rules.MethodRuleAnnotationProcessor;
 import org.junit.rules.MethodRule;
 import org.junit.runner.notification.RunNotifier;
@@ -27,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Enhancement on PaxExam's container test runner which support <code>@BeforeClass</code> and <code>
+ *
  * @AfterClass</code>.
  */
 public class DominionContainerTestRunner extends ContainerTestRunner implements DominionRunner {
@@ -50,7 +52,7 @@ public class DominionContainerTestRunner extends ContainerTestRunner implements 
 
   @Override
   public String toString() {
-    return "DominionContainerTestRunner(" + getTestClass() + ")";
+    return "DominionContainerTestRunner(" + getTestClass().getName() + ")";
   }
 
   /**

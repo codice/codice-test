@@ -29,13 +29,16 @@
         <bundle>mvn:org.apache.commons/commons-lang3/${commons-lang3.version}</bundle>
         <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
         <bundle>mvn:org.apache.commons/commons-text/${commons-text.version}</bundle>
+        <bundle>mvn:com.google.guava/guava/${guava.version}</bundle>
         <bundle>mvn:com.google.code.gson/gson/${gson.version}</bundle>
 
         <bundle>mvn:org.ops4j.pax.swissbox/pax-swissbox-tracker/${pax.swissbox.version}</bundle>
         <bundle>mvn:org.apache.felix/org.apache.felix.configadmin/${felix.configadmin.version}
         </bundle>
+        <bundle>mvn:org.ops4j.pax.url/pax-url-aether/${pax.url.aether.version}</bundle>
 
         <bundle>mvn:org.codice.test/junit-extensions/${project.version}</bundle>
+        <bundle>mvn:org.codice.test/maven-extensions/${project.version}</bundle>
         <bundle>mvn:org.codice.test/pax-exam-extensions/${project.version}</bundle>
         <bundle>mvn:org.codice.test/dominion/${project.version}</bundle>
         <bundle>mvn:org.codice.test/dominion-pax-exam/${project.version}</bundle>

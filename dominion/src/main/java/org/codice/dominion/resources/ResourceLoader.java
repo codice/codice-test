@@ -22,7 +22,7 @@ import javax.annotation.Nullable;
  * same jar to be loaded. Resource names follow the same conventions as {@link
  * ClassLoader#getResourceAsStream(String)}.
  */
-public interface ResourceLoader {
+public interface ResourceLoader extends org.codice.maven.ResourceLoader {
   /**
    * Gets the class associated with the location from which the resources will be loaded. This is
    * typically the element where the annotation was defined. For normal annotations, this will be
@@ -31,6 +31,7 @@ public interface ResourceLoader {
    *
    * @return the class associated with the element where the annotation was defined
    */
+  @Override
   public Class<?> getLocationClass();
 
   /**
@@ -39,6 +40,7 @@ public interface ResourceLoader {
    * @param name the name of the resource to be loaded
    * @return a corresponding input stream or <code>null</code> if the resource could not be found
    */
+  @Override
   @Nullable
   public InputStream getResourceAsStream(String name);
 }

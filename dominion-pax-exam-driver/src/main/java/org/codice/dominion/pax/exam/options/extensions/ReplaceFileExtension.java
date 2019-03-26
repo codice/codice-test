@@ -14,14 +14,12 @@
 package org.codice.dominion.pax.exam.options.extensions;
 
 import java.io.IOException;
-import java.util.stream.Stream;
 import org.apache.commons.io.FilenameUtils;
 import org.codice.dominion.options.Options.ReplaceFile;
-import org.codice.dominion.options.Utilities;
+import org.codice.dominion.options.SourceType;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.KarafDistributionConfigurationFileReplaceOption;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
-import org.codice.dominion.pax.exam.options.SourceType;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
 
@@ -31,67 +29,12 @@ public class ReplaceFileExtension implements Extension<ReplaceFile> {
   public Option[] options(
       ReplaceFile annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader)
       throws IOException {
-    final String file = annotation.file();
-    final String url = annotation.url();
-    final String[] content = annotation.content();
-    final String resource = annotation.resource();
-    final boolean fileIsDefined = org.codice.dominion.options.Utilities.isDefined(file);
-    final boolean urlIsDefined = org.codice.dominion.options.Utilities.isDefined(url);
-    final boolean contentIsDefined = Utilities.isDefined(content);
-    final boolean resourceIsDefined = org.codice.dominion.options.Utilities.isDefined(resource);
-    final long count =
-        Stream.of(fileIsDefined, urlIsDefined, contentIsDefined, resourceIsDefined)
-            .filter(Boolean.TRUE::equals)
-            .count();
-
-    if (count == 0L) {
-      throw new IllegalArgumentException(
-          "must specify one of file(), url(), content(), or resource() in "
-              + annotation
-              + " for "
-              + resourceLoader.getLocationClass().getName());
-    } else if (count > 1L) {
-      throw new IllegalArgumentException(
-          "specify only one of file(), url(), content(), or resource() in "
-              + annotation
-              + " for "
-              + resourceLoader.getLocationClass().getName());
-    }
-    if (fileIsDefined) {
-      return new Option[] {
-        new KarafDistributionConfigurationFileReplaceOption(
-            interpolator,
-            // separators to Unix is on purpose as PaxExam will analyze the target based on it
-            // containing / and not \ and then convert it properly
-            FilenameUtils.separatorsToUnix(annotation.target()),
-            SourceType.FILE,
-            file)
-      };
-    } else if (urlIsDefined) {
-      return new Option[] {
-        new KarafDistributionConfigurationFileReplaceOption(
-            interpolator,
-            // separators to Unix is on purpose as PaxExam will analyze the target based on it
-            // containing / and not \ and then convert it properly
-            FilenameUtils.separatorsToUnix(annotation.target()),
-            SourceType.URL,
-            url)
-      };
-    } else if (contentIsDefined) {
-      return new Option[] {
-        new KarafDistributionConfigurationFileReplaceOption(
-            interpolator,
-            // separators to Unix is on purpose as PaxExam will analyze the target based on it
-            // containing / and not \ and then convert it properly
-            FilenameUtils.separatorsToUnix(annotation.target()),
-            content)
-      };
-    }
     return new Option[] {
       new KarafDistributionConfigurationFileReplaceOption(
           // separators to Unix is on purpose as PaxExam will analyze the target based on it
           // containing / and not \ and then convert it properly
-          FilenameUtils.separatorsToUnix(annotation.target()), resource, resourceLoader)
+          FilenameUtils.separatorsToUnix(annotation.target()),
+          SourceType.fromAnnotationToFile(annotation, interpolator, resourceLoader))
     };
   }
 }

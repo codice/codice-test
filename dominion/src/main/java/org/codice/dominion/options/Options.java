@@ -25,8 +25,12 @@ import org.codice.dominion.Dominion;
 import org.codice.dominion.conditions.Conditions;
 import org.codice.dominion.interpolate.Interpolate;
 import org.codice.dominion.options.Option.Annotation;
-import org.codice.dominion.options.karaf.KarafOptions;
-import org.codice.dominion.options.karaf.UserRoles;
+import org.codice.dominion.options.Options.Repeatables.AddLocalGroups;
+import org.codice.dominion.options.Options.Repeatables.AddLocalUsers;
+import org.codice.dominion.options.Options.Repeatables.GrantPermissions;
+import org.codice.dominion.options.Options.Repeatables.RemoveConfigProperties;
+import org.codice.dominion.options.Options.Repeatables.UpdateConfigProperties;
+import org.codice.maven.MavenUrl;
 
 /**
  * This class defines annotations that can be used to configure containers. It is solely used for
@@ -48,67 +52,10 @@ public class Options {
     APPEND
   }
 
-  /** Annotation used to specify a maven URL reference. */
-  @Retention(RetentionPolicy.RUNTIME)
-  @Inherited
-  @Documented
-  public @interface MavenUrl {
-    /**
-     * Constant to use when the actual version, type, and/or classifier of the referenced artifact
-     * should be retrieved from the maven project's <code>dependencies.properties</code> file where
-     * the annotation is used. It does require the project to use the depends-maven-plugin plugin in
-     * order for the file to be generated and added to the jar/bundle artifact.
-     */
-    public static final String AS_IN_PROJECT = "_as_in_project_";
-
-    /**
-     * Constant to use when the group id, artifact id, or version of the current project's artifact
-     * should be retrieved from the maven project's <code>dependencies.properties</code> file where
-     * the annotation is used. It does require the project to use the depends-maven-plugin plugin in
-     * order for the file to be generated and added to the jar/bundle artifact.
-     */
-    public static final String AS_PROJECT = "_as_project_";
-
-    /**
-     * Specifies the maven group id.
-     *
-     * @return the maven group id
-     */
-    String groupId();
-
-    /**
-     * Specifies the maven artifact id.
-     *
-     * @return the marven artifact id
-     */
-    String artifactId();
-
-    /**
-     * Specifies the optional maven artifact version.
-     *
-     * @return the optional marven artifact version
-     */
-    String version() default Options.NOT_DEFINED;
-
-    /**
-     * Specifies the maven artifact type.
-     *
-     * @return the marven artifact type
-     */
-    String type() default Options.NOT_DEFINED;
-
-    /**
-     * Specifies the maven artifact classifier.
-     *
-     * @return the marven artifact classifier
-     */
-    String classifier() default Options.NOT_DEFINED;
-  }
-
   /** Option to install the Dominion driver specific configuration. */
   // make sure we have at least one user capable of SSH to the container
   @SuppressWarnings("squid:S2068" /* hard-coded password is for testing */)
-  @KarafOptions.LocalUser(
+  @Options.AddLocalUser(
     userId = Dominion.DOMINION_USER_ID,
     password = "{dominion.password:-dominion}",
     roles = {
@@ -155,8 +102,8 @@ public class Options {
     /**
      * Specifies the filename to copy its content to the target file.
      *
-     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
-     * must be specified.
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #artifact()}, {@link #content}, or
+     * {@link #resource} must be specified.
      *
      * @return the source filename to copy
      */
@@ -166,8 +113,8 @@ public class Options {
     /**
      * Specifies the url to copy its content to the target file.
      *
-     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
-     * must be specified.
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #artifact()}, {@link #content}, or
+     * {@link #resource} must be specified.
      *
      * @return the source url to copy
      */
@@ -175,11 +122,22 @@ public class Options {
     String url() default Options.NOT_DEFINED;
 
     /**
+     * Specifies the Maven url of an artifact to copy its content to the target file.
+     *
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #artifact()}, {@link #content}, or
+     * {@link #resource} must be specified.
+     *
+     * @return the artifact maven url to copy
+     */
+    MavenUrl artifact() default
+        @MavenUrl(groupId = Options.NOT_DEFINED, artifactId = Options.NOT_DEFINED);
+
+    /**
      * Specifies the text to copy to the target file. Each entry will represent a different line in
      * the target file.
      *
-     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
-     * must be specified.
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #artifact()}, {@link #content}, or
+     * {@link #resource} must be specified.
      *
      * @return the content text to copy
      */
@@ -189,8 +147,8 @@ public class Options {
     /**
      * Specifies the resource name to copy to the target file.
      *
-     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
-     * must be specified.
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #artifact()}, {@link #content}, or
+     * {@link #resource} must be specified.
      *
      * @return the resource name to copy
      */
@@ -222,8 +180,8 @@ public class Options {
     /**
      * Specifies the filename to copy its content to the target file.
      *
-     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
-     * must be specified.
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #artifact()}, {@link #content}, or
+     * {@link #resource} must be specified.
      *
      * @return the source filename to copy
      */
@@ -233,8 +191,8 @@ public class Options {
     /**
      * Specifies the url to copy its content to the target file.
      *
-     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
-     * must be specified.
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #artifact()}, {@link #content}, or
+     * {@link #resource} must be specified.
      *
      * @return the source url to copy
      */
@@ -242,11 +200,22 @@ public class Options {
     String url() default Options.NOT_DEFINED;
 
     /**
+     * Specifies the Maven url of an artifact to copy its content to the target file.
+     *
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #artifact()}, {@link #content}, or
+     * {@link #resource} must be specified.
+     *
+     * @return the artifact maven url to copy
+     */
+    MavenUrl artifact() default
+        @MavenUrl(groupId = Options.NOT_DEFINED, artifactId = Options.NOT_DEFINED);
+
+    /**
      * Specifies the text to copy to the target file. Each entry will represent a different line in
      * the target file.
      *
-     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
-     * must be specified.
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #artifact()}, {@link #content}, or
+     * {@link #resource} must be specified.
      *
      * @return the content text to copy
      */
@@ -256,8 +225,8 @@ public class Options {
     /**
      * Specifies the resource name to copy to the target file.
      *
-     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #content}, or {@link #resource}
-     * must be specified.
+     * <p><i>Note:</i> One of {@link #file}, {@link #url}, {@link #artifact()}, {@link #content}, or
+     * {@link #resource} must be specified.
      *
      * @return the resource name to copy
      */
@@ -266,17 +235,17 @@ public class Options {
   }
 
   /**
-   * This option allows to set a specific key in a configuration file with a given value or to add a
-   * value to the set of values associated with a specific key in a configuration file. If the key
-   * doesn't exist, one is added with the specified value.
+   * This option allows to set a specific configuration propertyin a configuration file with a given
+   * value or to add a value to the set of values associated with a specific key in a configuration
+   * file. If the key doesn't exist, one is added with the specified value.
    */
   @Option.Annotation
   @Target(ElementType.TYPE)
   @Retention(RetentionPolicy.RUNTIME)
   @Inherited
   @Documented
-  @Repeatable(Options.Repeatables.UpdateConfigFiles.class)
-  public @interface UpdateConfigFile {
+  @Repeatable(UpdateConfigProperties.class)
+  public @interface UpdateConfigProperty {
     /**
      * Specifies the target configuration file to update relative from the home directory where the
      * distribution was expanded (e.g. <code>"{karaf.home}"</code>).
@@ -329,14 +298,17 @@ public class Options {
     }
   }
 
-  /** This option allows to remove a specific key (and its value) from a configuration file */
+  /**
+   * This option allows to remove a specific configuration property given its key (and its value)
+   * from a configuration file
+   */
   @Option.Annotation
   @Target(ElementType.TYPE)
   @Retention(RetentionPolicy.RUNTIME)
   @Inherited
   @Documented
-  @Repeatable(Options.Repeatables.RemoveFromConfigFiles.class)
-  public @interface RemoveFromConfigFile {
+  @Repeatable(RemoveConfigProperties.class)
+  public @interface RemoveConfigProperty {
     /**
      * Specifies the target configuration file to update relative from the home directory where the
      * distribution was expanded (e.g. <code>"{karaf.home}"</code>).
@@ -661,7 +633,133 @@ public class Options {
   @Inherited
   @Documented
   public @interface EnableRemoteDebugging {
-    public static final String PROPERTY_KEY = "waitForDebug";
+    public static final String PROPERTY_KEY = "remote.debug";
+  }
+
+  /**
+   * Option that ensures that information about the overridden location of the local Maven
+   * repository user using the <code>maven.repo.local</code> will be passed to the container.
+   */
+  @Conditions.NotBlankSystemProperty("maven.repo.local")
+  @Annotation
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Inherited
+  @Documented
+  public @interface PropagateOverriddenMavenLocalRepository {}
+
+  /** Options for adding a new local user or replacing an existing user. */
+  @Annotation
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Inherited
+  @Documented
+  @Repeatable(AddLocalUsers.class)
+  public @interface AddLocalUser {
+    /**
+     * Specifies the unique user id.
+     *
+     * @return the unique user id
+     */
+    @Interpolate
+    String userId();
+
+    /**
+     * Specifies the password for the user.
+     *
+     * @return the password for the user
+     */
+    @Interpolate
+    String password();
+
+    /**
+     * Specifies optional roles to be added to the user (see {@link UserRoles} for known roles).
+     *
+     * <p><i>Note:</i> At least one role or group must be specified.
+     *
+     * @return optional roles to be added to the user
+     */
+    @Interpolate
+    String[] roles() default NOT_DEFINED;
+
+    /**
+     * Specifies optional groups to be added to the user.
+     *
+     * <p><i>Note:</i> At least one role or group must be specified.
+     *
+     * @return optional groups to be added to the user
+     */
+    @Interpolate
+    String[] groups() default NOT_DEFINED;
+  }
+
+  /** Options for adding a new local group or replacing an existing group. */
+  @Annotation
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Inherited
+  @Documented
+  @Repeatable(AddLocalGroups.class)
+  public @interface AddLocalGroup {
+    /**
+     * Specifies the unique group id.
+     *
+     * @return the unique group id
+     */
+    @Interpolate
+    String groupId();
+
+    /**
+     * Specifies roles to be added to the group (see {@link UserRoles} for known roles).
+     *
+     * @return roles to be added to the group
+     */
+    @Interpolate
+    String[] roles();
+  }
+
+  /**
+   * Option to grant permission(s) to a given codebase.
+   *
+   * <p><i>Note:</i> Dominion doesn't provide extension support for this option. Therefore unless an
+   * extension point for this option is provided by a registered {@link Option.Factory}, any
+   * references will be ignored. This is because security permissions are provided to system in
+   * different ways. DDF, for example, supports them in a directory named <code>default/xxxx.policy
+   * </code> in a format defined by ProGrade. A different application might be expecting something
+   * completely different. from somewhere
+   *
+   * <p><i>Note:</i> If none of {@link #codebase} or {@link #artifact} are specified, it will
+   * default to the artifact defined by the maven project where this annotation is used.
+   */
+  @Annotation
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Inherited
+  @Documented
+  @Repeatable(GrantPermissions.class)
+  public @interface GrantPermission {
+    /**
+     * Specifies the maven urls for artifacts for which we are granting the permission(s).
+     *
+     * @return the maven urls for artifacts we are granting the permission(s)
+     */
+    MavenUrl[] artifact() default
+        @MavenUrl(groupId = Options.NOT_DEFINED, artifactId = Options.NOT_DEFINED);
+
+    /**
+     * Specifies the codebases for which we are granting the permission(s).
+     *
+     * @return the codebases we are granting the permission(s)
+     */
+    @Interpolate
+    String[] codebase() default Options.NOT_DEFINED;
+
+    /**
+     * Specifies the permission(s) to be granted to the specified codebase.
+     *
+     * @return the set of permission(s) to be granted
+     */
+    Permission[] permission();
   }
 
   /** This interface is defined purely to provide scoping. */
@@ -684,22 +782,22 @@ public class Options {
       ReplaceFile[] value();
     }
 
-    /** Defines several {@link UpdateConfigFile} annotations. */
+    /** Defines several {@link UpdateConfigProperty} annotations. */
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.RUNTIME)
     @Inherited
     @Documented
-    @interface UpdateConfigFiles {
-      UpdateConfigFile[] value();
+    @interface UpdateConfigProperties {
+      UpdateConfigProperty[] value();
     }
 
-    /** Defines several {@link RemoveFromConfigFile} annotations. */
+    /** Defines several {@link RemoveConfigProperty} annotations. */
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.RUNTIME)
     @Inherited
     @Documented
-    @interface RemoveFromConfigFiles {
-      Options.RemoveFromConfigFile[] value();
+    @interface RemoveConfigProperties {
+      RemoveConfigProperty[] value();
     }
 
     @Target(ElementType.TYPE)
@@ -763,6 +861,33 @@ public class Options {
     /** Defines several {@link Options.SetLogLevels} annotations. */
     public @interface SetLogLevelss {
       Options.SetLogLevels[] value();
+    }
+
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Inherited
+    @Documented
+    /** Defines several {@link AddLocalUser} annotations. */
+    public @interface AddLocalUsers {
+      AddLocalUser[] value();
+    }
+
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Inherited
+    @Documented
+    /** Defines several {@link AddLocalGroup} annotations. */
+    public @interface AddLocalGroups {
+      AddLocalGroup[] value();
+    }
+
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Inherited
+    @Documented
+    /** Defines several {@link GrantPermission} annotations. */
+    public @interface GrantPermissions {
+      GrantPermission[] value();
     }
   }
 

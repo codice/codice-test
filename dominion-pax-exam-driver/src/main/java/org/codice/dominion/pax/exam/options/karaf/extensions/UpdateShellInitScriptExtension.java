@@ -15,12 +15,12 @@ package org.codice.dominion.pax.exam.options.karaf.extensions;
 
 import java.io.IOException;
 import java.util.stream.Stream;
+import org.codice.dominion.options.SourceType;
 import org.codice.dominion.options.Utilities;
 import org.codice.dominion.options.karaf.KarafOptions.UpdateShellInitScript;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.KarafShellInitFileContentOption;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
-import org.codice.dominion.pax.exam.options.SourceType;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
 

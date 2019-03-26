@@ -41,7 +41,7 @@ import java.lang.annotation.Target;
  * <ul>
  *   <li><code>"test.id"</code> which represents the unique test run id (will be different each time
  *       the test is executed)
- *   <li><code>"container.name}"</code> which represents the current container name
+ *   <li><code>"container.name"</code> which represents the current container name
  *   <li><code>"test-classes.path"</code> which represents an absolute path for the location where
  *       test classes and resources are laid down by Maven.
  *   <li><code>"test-classes.url</code> which represents a url for the location where test classes
