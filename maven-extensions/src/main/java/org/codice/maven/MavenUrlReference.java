@@ -25,6 +25,11 @@ import org.ops4j.pax.url.mvn.Handler;
 public class MavenUrlReference {
   private static final String PROTOCOL_HANDLER_PKGS_KEY = "java.protocol.handler.pkgs";
 
+  static {
+    // make sure we register the protocol handler for the mvn protocol
+    MavenUrlReference.initMavenUrlHandler();
+  }
+
   /**
    * Resolves a given maven url annotation to a maven url reference. If this one references the
    * project in anyway (i.e. {@link MavenUrl#AS_IN_PROJECT} or {@link MavenUrl#AS_PROJECT}) then the
@@ -244,8 +249,6 @@ public class MavenUrlReference {
     if (classifier != null) {
       sb.append("/").append(classifier);
     }
-    // make sure we register the protocol handler for the mvn protocol
-    MavenUrlReference.initMavenUrlHandler();
     return sb.toString();
   }
 
@@ -273,6 +276,7 @@ public class MavenUrlReference {
     return getURL();
   }
 
+  /** Initializes a URL protocol handler for the Maven protocol if not already registered. */
   private static void initMavenUrlHandler() {
     final String pkgs = System.getProperty(MavenUrlReference.PROTOCOL_HANDLER_PKGS_KEY);
     final String pkg = StringUtils.removeEnd(Handler.class.getPackage().getName(), ".mvn");

@@ -130,7 +130,6 @@
                             *;artifactId=!dominion|junit-extensions|maven-extensions|groovy-all|hamcrest-core|hamcrest-library|hamcrest-all|junit|mockito-core;scope=!test
                         </Embed-Dependency>
                         <Export-Package>
-                            org.codice.restassured.dominion.options;version="${project.version}",
                             com.jayway.restassured;version="${restassured.version}",
                             com.jayway.restassured.assertion;version="${restassured.version}",
                             com.jayway.restassured.authentication;version="${restassured.version}",

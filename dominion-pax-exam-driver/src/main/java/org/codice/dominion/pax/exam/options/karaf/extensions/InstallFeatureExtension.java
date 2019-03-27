@@ -13,6 +13,10 @@
  */
 package org.codice.dominion.pax.exam.options.karaf.extensions;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import org.apache.karaf.features.internal.model.Feature;
+import org.apache.karaf.features.internal.service.RepositoryImpl;
 import org.codice.dominion.options.karaf.KarafOptions.InstallFeature;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
@@ -21,27 +25,27 @@ import org.codice.dominion.resources.ResourceLoader;
 import org.codice.maven.MavenUrl;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
+import org.ops4j.pax.exam.options.RawUrlReference;
+import org.ops4j.pax.exam.options.UrlReference;
 
 /** Extension point for the {@link InstallFeature} option annotation. */
 public class InstallFeatureExtension implements Extension<InstallFeature> {
   @Override
   public Option[] options(
-      InstallFeature annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader) {
+      InstallFeature annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader)
+      throws URISyntaxException {
     final MavenUrl mavenUrl = annotation.repository();
     final String url = annotation.repositoryUrl();
     final boolean mavenUrlIsDefined =
         org.codice.dominion.options.Utilities.isDefined(mavenUrl.groupId());
     final boolean urlIsDefined = org.codice.dominion.options.Utilities.isDefined(url);
-    final String[] names = annotation.name();
+    final UrlReference repoUrl;
 
     if (!mavenUrlIsDefined && !urlIsDefined) {
-      return new Option[] {
-        KarafDistributionOption.features(
-            PaxExamUtilities.getProjectReference(annotation, resourceLoader)
-                .type("xml")
-                .classifier("features"),
-            names)
-      };
+      repoUrl =
+          PaxExamUtilities.getProjectReference(annotation, resourceLoader)
+              .type("xml")
+              .classifier("features");
     } else if (mavenUrlIsDefined) {
       if (urlIsDefined) {
         throw new IllegalArgumentException(
@@ -50,11 +54,27 @@ public class InstallFeatureExtension implements Extension<InstallFeature> {
                 + " for "
                 + resourceLoader.getLocationClass().getName());
       }
-      return new Option[] {
-        KarafDistributionOption.features(
-            PaxExamUtilities.toReference(mavenUrl, annotation, resourceLoader), names)
-      };
+      repoUrl = PaxExamUtilities.toReference(mavenUrl, annotation, resourceLoader);
+    } else {
+      repoUrl = new RawUrlReference(url);
     }
-    return new Option[] {KarafDistributionOption.features(url, names)};
+    return new Option[] {
+      KarafDistributionOption.features(
+          repoUrl,
+          InstallFeatureExtension.getFeatureNamesFromRepoIfNotSpecified(repoUrl, annotation.name()))
+    };
+  }
+
+  private static String[] getFeatureNamesFromRepoIfNotSpecified(UrlReference url, String[] names)
+      throws URISyntaxException {
+    if (names.length > 0) {
+      return names;
+    } // load the feature file and install all features listed
+    return new RepositoryImpl(new URI(url.getURL()), true)
+        .getFeaturesInternal()
+        .getFeature()
+        .stream()
+        .map(Feature::getName)
+        .toArray(String[]::new);
   }
 }

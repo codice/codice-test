@@ -14,8 +14,17 @@
 package org.codice.restassured.dominion.options.internal;
 
 import org.codice.dominion.options.Option;
-import org.codice.restassured.dominion.options.RestAssuredOptions;
+import org.codice.dominion.options.Options;
+import org.codice.dominion.options.Permission;
+import org.codice.dominion.options.karaf.KarafOptions;
 
 /** System option for automatically installing Rest Assured test library. */
-@RestAssuredOptions.Install
+@KarafOptions.InstallFeature
+@Options.GrantPermission(
+  permission = {
+    @Permission(clazz = java.io.FilePermission.class, name = "<<ALL FILES>>", actions = "read"),
+    @Permission(clazz = java.io.FilePermission.class, name = "-", actions = "read"),
+    @Permission(clazz = RuntimePermission.class, name = "createClassLoader")
+  }
+)
 public class AutoInstall implements Option.System {}
