@@ -17,9 +17,13 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -122,10 +126,21 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
     //
     // conditions are also applied right away such that any failures while interpolating them will
     // be reported right away and abort the whole thing
+    final Set<Class<?>> classes = new HashSet<>(8);
+
+    for (final Iterator<Option.System> i = ServiceLoader.load(Option.System.class).iterator();
+        i.hasNext(); ) {
+      classes.add(i.next().getClass()); // we don't care about the actual object
+    }
+    classes.add(testClass);
     final AnnotationOptions opts =
         new AnnotationOptions(
-            ReflectionUtils.annotationsByType(
-                this::filterConditionAnnotations, testClass, Option.Annotation.class));
+            classes
+                .stream()
+                .flatMap(
+                    c ->
+                        ReflectionUtils.annotationsByType(
+                            this::filterConditionAnnotations, c, Option.Annotation.class)));
 
     LOGGER.debug("{}::createConfiguration() - options = {}", this, opts);
     final KarafDistributionBaseConfigurationOption distro = opts.getDistribution();

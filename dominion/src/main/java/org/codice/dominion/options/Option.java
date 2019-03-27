@@ -126,6 +126,15 @@ public class Option {
   public @interface Annotation {}
 
   /**
+   * The <code>System</code> interfaces acts as a tag interface for classes registered as services
+   * retrievable via Java's {@link java.util.ServiceLoader}. Dominion will recursively introspect
+   * these registered service classes for option annotations and combined their definitions and
+   * associated extensions to all the other ones discovered from the test class via annotations.
+   * These are considered system dominion options.
+   */
+  public interface System {}
+
+  /**
    * Extension point for user-defined option annotations.
    *
    * <p>Options can also be added to extension classes. When Dominion is searching for the extension
@@ -134,11 +143,6 @@ public class Option {
    * options, it will provide an interpolator that adds support for the <code>"annotation."</code>
    * prefix allowing these additional options a chance to retrieve specific attributes of the
    * annotation for which the extension is registered for.
-   *
-   * <p><i>Future enhancement:</i> An extension could also be registered as a service retrievable
-   * via Java's {@link java.util.ServiceLoader}. Dominion would automatically load all these
-   * registered extensions and combined their definitions to all the other ones discovered from the
-   * test class via annotations.
    */
   public interface Extension {}
 

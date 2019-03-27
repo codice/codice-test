@@ -74,6 +74,9 @@ public class KarafOptions {
    * annotation is used with an <code>"xml"</code> type and a <code>"features"</code> classifier
    * (i.e. <code></code>@MavenUrl(groupId=MavenUrl.AS_PROJECT, artifactId=MavenUrl.AS_PROJECT,
    * version=MavenUrl.AS_PROJECT, type="xml", classifier="features")</code>).
+   *
+   * <p><i>Note:</i> If {@link #name()} is not specified then all the features defined in the
+   * referenced feature repository will be installed.
    */
   @Option.Annotation
   @Target(ElementType.TYPE)
@@ -99,12 +102,13 @@ public class KarafOptions {
     String repositoryUrl() default Options.NOT_DEFINED;
 
     /**
-     * Specifies the name(s) of the features to install.
+     * Specifies the name(s) of the features to install (defaults to all features defined in the
+     * specified feature repository).
      *
      * @return the name(s) of the features to install
      */
     @Interpolate
-    String[] name();
+    String[] name() default {};
   }
 
   /**
