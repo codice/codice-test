@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.codice.test</groupId>
         <artifactId>codice-test</artifactId>
-        <version>0.6-SNAPSHOT</version>
+        <version>0.6</version>
     </parent>
 
     <name>Codice Test :: Dominion :: Pax Exam Driver</name>
