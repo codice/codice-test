@@ -25,8 +25,8 @@ import org.junit.rules.MethodRule;
 /**
  * Defines a meta annotation which enables the developer to create a new annotation referencing a
  * JUnit method rule that can be automatically plugged into the JUnit test class as long as the test
- * class is running with the {@link MethodRuleAnnotationRunner} test runner or the {@link
- * MethodRuleAnnotationProcessor} method rule has been defined in the test class.
+ * class is running with the {@link MethodRuleAnnotationRunner} or the dominion test runner, or the
+ * {@link MethodRuleAnnotationProcessor} method rule has been defined in the test class.
  *
  * <p>It is possible to annotate the test class if the method rule should apply to all tests in that
  * class or a particular test method if the method rule should only apply to that test method.
@@ -42,6 +42,8 @@ public @interface ExtensionMethodRuleAnnotation {
    * annotation that is annotated with this meta-annotation or a public default constructor.
    * Defining a constructor with the annotation as a parameter allows customization of the method
    * rule using your own annotation.
+   *
+   * <p>{@link org.codice.junit.rules.SnapshotMethodRule} are supported as well.
    *
    * @return the class for the method rule to be plugged into the JUnit test class
    */

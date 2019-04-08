@@ -373,14 +373,27 @@ public class ConfigurationAdmin extends InjectedService<org.osgi.service.cm.Conf
   // --- JUnit Rule API (not to be called directly)
 
   @Override
-  public Statement apply(Statement base, FrameworkMethod method, Object target) {
-    // we know that the InjectedService base class pre-injects its required service when apply() is
-    // called and returns the passed statement intact so we must first call it with an empty
-    // statement and be done with it
-    super.apply(EmptyStatement.EMPTY, method, target);
+  public void snapshot(FrameworkMethod method, Object target) {
+    // we know that the InjectedService base class pre-injects its required service when snapshot()
+    // is called
+    super.snapshot(method, target);
+
     // take the snapshot outside of the statements to make sure it gets taken before any changes
     // to the system is performed by any rules
     takeSnapshot();
+  }
+
+  @Override
+  public Statement applyAfterSnapshot(Statement base, FrameworkMethod method, Object target) {
+    // we know that the InjectedService base class pre-injects its required service when
+    // applyAfterSnapshot() is called and returns the passed statement intact so we must first call
+    // it with an empty statement and be done with it
+    super.applyAfterSnapshot(EmptyStatement.EMPTY, method, target);
+
+    // take the snapshot (in case it wasn't taken in snapshot()) outside of the statements to make
+    // sure it gets taken before any changes to the system is performed by any rules
+    takeSnapshot();
+
     return new Statement() {
       @Override
       public void evaluate() throws Throwable {
@@ -449,10 +462,12 @@ public class ConfigurationAdmin extends InjectedService<org.osgi.service.cm.Conf
 
   private void takeSnapshot() {
     findConfigurationAdminThreadGroup();
-    try {
-      this.internalConfig = ((Configuration) getConfiguration(ConfigurationAdmin.INTERNAL_PID));
-    } catch (Exception e) {
-      throw new ConfigException(e);
+    if (internalConfig == null) {
+      try {
+        this.internalConfig = ((Configuration) getConfiguration(ConfigurationAdmin.INTERNAL_PID));
+      } catch (Exception e) {
+        throw new ConfigException(e);
+      }
     }
     // only take a snapshot the first time around
     synchronized (ConfigurationAdmin.snapshotConfigs) {

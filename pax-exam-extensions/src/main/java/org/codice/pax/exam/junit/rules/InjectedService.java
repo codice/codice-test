@@ -13,7 +13,7 @@
  */
 package org.codice.pax.exam.junit.rules;
 
-import org.junit.rules.MethodRule;
+import org.codice.junit.rules.SnapshotMethodRule;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 import org.ops4j.pax.exam.Constants;
@@ -30,7 +30,7 @@ import org.osgi.framework.BundleReference;
  *
  * @param <S> the type of the service to be injected
  */
-public class InjectedService<S> implements MethodRule {
+public class InjectedService<S> implements SnapshotMethodRule {
   private final Class<S> serviceClass;
   private final String filter;
   private final long timeout;
@@ -125,11 +125,22 @@ public class InjectedService<S> implements MethodRule {
    * {@inheritDoc}
    *
    * <p><i>Note:</i> Does nothing except for injecting its required service.
+   */
+  @Override
+  public void snapshot(FrameworkMethod method, Object target) {
+    this.targetClass = target.getClass();
+    injectService(targetClass);
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p><i>Note:</i> Does nothing except for injecting its required service.
    *
    * @return the same statement received in parameters
    */
   @Override
-  public Statement apply(Statement base, FrameworkMethod method, Object target) {
+  public Statement applyAfterSnapshot(Statement base, FrameworkMethod method, Object target) {
     this.targetClass = target.getClass();
     injectService(targetClass);
     return base;

@@ -1436,18 +1436,29 @@ public class ServiceAdmin extends MethodRuleChain
   // - JUnit Rule API (not to be called directly)
 
   @Override
-  public Statement apply(Statement statement, FrameworkMethod method, Object target) {
+  public void snapshot(FrameworkMethod method, Object target) {
     // we know that the only rules added to the base MethodRuleChain class are InjectedService
-    // rules so there which pre-injects their required services when their apply() is called and
-    // returns the passed statement intact which would eventually be returned by the MethodRuleChain
-    // class  as its statement so we must first call super.apply() with an empty statement and be
-    // done with it
-    super.apply(EmptyStatement.EMPTY, method, target);
-    final Profile toProcess = new Profile(true);
+    // rules so there which pre-injects their required services when their snapshot() is called
+    super.snapshot(method, target);
 
     // take the snapshot outside of the statements to make sure it gets taken before any changes
     // to the system is performed by any rules
     takeSnapshot();
+  }
+
+  @Override
+  public Statement applyAfterSnapshot(Statement statement, FrameworkMethod method, Object target) {
+    // we know that the only rules added to the base MethodRuleChain class are InjectedService
+    // rules so there which pre-injects their required services when their applyAfterSnapshot() is
+    // called and returns the passed statement intact which would eventually be returned by the
+    // MethodRuleChain class as its statement so we must first call super.apply() with an empty
+    // statement and be done with it
+    super.applyAfterSnapshot(EmptyStatement.EMPTY, method, target);
+
+    // take the snapshot (in case it wasn't taken in snapshot()) outside of the statements to make
+    // sure it gets taken before any changes to the system is performed by any rules
+    takeSnapshot();
+
     return new Statement() {
       @Override
       public void evaluate() throws Throwable {
