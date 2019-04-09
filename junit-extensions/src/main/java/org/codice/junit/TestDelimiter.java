@@ -25,12 +25,9 @@ import java.lang.annotation.Target;
  * MethodRuleAnnotationRunner} JUnit or Dominion test runner or with the {@link
  * org.codice.junit.rules.MethodRuleAnnotationProcessor} JUnit method rule to delimit each executed
  * tests by logging its start and optionaly its end.
- *
- * <p>Applying this annotation to a JUnit test class has the same effect as applying it to all its
- * test methods.
  */
 @ExtensionMethodRuleAnnotation(org.codice.junit.rules.TestDelimiter.class)
-@Target({ElementType.TYPE, ElementType.METHOD})
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented

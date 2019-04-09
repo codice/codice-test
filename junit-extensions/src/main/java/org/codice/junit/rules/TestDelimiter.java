@@ -16,10 +16,12 @@ package org.codice.junit.rules;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
+import org.junit.Test;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spockframework.util.Nullable;
 
 /**
  * This class is designed as a JUnit method rule capable of delimiting each test executed and
@@ -63,40 +65,70 @@ public class TestDelimiter extends AbstractMethodRule {
   public Statement applyAfterSnapshot(Statement base, FrameworkMethod method, Object target) {
     return super.applyAfterSnapshot(
         new Statement() {
+          long start = -1L;
+
           @Override
           public void evaluate() throws Throwable {
-            final long start = System.nanoTime();
+            start = System.nanoTime();
             String msg = null;
 
             try {
-              msg = log("Test: %s (%s:%d)", getName(), getSourceFile(), getLineNumber());
+              msg =
+                  log(
+                      null,
+                      "Test: %s(%s) <%s:%d>",
+                      getName(),
+                      target.getClass().getName(),
+                      getSourceFile(),
+                      getLineNumber());
               base.evaluate();
-            } finally {
-              if (elapsed && (msg != null)) {
+              log("Successful", msg);
+            } catch (
+                @SuppressWarnings("deprecation")
+                org.junit.internal.AssumptionViolatedException e) {
+              log("Skipped", msg);
+              throw e;
+            } catch (VirtualMachineError e) {
+              throw e;
+            } catch (Throwable t) {
+              // check if that error was expected because if it is ... that is not a failure
+              final Test test = method.getAnnotation(Test.class);
+
+              if ((test == null) || !test.expected().isAssignableFrom(t.getClass())) {
+                log("Failed with " + t.getClass().getName(), msg);
+              } else {
+                log("Successful", msg);
+              }
+              throw t;
+            }
+          }
+
+          private String log(@Nullable String status, String format, Object... args) {
+            String msg = String.format(format, args);
+
+            if (status != null) {
+              msg += ": " + status;
+              if (elapsed) {
                 final long duration = System.nanoTime() - start;
 
-                log(
-                    msg
-                        + ": "
+                msg +=
+                    " ["
                         + DurationFormatUtils.formatDuration(
-                            TimeUnit.NANOSECONDS.toMillis(duration), "HH:mm:ss.S"));
+                            TimeUnit.NANOSECONDS.toMillis(duration), "HH:mm:ss.S")
+                        + "]";
               }
             }
+            final String line = StringUtils.repeat('=', msg.length());
+
+            if (stdout) {
+              System.out.printf("%s%n%s%n%s%n", line, msg, line);
+            } else {
+              LOGGER.info("{}\n{}\n{}", line, msg, line);
+            }
+            return msg;
           }
         },
         method,
         target);
-  }
-
-  private String log(String format, Object... args) {
-    final String msg = String.format(format, args);
-    final String line = StringUtils.repeat('=', msg.length());
-
-    if (stdout) {
-      System.out.printf("%n%s%n%s%n%s%n", line, msg, line);
-    } else {
-      LOGGER.info("\n{}\n{}\n{}", line, msg, line);
-    }
-    return msg;
   }
 }
