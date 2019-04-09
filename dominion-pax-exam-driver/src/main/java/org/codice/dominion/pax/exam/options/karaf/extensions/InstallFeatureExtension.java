@@ -15,16 +15,21 @@ package org.codice.dominion.pax.exam.options.karaf.extensions;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.concurrent.TimeUnit;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.karaf.features.internal.model.Feature;
 import org.apache.karaf.features.internal.service.RepositoryImpl;
 import org.codice.dominion.options.karaf.KarafOptions.InstallFeature;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
+import org.codice.dominion.pax.exam.options.KarafSshCommandOption;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.pax.exam.options.PaxExamUtilities;
 import org.codice.dominion.resources.ResourceLoader;
 import org.codice.maven.MavenUrl;
 import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.karaf.options.KarafDistributionConfigurationFileExtendOption;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
+import org.ops4j.pax.exam.karaf.options.configs.FeaturesCfg;
 import org.ops4j.pax.exam.options.RawUrlReference;
 import org.ops4j.pax.exam.options.UrlReference;
 
@@ -58,10 +63,22 @@ public class InstallFeatureExtension implements Extension<InstallFeature> {
     } else {
       repoUrl = new RawUrlReference(url);
     }
+    final String[] names =
+        InstallFeatureExtension.getFeatureNamesFromRepoIfNotSpecified(repoUrl, annotation.name());
+
+    if (annotation.boot()) {
+      return new Option[] {KarafDistributionOption.features(repoUrl, names)};
+    }
+    long timeout = annotation.timeout();
+
+    if (timeout == -1L) { // default to 90s per features
+      timeout = TimeUnit.SECONDS.toMillis(90) * names.length;
+    }
     return new Option[] {
-      KarafDistributionOption.features(
-          repoUrl,
-          InstallFeatureExtension.getFeatureNamesFromRepoIfNotSpecified(repoUrl, annotation.name()))
+      new KarafDistributionConfigurationFileExtendOption(
+          FeaturesCfg.REPOSITORIES, repoUrl.getURL()),
+      new KarafSshCommandOption(
+          "feature:install --no-auto-refresh " + StringUtils.join(names, " "), timeout)
     };
   }
 

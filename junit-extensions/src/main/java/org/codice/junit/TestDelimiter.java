@@ -21,17 +21,30 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * The <code>RestoreSystemProperties</code> annotation can be used in conjunction with the {@link
- * MethodRuleAnnotationRunner} JUnit test runner, Dominion test runner, or with the {@link
- * org.codice.junit.rules.MethodRuleAnnotationProcessor} JUnit method rule to restore any changes
- * made to system properties by a given test method.
- *
- * <p>Applying this annotation to a JUnit test class has the same effect as applying it to all its
- * test methods.
+ * The <code>TestDelimiter</code> annotation can be used in conjunction with the {@link
+ * MethodRuleAnnotationRunner} JUnit or Dominion test runner or with the {@link
+ * org.codice.junit.rules.MethodRuleAnnotationProcessor} JUnit method rule to delimit each executed
+ * tests by logging its start and optionaly its end.
  */
-@ExtensionMethodRuleAnnotation(org.codice.junit.rules.RestoreSystemProperties.class)
-@Target({ElementType.TYPE, ElementType.METHOD})
+@ExtensionMethodRuleAnnotation(org.codice.junit.rules.TestDelimiter.class)
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-public @interface RestoreSystemProperties {}
+public @interface TestDelimiter {
+  /**
+   * Specifies whether to log the information on standard output or using slf4j at info level.
+   *
+   * @return <code>true</code> to log to standard out; <code>false</code> to log via slf4j at info
+   *     level
+   */
+  boolean stdout() default true;
+
+  /**
+   * Specifies whether the elapsed time for executing the test should also be logged.
+   *
+   * @return <code>true</code> to log the elapsed time for executing the test; <code>false</code> to
+   *     not log it (the default)
+   */
+  boolean elapsed() default false;
+}

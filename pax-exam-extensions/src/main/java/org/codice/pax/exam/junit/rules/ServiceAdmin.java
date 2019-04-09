@@ -1436,18 +1436,29 @@ public class ServiceAdmin extends MethodRuleChain
   // - JUnit Rule API (not to be called directly)
 
   @Override
-  public Statement apply(Statement statement, FrameworkMethod method, Object target) {
+  public void snapshot(FrameworkMethod method, Object target) {
     // we know that the only rules added to the base MethodRuleChain class are InjectedService
-    // rules so there which pre-injects their required services when their apply() is called and
-    // returns the passed statement intact which would eventually be returned by the MethodRuleChain
-    // class  as its statement so we must first call super.apply() with an empty statement and be
-    // done with it
-    super.apply(EmptyStatement.EMPTY, method, target);
-    final Profile toProcess = new Profile(true);
+    // rules so there which pre-injects their required services when their snapshot() is called
+    super.snapshot(method, target);
 
     // take the snapshot outside of the statements to make sure it gets taken before any changes
     // to the system is performed by any rules
     takeSnapshot();
+  }
+
+  @Override
+  public Statement applyAfterSnapshot(Statement statement, FrameworkMethod method, Object target) {
+    // we know that the only rules added to the base MethodRuleChain class are InjectedService
+    // rules so there which pre-injects their required services when their applyAfterSnapshot() is
+    // called and returns the passed statement intact which would eventually be returned by the
+    // MethodRuleChain class as its statement so we must first call super.apply() with an empty
+    // statement and be done with it
+    super.applyAfterSnapshot(EmptyStatement.EMPTY, method, target);
+
+    // take the snapshot (in case it wasn't taken in snapshot()) outside of the statements to make
+    // sure it gets taken before any changes to the system is performed by any rules
+    takeSnapshot();
+
     return new Statement() {
       @Override
       public void evaluate() throws Throwable {
@@ -1483,7 +1494,7 @@ public class ServiceAdmin extends MethodRuleChain
         } catch (InterruptedException e) { // propagate interruption
           Thread.currentThread().interrupt();
         }
-        LOGGER.info("Snapshooting Karaf repositories, features, and bundles");
+        LOGGER.info("Snapshoting Karaf repositories, features, and bundles");
         ServiceAdmin.profile =
             new Profile(snapshotRepositories(), snapshotFeatures(), snapshotBundles());
       }
@@ -1552,8 +1563,7 @@ public class ServiceAdmin extends MethodRuleChain
   private Stream<Repository> snapshotRepositories() {
     return repositories()
         .peek(
-            r ->
-                LOGGER.debug("snapshooting: repository[name={}, uri={}]", r.getName(), r.getURI()));
+            r -> LOGGER.debug("snapshoting: repository[name={}, uri={}]", r.getName(), r.getURI()));
   }
 
   /**
@@ -1597,7 +1607,7 @@ public class ServiceAdmin extends MethodRuleChain
 
     return Stream.of(processor.listFeatures("Snapshot"))
         .map(f -> new FeatureSnapshot(f, service))
-        .peek(f -> LOGGER.debug("snapshooting: {}", f));
+        .peek(f -> LOGGER.debug("snapshoting: {}", f));
   }
 
   /**
@@ -1640,7 +1650,7 @@ public class ServiceAdmin extends MethodRuleChain
 
     return Stream.of(processor.listBundles(service(BundleContext.class)))
         .map(BundleSnapshot::new)
-        .peek(b -> LOGGER.debug("snapshooting: {}", b));
+        .peek(b -> LOGGER.debug("snapshoting: {}", b));
   }
 
   /**

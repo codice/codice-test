@@ -104,6 +104,7 @@ public class DominionProbeInvoker implements ProbeInvoker {
 
   protected void callBeforeClass(Request request) {
     LOGGER.debug("{}::callBeforeClass(Request)", this);
+    LOGGER.info("Invoking test class {}", testClass.getName());
     try {
       final Runner runner = request.getRunner();
 
@@ -129,6 +130,8 @@ public class DominionProbeInvoker implements ProbeInvoker {
       throw e;
     } catch (Throwable e) {
       throw DominionProbeInvoker.createTestContainerException("@AfterClass: " + e.getMessage(), e);
+    } finally {
+      LOGGER.info("Completed test class {}", testClass.getName());
     }
   }
 

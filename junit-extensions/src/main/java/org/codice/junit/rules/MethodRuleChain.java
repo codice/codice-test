@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.stream.Stream;
 import org.junit.rules.MethodRule;
 import org.junit.runners.model.FrameworkMethod;
@@ -26,7 +27,7 @@ import org.junit.runners.model.Statement;
  * The <code>MethodRuleChain</code> class provides a JUnit4 method rule that allows ordering of
  * other method rules.
  */
-public class MethodRuleChain implements MethodRule {
+public class MethodRuleChain implements SnapshotMethodRule {
   /** Holds an empty chain. */
   private static final MethodRuleChain EMPTY_CHAIN = new MethodRuleChain(Collections.emptyList());
 
@@ -96,16 +97,32 @@ public class MethodRuleChain implements MethodRule {
     return rules.stream();
   }
 
+  @Override
+  public void snapshot(FrameworkMethod method, Object target) {
+    // reverse the order so we snapshot the outer rule first and the inner one last
+    for (final ListIterator<MethodRule> i = rules.listIterator(rules.size()); i.hasPrevious(); ) {
+      final MethodRule r = i.previous();
+
+      if (r instanceof SnapshotMethodRule) {
+        ((SnapshotMethodRule) r).snapshot(method, target);
+      }
+    }
+  }
+
   /**
    * {@inheritDoc}
    *
-   * @see org.junit.rules.MethodRule#apply(org.junit.runners.model.Statement,
+   * @see SnapshotMethodRule#applyAfterSnapshot(org.junit.runners.model.Statement,
    *     org.junit.runners.model.FrameworkMethod, java.lang.Object)
    */
   @Override
-  public Statement apply(Statement base, FrameworkMethod method, Object target) {
+  public Statement applyAfterSnapshot(Statement base, FrameworkMethod method, Object target) {
     for (final MethodRule r : rules) {
-      base = r.apply(base, method, target);
+      if (r instanceof SnapshotMethodRule) {
+        base = ((SnapshotMethodRule) r).applyAfterSnapshot(base, method, target);
+      } else {
+        base = r.apply(base, method, target);
+      }
     }
     return base;
   }

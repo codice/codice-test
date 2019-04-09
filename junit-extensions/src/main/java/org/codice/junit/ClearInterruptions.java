@@ -22,7 +22,7 @@ import java.lang.annotation.Target;
 
 /**
  * The <code>ClearInterruptions</code> annotation can be used in conjunction with the {@link
- * org.codice.junit.MethodRuleAnnotationRunner} JUnit test runner or the {@link
+ * MethodRuleAnnotationRunner} JUnit test runner, Dominion test runner, or with the {@link
  * org.codice.junit.rules.MethodRuleAnnotationProcessor} JUnit method rule to clear any interruption
  * states after a particular test method.
  *

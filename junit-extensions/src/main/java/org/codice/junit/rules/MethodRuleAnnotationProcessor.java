@@ -43,7 +43,7 @@ import org.junit.runners.model.Statement;
  * class whereas the processor cannot guarantee that since it is at the mercy of JUnit in terms of
  * how these are internally initialized.
  */
-public class MethodRuleAnnotationProcessor implements MethodRule {
+public class MethodRuleAnnotationProcessor implements SnapshotMethodRule {
   /**
    * Adds a method rule annotation processor around a set of other rules. If one is already defined,
    * it is promoted to the bottom of the list otherwise a new one is added at the bottom of the
@@ -73,7 +73,20 @@ public class MethodRuleAnnotationProcessor implements MethodRule {
   }
 
   @Override
-  public Statement apply(Statement base, FrameworkMethod method, Object target) {
+  public void snapshot(FrameworkMethod method, Object target) {
+    Stream.concat(
+            ReflectionUtils.annotationsByType(
+                target.getClass(), ExtensionMethodRuleAnnotation.class),
+            ReflectionUtils.annotationsByType(
+                method.getMethod(), ExtensionMethodRuleAnnotation.class))
+        .map(MethodRuleAnnotationProcessor::newInstance)
+        .filter(SnapshotMethodRule.class::isInstance)
+        .map(SnapshotMethodRule.class::cast)
+        .forEach(r -> r.snapshot(method, target));
+  }
+
+  @Override
+  public Statement applyAfterSnapshot(Statement base, FrameworkMethod method, Object target) {
     final List<MethodRule> rules =
         Stream.concat(
                 ReflectionUtils.annotationsByType(
@@ -84,7 +97,13 @@ public class MethodRuleAnnotationProcessor implements MethodRule {
             .collect(Collectors.toList());
 
     for (final ListIterator<MethodRule> i = rules.listIterator(rules.size()); i.hasPrevious(); ) {
-      base = i.previous().apply(base, method, target);
+      final MethodRule r = i.previous();
+
+      if (r instanceof SnapshotMethodRule) {
+        base = ((SnapshotMethodRule) r).applyAfterSnapshot(base, method, target);
+      } else {
+        base = r.apply(base, method, target);
+      }
     }
     return base;
   }

@@ -109,6 +109,27 @@ public class KarafOptions {
      */
     @Interpolate
     String[] name() default {};
+
+    /**
+     * Specifies whether the feature(s) should be installed as (a) boot feature(s) or not. A feature
+     * not installed as (a) boot feature(s) will be installed via the SSH console once the container
+     * is started.
+     *
+     * <p><i>Note:</i> The feature repository will be pre-configured no matter what.
+     *
+     * @return <code>true</code> if the feature(s) should be installed as (a) boot feature(s);
+     *     <code>false</code> if it should be installed via the SSH console
+     */
+    boolean boot() default true;
+
+    /**
+     * Specifies the maximum amount of time to wait in milliseconds for the feature(s) to be
+     * installed via the SSH console.
+     *
+     * @return the maximum amount of time in milliseconds to wait for the feature(s) to be installed
+     *     (defaults to 90 seconds per features)
+     */
+    long timeout() default -1L;
   }
 
   /**
