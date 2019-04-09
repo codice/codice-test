@@ -95,7 +95,7 @@ public class TestDelimiter extends AbstractMethodRule {
               final Test test = method.getAnnotation(Test.class);
 
               if ((test == null) || !test.expected().isAssignableFrom(t.getClass())) {
-                log("Failed with " + t.getClass().getName(), msg);
+                log("Failed: " + t.getClass().getName(), msg);
               } else {
                 log("Successful", msg);
               }
@@ -107,16 +107,17 @@ public class TestDelimiter extends AbstractMethodRule {
             String msg = String.format(format, args);
 
             if (status != null) {
-              msg += ": " + status;
+              msg += ": ";
               if (elapsed) {
                 final long duration = System.nanoTime() - start;
 
                 msg +=
-                    " ["
+                    "["
                         + DurationFormatUtils.formatDuration(
                             TimeUnit.NANOSECONDS.toMillis(duration), "HH:mm:ss.S")
-                        + "]";
+                        + "] ";
               }
+              msg += status;
             }
             final String line = StringUtils.repeat('=', msg.length());
 

@@ -22,7 +22,7 @@ import java.lang.annotation.Target;
 
 /**
  * The <code>RestoreSystemProperties</code> annotation can be used in conjunction with the {@link
- * MethodRuleAnnotationRunner} JUnit or Dominion test runner or with the {@link
+ * MethodRuleAnnotationRunner} JUnit test runner, Dominion test runner, or with the {@link
  * org.codice.junit.rules.MethodRuleAnnotationProcessor} JUnit method rule to restore any changes
  * made to system properties by a given test method.
  *

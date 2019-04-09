@@ -19,6 +19,7 @@ import javassist.CtMethod;
 import javassist.LoaderClassPath;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
+import org.spockframework.util.Nullable;
 
 /** This class provides additional useful functionalities for method rules. */
 public abstract class AbstractMethodRule implements SnapshotMethodRule {
@@ -34,8 +35,9 @@ public abstract class AbstractMethodRule implements SnapshotMethodRule {
   /**
    * Gets the name of the test method being executed.
    *
-   * @return the name of the test method being executed
+   * @return the name of the test method being executed or <code>null</code> if unkown
    */
+  @Nullable
   public String getName() {
     final FrameworkMethod m = method;
 
@@ -47,6 +49,7 @@ public abstract class AbstractMethodRule implements SnapshotMethodRule {
    *
    * @return the source file where the test method is defined or <code>null</code> if not available
    */
+  @Nullable
   public String getSourceFile() {
     final CtClass c = ctclass;
 
