@@ -1494,7 +1494,7 @@ public class ServiceAdmin extends MethodRuleChain
         } catch (InterruptedException e) { // propagate interruption
           Thread.currentThread().interrupt();
         }
-        LOGGER.info("Snapshooting Karaf repositories, features, and bundles");
+        LOGGER.info("Snapshoting Karaf repositories, features, and bundles");
         ServiceAdmin.profile =
             new Profile(snapshotRepositories(), snapshotFeatures(), snapshotBundles());
       }
@@ -1563,8 +1563,7 @@ public class ServiceAdmin extends MethodRuleChain
   private Stream<Repository> snapshotRepositories() {
     return repositories()
         .peek(
-            r ->
-                LOGGER.debug("snapshooting: repository[name={}, uri={}]", r.getName(), r.getURI()));
+            r -> LOGGER.debug("snapshoting: repository[name={}, uri={}]", r.getName(), r.getURI()));
   }
 
   /**
@@ -1608,7 +1607,7 @@ public class ServiceAdmin extends MethodRuleChain
 
     return Stream.of(processor.listFeatures("Snapshot"))
         .map(f -> new FeatureSnapshot(f, service))
-        .peek(f -> LOGGER.debug("snapshooting: {}", f));
+        .peek(f -> LOGGER.debug("snapshoting: {}", f));
   }
 
   /**
@@ -1651,7 +1650,7 @@ public class ServiceAdmin extends MethodRuleChain
 
     return Stream.of(processor.listBundles(service(BundleContext.class)))
         .map(BundleSnapshot::new)
-        .peek(b -> LOGGER.debug("snapshooting: {}", b));
+        .peek(b -> LOGGER.debug("snapshoting: {}", b));
   }
 
   /**

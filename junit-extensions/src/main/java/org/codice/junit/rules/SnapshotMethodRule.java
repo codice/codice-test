@@ -18,20 +18,19 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 
 /**
- * A <code>SnapshotMethodRule</code> extends on JUNit's {@link MethodRule} interface to allow
+ * A <code>SnapshotMethodRule</code> extends on JUnit's {@link MethodRule} interface to allow
  * snapshots to be taken before any of the rules that might be defined are applied as long as the
  * test class is running with the {@link org.codice.junit.MethodRuleAnnotationRunner} or the
  * dominion test runner, chained as part of the {@link MethodRuleChain}, or the {@link
  * MethodRuleAnnotationProcessor} method rule has been defined in the test class (for
- * annotation-based rules). Otherwise it will behave as a normal method rule and snapshooting will
- * be triggered when the rule is applied (see the default implementation for the {@link #apply}
- * method.
+ * annotation-based rules). Otherwise it will behave as a normal method rule and snapshoting will be
+ * triggered when the rule is applied (see the default implementation for the {@link #apply} method.
  */
 public interface SnapshotMethodRule extends MethodRule {
   /**
    * Called to take a snapshot before any method rules are applied.
    *
-   * @param method the method for which we are snapshooting
+   * @param method the method for which we are snapshoting
    * @param target the object on which the method will be run.
    */
   void snapshot(FrameworkMethod method, Object target);

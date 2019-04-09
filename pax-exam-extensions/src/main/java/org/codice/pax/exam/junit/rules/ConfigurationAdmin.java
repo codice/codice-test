@@ -477,10 +477,10 @@ public class ConfigurationAdmin extends InjectedService<org.osgi.service.cm.Conf
         } catch (InterruptedException e) { // propagate interruption
           Thread.currentThread().interrupt();
         }
-        LOGGER.info("Snapshooting OSGi configuration");
+        LOGGER.info("Snapshoting OSGi configuration");
         configurations()
             .map(ConfigurationSnapshot::new)
-            .peek(c -> LOGGER.debug("snapshooting: {}", c))
+            .peek(c -> LOGGER.debug("snapshoting: {}", c))
             .forEach(c -> ConfigurationAdmin.snapshotConfigs.put(c.getPid(), c));
       }
     }
