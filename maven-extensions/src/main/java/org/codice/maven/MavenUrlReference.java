@@ -69,7 +69,7 @@ public class MavenUrlReference {
       dependencies = Utilities.getDependencies(annotation, resourceLoader, dependencies);
       maven.version(
           Utilities.getArtifactAttribute(
-              annotation, resourceLoader, url, MavenUtils.VERSION, dependencies));
+              annotation, resourceLoader, groupId, artifactId, MavenUtils.VERSION, dependencies));
     } else if (MavenUrl.AS_PROJECT.equals(version)) {
       dependencies = Utilities.getDependencies(annotation, resourceLoader, dependencies);
       maven.version(
@@ -82,7 +82,7 @@ public class MavenUrlReference {
       dependencies = Utilities.getDependencies(annotation, resourceLoader, dependencies);
       maven.type(
           Utilities.getArtifactAttribute(
-              annotation, resourceLoader, url, MavenUtils.TYPE, dependencies));
+              annotation, resourceLoader, groupId, artifactId, MavenUtils.TYPE, dependencies));
     } else if (MavenUrl.AS_PROJECT.equals(type)) {
       throw new IllegalArgumentException("Must specify a valid type for: " + annotation);
     } else if (!type.isEmpty()) {
@@ -92,7 +92,12 @@ public class MavenUrlReference {
       dependencies = Utilities.getDependencies(annotation, resourceLoader, dependencies);
       maven.classifier(
           Utilities.getArtifactAttribute(
-              annotation, resourceLoader, url, MavenUtils.CLASSIFIER, dependencies));
+              annotation,
+              resourceLoader,
+              groupId,
+              artifactId,
+              MavenUtils.CLASSIFIER,
+              dependencies));
     } else if (MavenUrl.AS_PROJECT.equals(classifier)) {
       throw new IllegalArgumentException("Must specify a valid classifier for: " + annotation);
     } else if (!classifier.isEmpty()) {
