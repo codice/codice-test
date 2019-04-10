@@ -38,12 +38,22 @@
         </dependency>
         <dependency>
             <groupId>org.codice.test</groupId>
+            <artifactId>pax-exam-extensions</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.test</groupId>
             <artifactId>dominion</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codice.test</groupId>
             <artifactId>dominion-pax-exam</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.test</groupId>
+            <artifactId>dominion-pax-exam-invokers</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

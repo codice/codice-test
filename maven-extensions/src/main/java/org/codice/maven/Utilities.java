@@ -44,8 +44,30 @@ public class Utilities {
       MavenUrl url,
       String name,
       Properties dependencies) {
-    final String value =
-        MavenUtils.getArtifactAttribute(dependencies, url.groupId(), url.artifactId(), name);
+    return Utilities.getArtifactAttribute(
+        annotation, resourceLoader, url.groupId(), url.artifactId(), name, dependencies);
+  }
+
+  /**
+   * Gets a particular artifact attribute from the provided dependencies properties.
+   *
+   * @param annotation the annotation instance for which to retrieve the artifact info
+   * @param resourceLoader the resource loader the dependencies.properties file was loaded from
+   * @param groupId the group id of the artifact for which to retrieve an artifact attribute
+   * @param artifactId the id of the artifact for which to retrieve an artifact attribute
+   * @param name the name of the attribute for the maven url to retrieve from the
+   *     dependencies.properties
+   * @param dependencies the loaded dependencies.properties information
+   * @return the corresponding attribute's value
+   */
+  public static String getArtifactAttribute(
+      Annotation annotation,
+      ResourceLoader resourceLoader,
+      String groupId,
+      String artifactId,
+      String name,
+      Properties dependencies) {
+    final String value = MavenUtils.getArtifactAttribute(dependencies, groupId, artifactId, name);
 
     if (value == null) {
       throw new IllegalArgumentException(
@@ -56,9 +78,9 @@ public class Utilities {
               + " in "
               + resourceLoader.getLocationClass().getName()
               + ". Do you have a dependency for "
-              + url.groupId()
+              + groupId
               + '/'
-              + url.artifactId()
+              + artifactId
               + " in your maven project?");
     }
     return value;
