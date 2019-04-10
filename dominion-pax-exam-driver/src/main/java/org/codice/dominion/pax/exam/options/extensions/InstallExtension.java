@@ -44,9 +44,21 @@ import org.ops4j.pax.exam.Option;
 @Options.SetSystemProperty(key = "pax.exam.invoker", value = "junit")
 @Options.GrantPermission(
   artifact = {
-    @MavenUrl(groupId = MavenUrl.AS_PROJECT, artifactId = "dominion-pax-exam-invokers"),
-    @MavenUrl(groupId = MavenUrl.AS_PROJECT, artifactId = "maven-extensions"),
-    @MavenUrl(groupId = MavenUrl.AS_PROJECT, artifactId = "pax-exam-extensions")
+    @MavenUrl(
+      groupId = MavenUrl.AS_PROJECT,
+      artifactId = "dominion-pax-exam-invokers",
+      version = MavenUrl.AS_PROJECT
+    ),
+    @MavenUrl(
+      groupId = MavenUrl.AS_PROJECT,
+      artifactId = "maven-extensions",
+      version = MavenUrl.AS_PROJECT
+    ),
+    @MavenUrl(
+      groupId = MavenUrl.AS_PROJECT,
+      artifactId = "pax-exam-extensions",
+      version = MavenUrl.AS_PROJECT
+    )
   },
   codebase = {
     "PAXEXAM-PROBE",
