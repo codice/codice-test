@@ -56,17 +56,18 @@ public class Options {
   // make sure we have at least one user capable of SSH to the container
   @SuppressWarnings("squid:S2068" /* hard-coded password is for testing */)
   @Options.AddLocalUser(
-      userId = Dominion.DOMINION_USER_ID,
-      password = "{dominion.password:-dominion}",
-      roles = {
-        UserRoles.GROUP,
-        UserRoles.ADMIN,
-        UserRoles.MANAGER,
-        UserRoles.VIEWER,
-        UserRoles.SYSTEM_ADMIN,
-        UserRoles.SYSTEM_BUNDLES,
-        UserRoles.SSH
-      })
+    userId = Dominion.DOMINION_USER_ID,
+    password = "{dominion.password:-dominion}",
+    roles = {
+      UserRoles.GROUP,
+      UserRoles.ADMIN,
+      UserRoles.MANAGER,
+      UserRoles.VIEWER,
+      UserRoles.SYSTEM_ADMIN,
+      UserRoles.SYSTEM_BUNDLES,
+      UserRoles.SSH
+    }
+  )
   @Option.Annotation
   @Target(ElementType.TYPE)
   @Retention(RetentionPolicy.RUNTIME)
@@ -578,8 +579,9 @@ public class Options {
    * <code>false</code>.
    */
   @Conditions.BooleanSystemProperty(
-      value = EnableKeepingRuntimeFolder.PROPERTY_KEY,
-      defaultsTo = true)
+    value = EnableKeepingRuntimeFolder.PROPERTY_KEY,
+    defaultsTo = true
+  )
   @KeepRuntimeFolder
   @Target(ElementType.TYPE)
   @Retention(RetentionPolicy.RUNTIME)
