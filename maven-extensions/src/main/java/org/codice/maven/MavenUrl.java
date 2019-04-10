@@ -70,7 +70,7 @@ public @interface MavenUrl {
   /**
    * Specifies the maven artifact classifier.
    *
-   * @return the marven artifact classifier
+   * @return the maven artifact classifier
    */
   String classifier() default "";
 }
