@@ -26,38 +26,34 @@ import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
 
 /** Extension point for the {@link Install} option annotation. */
-// Required so pax-exam can include it's own pax-exam related artifacts during test runtime
-@Options.UpdateConfigProperty(
-  target = InstallExtension.PAX_URL_MVN_CFG,
-  key = "org.ops4j.pax.url.mvn.repositories",
-  value =
-      "http://repo1.maven.org/maven2@id=central,"
-          + "http://oss.sonatype.org/content/repositories/snapshots@snapshots@noreleases@id=sonatype-snapshot,"
-          + "http://oss.sonatype.org/content/repositories/ops4j-snapshots@snapshots@noreleases@id=ops4j-snapshot,"
-          + "http://repository.apache.org/content/groups/snapshots-group@snapshots@noreleases@id=apache,"
-          + "http://svn.apache.org/repos/asf/servicemix/m2-repo@id=servicemix,"
-          + "http://repository.springsource.com/maven/bundles/release@id=springsource,"
-          + "http://repository.springsource.com/maven/bundles/external@id=springsourceext,"
-          + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype"
-)
-@Options.PropagateOverriddenMavenLocalRepository
+@Options.AddMavenRepository({
+  // required so pax-exam can include it's own pax-exam related artifacts during test runtime
+  "http://repo1.maven.org/maven2@id=central",
+  "http://oss.sonatype.org/content/repositories/snapshots@snapshots@noreleases@id=sonatype-snapshot",
+  "http://oss.sonatype.org/content/repositories/ops4j-snapshots@snapshots@noreleases@id=ops4j-snapshot",
+  "http://repository.apache.org/content/groups/snapshots-group@snapshots@noreleases@id=apache",
+  "http://svn.apache.org/repos/asf/servicemix/m2-repo@id=servicemix",
+  "http://repository.springsource.com/maven/bundles/release@id=springsource",
+  "http://repository.springsource.com/maven/bundles/external@id=springsourceext",
+  "http://oss.sonatype.org/content/repositories/releases/@id=sonatype"
+})
 @Options.SetSystemProperty(key = "pax.exam.invoker", value = "junit")
 @Options.GrantPermission(
   artifact = {
     @MavenUrl(
       groupId = MavenUrl.AS_PROJECT,
       artifactId = "dominion-pax-exam-invokers",
-      version = MavenUrl.AS_IN_PROJECT
+      version = MavenUrl.AS_PROJECT
     ),
     @MavenUrl(
       groupId = MavenUrl.AS_PROJECT,
       artifactId = "maven-extensions",
-      version = MavenUrl.AS_IN_PROJECT
+      version = MavenUrl.AS_PROJECT
     ),
     @MavenUrl(
       groupId = MavenUrl.AS_PROJECT,
       artifactId = "pax-exam-extensions",
-      version = MavenUrl.AS_IN_PROJECT
+      version = MavenUrl.AS_PROJECT
     )
   },
   codebase = {

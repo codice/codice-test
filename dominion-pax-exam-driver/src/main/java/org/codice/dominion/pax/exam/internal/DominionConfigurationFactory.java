@@ -33,8 +33,6 @@ import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.codice.dominion.Dominion;
 import org.codice.dominion.DominionException;
-import org.codice.dominion.conditions.Condition;
-import org.codice.dominion.conditions.ConditionException;
 import org.codice.dominion.interpolate.ContainerNotStagedException;
 import org.codice.dominion.interpolate.InterpolationException;
 import org.codice.dominion.options.Option;
@@ -44,7 +42,6 @@ import org.codice.dominion.pax.exam.internal.processors.KarafDistributionConfigu
 import org.codice.dominion.pax.exam.internal.processors.KarafSshCommandOptionProcessor;
 import org.codice.dominion.pax.exam.options.PaxExamOption;
 import org.codice.maven.MavenUrl;
-import org.codice.test.commons.ReflectionUtils;
 import org.codice.test.commons.ReflectionUtils.AnnotationEntry;
 import org.ops4j.pax.exam.ConfigurationFactory;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionBaseConfigurationOption;
@@ -100,10 +97,8 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
     this.testClass = testInstance.getClass();
     LOGGER.debug("DominionConfigurationFactory({}, {})", testClass.getName(), testInstance);
     this.coreOptions =
-        ReflectionUtils.annotationsByType(
-                DominionConfigurationFactory.this::filterConditionAnnotations,
-                DominionConfigurationFactory.class,
-                Option.Annotation.class)
+        AnnotationUtils.annotationsByType(
+                interpolator, DominionConfigurationFactory.class, Option.Annotation.class)
             .map(ExtensionOption::new)
             .flatMap(ExtensionOption::extensions)
             .map(ExtensionOption::getOptions)
@@ -139,8 +134,8 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
                 .stream()
                 .flatMap(
                     c ->
-                        ReflectionUtils.annotationsByType(
-                            this::filterConditionAnnotations, c, Option.Annotation.class)));
+                        AnnotationUtils.annotationsByType(
+                            interpolator, c, Option.Annotation.class)));
 
     LOGGER.debug("{}::createConfiguration() - options = {}", this, opts);
     final KarafDistributionBaseConfigurationOption distro = opts.getDistribution();
@@ -192,58 +187,6 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
       throw e;
     } catch (Exception e) {
       throw new DominionException("Problem starting container", e);
-    }
-  }
-
-  private boolean filterConditionAnnotations(AnnotationEntry<?> entry) {
-    // check directly contained annotations, one by one for annotations that are only doing
-    // conditions. Those are are doing both conditions and options are ignored at this level and
-    // left to be evaluated when we get to deepest annotations
-    return entry.annotations().allMatch(this::filterConditionAnnotation);
-  }
-
-  private boolean filterConditionAnnotation(AnnotationEntry<?> entry) {
-    if (entry.isEnclosingAnInstanceOf(Option.Annotation.class)) {
-      // if it encloses an option annotation, then we shall not look for recursive annotated
-      // conditions as we will let the deepest annotations take care of them
-      return true;
-    }
-    return entry
-        .enclosingAnnotationsByType(Condition.Annotation.class)
-        .allMatch(this::evaluateConditionAnnotation);
-  }
-
-  @SuppressWarnings("squid:S1181" /* catching VirtualMachineError first */)
-  private boolean evaluateConditionAnnotation(AnnotationEntry<Condition.Annotation> entry) {
-    // getEnclosingAnnotation() cannot be null since the Option.Annotation can only be added to
-    // other annotations
-    final AnnotationEntry<?> enclosingEntry = entry.getEnclosingAnnotation();
-    final Annotation annotation = enclosingEntry.getAnnotation();
-
-    try {
-      final Condition.Extension<Annotation> extension =
-          Condition.getExtension(Condition.Extension.class, annotation);
-
-      if (extension == null) {
-        LOGGER.debug(
-            "{}::evaluateConditionAnnotation - ignoring condition {} as no extension implementation could be located",
-            this,
-            annotation);
-        return true;
-      }
-      return extension.evaluate(
-          interpolator.interpolate(annotation), testClass, new AnnotationResourceLoader(entry));
-    } catch (VirtualMachineError | ConditionException e) {
-      throw e;
-    } catch (Throwable t) {
-      throw new ConditionException(
-          "failed to evaluate condition from "
-              + annotation.annotationType().getSimpleName()
-              + " extension for "
-              + testClass.getName()
-              + " and "
-              + annotation,
-          t);
     }
   }
 
@@ -500,10 +443,8 @@ public class DominionConfigurationFactory implements ConfigurationFactory {
               .stream()
               .flatMap(
                   extension ->
-                      ReflectionUtils.annotationsByType(
-                              DominionConfigurationFactory.this::filterConditionAnnotations,
-                              extension.getClass(),
-                              Option.Annotation.class)
+                      AnnotationUtils.annotationsByType(
+                              interpolator, extension.getClass(), Option.Annotation.class)
                           .map(e -> new ExtensionOption(e, annotationInterpolator))
                           .flatMap(ExtensionOption::extensions)),
           Stream.of(this));

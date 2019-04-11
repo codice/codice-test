@@ -31,7 +31,6 @@ import org.apache.commons.text.StringSubstitutor;
 import org.apache.commons.text.lookup.StringLookup;
 import org.apache.commons.text.matcher.StringMatcher;
 import org.apache.commons.text.matcher.StringMatcherFactory;
-import org.codice.dominion.internal.PortFinder;
 import org.codice.test.commons.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -307,7 +306,7 @@ public class Interpolator implements Closeable, StringLookup {
     if (s == null) {
       return null;
     }
-    return Stream.of(s).map(substitutor::replace).toArray(String[]::new);
+    return Stream.of(s).map(this::interpolate).toArray(String[]::new);
   }
 
   /**

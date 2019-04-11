@@ -14,24 +14,29 @@
 package org.codice.dominion.pax.exam.options.extensions;
 
 import org.codice.dominion.options.Options;
-import org.codice.dominion.options.Options.PropagateOverriddenMavenLocalRepository;
+import org.codice.dominion.options.Options.PropagateMavenRepositoriesFromActiveProfiles;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.url.mvn.ServiceConstants;
 
-/** Extension point for the {@link PropagateOverriddenMavenLocalRepository} option annotation. */
+/**
+ * Extension point for the {@link PropagateMavenRepositoriesFromActiveProfiles} option annotation.
+ */
+// assume the annotation was already processed by Dominion at startup which would have updated the
+// local system property with the same name; so just propagate that property into Pax's maven
+// config file
 @Options.UpdateConfigProperty(
   target = "etc/" + ServiceConstants.PID + ".cfg",
-  key = ServiceConstants.PID + '.' + ServiceConstants.PROPERTY_LOCAL_REPOSITORY,
-  value = "{" + PropagateOverriddenMavenLocalRepository.PROPERTY + ":-}"
+  key = ServiceConstants.PID + '.' + ServiceConstants.PROPERTY_REPOSITORIES,
+  value = "{" + ServiceConstants.PID + '.' + ServiceConstants.PROPERTY_REPOSITORIES + ":-}"
 )
-public class PropagateOverriddenMavenLocalRepositoryExtension
-    implements Extension<PropagateOverriddenMavenLocalRepository> {
+public class PropagateMavenRepositoriesFromActiveProfilesExtension
+    implements Extension<PropagateMavenRepositoriesFromActiveProfiles> {
   @Override
   public Option[] options(
-      PropagateOverriddenMavenLocalRepository annotation,
+      PropagateMavenRepositoriesFromActiveProfiles annotation,
       PaxExamInterpolator interpolator,
       ResourceLoader resourceLoader) {
     return new Option[] {};

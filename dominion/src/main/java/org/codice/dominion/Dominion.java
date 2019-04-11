@@ -77,17 +77,12 @@ public class Dominion extends Runner implements Filterable, Sortable {
     if (delegate instanceof Filterable) {
       this.filterable = (Filterable) delegate;
     } else {
-      this.filterable =
-          new Filterable() {
-            @Override
-            public void filter(Filter filter) throws NoTestsRemainException { // nothing to filter
-            }
-          };
+      this.filterable = filter -> {}; // nothing to filter
     }
     if (delegate instanceof Sortable) {
       this.sortable = (Sortable) delegate;
     } else {
-      this.sortable = sorter -> {};
+      this.sortable = sorter -> {}; // nothing to sort
     }
   }
 

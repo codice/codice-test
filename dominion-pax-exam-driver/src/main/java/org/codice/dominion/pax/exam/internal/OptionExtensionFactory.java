@@ -30,6 +30,7 @@ import org.codice.dominion.pax.exam.options.extensions.KeepCachesExtension;
 import org.codice.dominion.pax.exam.options.extensions.KeepRuntimeFolderExtension;
 import org.codice.dominion.pax.exam.options.extensions.LocalGroupExtension;
 import org.codice.dominion.pax.exam.options.extensions.LocalUserExtension;
+import org.codice.dominion.pax.exam.options.extensions.PropagateMavenRepositoriesFromActiveProfilesExtension;
 import org.codice.dominion.pax.exam.options.extensions.PropagateOverriddenMavenLocalRepositoryExtension;
 import org.codice.dominion.pax.exam.options.extensions.PropagateSystemPropertyExtension;
 import org.codice.dominion.pax.exam.options.extensions.RemoveConfigPropertyExtension;
@@ -66,6 +67,9 @@ public class OptionExtensionFactory implements Option.Factory {
     map.put(Options.Install.class, new InstallExtension());
     map.put(Options.KeepCaches.class, new KeepCachesExtension());
     map.put(Options.KeepRuntimeFolder.class, new KeepRuntimeFolderExtension());
+    map.put(
+        Options.PropagateMavenRepositoriesFromActiveProfiles.class,
+        new PropagateMavenRepositoriesFromActiveProfilesExtension());
     map.put(
         Options.PropagateOverriddenMavenLocalRepository.class,
         new PropagateOverriddenMavenLocalRepositoryExtension());

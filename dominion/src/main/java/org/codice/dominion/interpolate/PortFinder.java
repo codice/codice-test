@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.dominion.internal;
+package org.codice.dominion.interpolate;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -19,8 +19,6 @@ import java.net.ServerSocket;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.codice.dominion.interpolate.InterpolationException;
-import org.codice.dominion.interpolate.Interpolator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -19,15 +19,13 @@ import java.util.Properties;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.codice.test.commons.MavenUtils;
-import org.ops4j.pax.url.mvn.Handler;
 
 /** This class is used to represent a maven URL. */
 public class MavenUrlReference {
-  private static final String PROTOCOL_HANDLER_PKGS_KEY = "java.protocol.handler.pkgs";
 
   static {
     // make sure we register the protocol handler for the mvn protocol
-    MavenUrlReference.initMavenUrlHandler();
+    Utilities.initMavenUrlHandler();
   }
 
   /**
@@ -279,19 +277,5 @@ public class MavenUrlReference {
   @Override
   public String toString() {
     return getURL();
-  }
-
-  /** Initializes a URL protocol handler for the Maven protocol if not already registered. */
-  private static void initMavenUrlHandler() {
-    final String pkgs = System.getProperty(MavenUrlReference.PROTOCOL_HANDLER_PKGS_KEY);
-    final String pkg = StringUtils.removeEnd(Handler.class.getPackage().getName(), ".mvn");
-
-    if (StringUtils.isEmpty(pkgs)) {
-      System.setProperty(MavenUrlReference.PROTOCOL_HANDLER_PKGS_KEY, pkg);
-    } else if (!('|' + pkgs + '|').contains(pkg)) {
-      System.setProperty(
-          MavenUrlReference.PROTOCOL_HANDLER_PKGS_KEY,
-          StringUtils.appendIfMissing(pkgs, "|") + pkg);
-    }
   }
 }
