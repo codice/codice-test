@@ -27,6 +27,7 @@ import org.codice.dominion.interpolate.Interpolate;
 import org.codice.dominion.options.Option.Annotation;
 import org.codice.dominion.options.Options.Repeatables.AddLocalGroups;
 import org.codice.dominion.options.Options.Repeatables.AddLocalUsers;
+import org.codice.dominion.options.Options.Repeatables.AddMavenRepositories;
 import org.codice.dominion.options.Options.Repeatables.GrantPermissions;
 import org.codice.dominion.options.Options.Repeatables.RemoveConfigProperties;
 import org.codice.dominion.options.Options.Repeatables.UpdateConfigProperties;
@@ -68,6 +69,13 @@ public class Options {
       UserRoles.SSH
     }
   )
+  @Options.PropagateOverriddenMavenLocalRepository
+  @Options.PropagateMavenRepositoriesFromActiveProfiles
+  @Options.AddMavenRepository({
+    // required to allow dominion and other libraries to include their own codice artifacts
+    "{snapshots.repository.url}@snapshots@noreleases@id=snapshots",
+    "{releases.repository.url}@id=releases"
+  })
   @Option.Annotation
   @Target(ElementType.TYPE)
   @Retention(RetentionPolicy.RUNTIME)
@@ -638,7 +646,8 @@ public class Options {
 
   /**
    * Option that ensures that information about the overridden location of the local Maven
-   * repository user using the <code>maven.repo.local</code> will be passed to the container.
+   * repository user using the <code>maven.repo.local</code> will be passed to the container and
+   * used by the driver when resolving maven artifacts.
    */
   @Conditions.NotBlankSystemProperty("maven.repo.local")
   @Annotation
@@ -646,7 +655,59 @@ public class Options {
   @Retention(RetentionPolicy.RUNTIME)
   @Inherited
   @Documented
-  public @interface PropagateOverriddenMavenLocalRepository {}
+  public @interface PropagateOverriddenMavenLocalRepository {
+    public static final String PROPERTY = "maven.repo.local";
+  }
+
+  /**
+   * Option that ensures that all repositories that are configured in maven settings.xml file in
+   * active profiles are searchable for maven artifacts for both the container and the driver.
+   */
+  @Annotation
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Inherited
+  @Documented
+  public @interface PropagateMavenRepositoriesFromActiveProfiles {}
+
+  /**
+   * Option to add new maven repositories to be searchable for maven artifacts for both the
+   * container and the driver.
+   */
+  @Annotation
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Inherited
+  @Documented
+  @Repeatable(AddMavenRepositories.class)
+  public @interface AddMavenRepository {
+    /**
+     * Specifies the maven repository(ies) to add to the set of repositories that can be consulted
+     * for retrieving maven artifacts.
+     *
+     * <p>Usually repositories (not local repository) contains either releases or snapshot
+     * artifacts. In order to speed up the artifact locations discovery you can mark the repository
+     * with the type of artifacts it contains. This is similar with setting the <code>
+     * release/enabled</code> or <code>snapshots/enabled</code> tags in <code>pom.xml</code> or
+     * <code>settings.xml</code>.
+     *
+     * <p>By default (no marking) the repositories are considered as containing only releases (same
+     * behavior as Maven). You can alter this default behavior by adding the following to repository
+     * urls (not case sensitive):
+     *
+     * <p>to enable snapshots - add <code>@snapshots</code> to disable releases - add <code>
+     * @noreleases</code>
+     *
+     * <p>An <code>@id</code> is required for all URLs otherwise it will be ignored (e.g., <code>
+     * http://repository.ops4j.org/mvn-snapshots@snapshots@id=ops4j-snapshot</code>). If repository
+     * access requests authentication the user name and password must be specified in the repository
+     * URL as for example <code>http://user:password@repository.ops4j.org/maven2</code>.
+     *
+     * @return the maven repository url(s) to add to the set of repositories that can be consulted
+     */
+    @Interpolate
+    String[] value();
+  }
 
   /** Options for adding a new local user or replacing an existing user. */
   @Annotation
@@ -861,6 +922,15 @@ public class Options {
     /** Defines several {@link Options.SetLogLevels} annotations. */
     public @interface SetLogLevelss {
       Options.SetLogLevels[] value();
+    }
+
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Inherited
+    @Documented
+    /** Defines several {@link AddMavenRepository} annotations. */
+    public @interface AddMavenRepositories {
+      AddMavenRepository[] value();
     }
 
     @Target(ElementType.TYPE)

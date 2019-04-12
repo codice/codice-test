@@ -22,10 +22,16 @@ import java.security.PrivilegedAction;
 import java.util.Properties;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.codice.test.commons.MavenUtils;
+import org.ops4j.pax.url.mvn.Handler;
 
 /** Utility methods. */
 public class Utilities {
+  private static final String PROTOCOL_HANDLER_PKGS_KEY = "java.protocol.handler.pkgs";
+
+  private static boolean initialized = false;
+
   /**
    * Gets a particular artifact attribute from the provided dependencies properties.
    *
@@ -176,5 +182,20 @@ public class Utilities {
       }
     }
     return dependencies;
+  }
+
+  /** Initializes a URL protocol handler for the Maven protocol if not already registered. */
+  public static synchronized void initMavenUrlHandler() {
+    if (!Utilities.initialized) {
+      final String pkgs = System.getProperty(PROTOCOL_HANDLER_PKGS_KEY);
+      final String pkg = StringUtils.removeEnd(Handler.class.getPackage().getName(), ".mvn");
+
+      if (StringUtils.isEmpty(pkgs)) {
+        System.setProperty(PROTOCOL_HANDLER_PKGS_KEY, pkg);
+      } else if (!('|' + pkgs + '|').contains(pkg)) {
+        System.setProperty(PROTOCOL_HANDLER_PKGS_KEY, StringUtils.appendIfMissing(pkgs, "|") + pkg);
+      }
+      Utilities.initialized = true;
+    }
   }
 }

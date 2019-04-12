@@ -54,16 +54,19 @@ import java.lang.annotation.Target;
  *       java.io.File#separator}).
  *   <li><code>"%n</code> which represents the platform-specific line separator (see {@link
  *       {@link System#lineSeparator()}).
- *   <li><code>"system-property"</code> a system property key. When used inside Dominion's driver,
- *       the system property must be defined in Dominion. When used in a container, the system
- *       property must be defined using Dominion's options or be already provided by the JVM.
- *   <li><code>"system-property:-default"</code> adds supports for a default in case the referenced
- *       system property is not defined (or is <code>null</code>). Since interpolation is recursive,
- *       the <code>default</code> strings will themselves be interpolated using the same rules
- *       defined here.
+ *   <li><code>"system-property"</code> which represents a system property key. When used inside
+ *       Dominion's driver, the system property must be defined in Dominion. When used in a
+ *       container, the system property must be defined using Dominion's options or be already
+ *       provided by the JVM.
+ *   <li><code>"maven-profile-property"</code> which represents the name of a Maven active profile
+ *       property defined in Maven's settings.xml file.
  *   <li><code>"port.<i>name</i>"</code>. Where <code>name</code> is a unique name for a free port
  *       number to reserve. The interpolation will result in the same free reserved port whether the
  *       interpolation happens inside PaxExam driver or container.
+ *   <li><code>"expression:-default"</code> adds supports for a default in case the referenced
+ *       expression is not defined (or is <code>null</code>). Since interpolation is recursive,
+ *       the <code>default</code> strings will themselves be interpolated using the same rules
+ *       defined here.
  *   <li><code>"<i>condition</i>?<i>then</i>:<i>else</i>"</code> where <code>condition</code> is an
  *       expression evaluated as a boolean condition which must be equal to <code>"true"</code>
  *       (case insensitive) to result in the <code>then</code> string; otherwise it results in the

@@ -14,26 +14,19 @@
 package org.codice.dominion.pax.exam.internal;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
-import org.codice.dominion.DominionInitializationException;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
-import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
@@ -44,34 +37,12 @@ import org.ops4j.pax.exam.TestContainerException;
 import org.ops4j.pax.exam.TestDirectory;
 import org.ops4j.pax.exam.TestInstantiationInstruction;
 import org.ops4j.pax.exam.TestProbeBuilder;
-import org.ops4j.pax.exam.spi.ExamReactor;
-import org.ops4j.pax.exam.spi.StagedExamReactor;
-import org.ops4j.pax.exam.spi.reactors.ReactorManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** PaxExam probe runner which supports the Dominion framework. */
-public class DominionProbeRunner extends BlockJUnit4ClassRunner {
+public class DominionProbeRunner extends AbstractDominionProbeRunner {
   private static final Logger LOGGER = LoggerFactory.getLogger(DominionProbeRunner.class);
-
-  /** Reactor manager singleton. */
-  private final Class<?> testClass;
-
-  private final ReactorManager manager;
-
-  private final Object testInstance;
-
-  private volatile ExamReactor reactor = null;
-
-  private volatile TestAddress beforeClassAddress = null;
-
-  private volatile TestAddress afterClassAddress = null;
-
-  /**
-   * Staged reactor for this test class. This may actually be a reactor already staged for a
-   * previous test class, depending on the reactor strategy.
-   */
-  private volatile StagedExamReactor stagedReactor = null;
 
   private final Map<FrameworkMethod, TestAddress> addresses =
       Collections.synchronizedMap(new LinkedHashMap<>());
@@ -80,63 +51,10 @@ public class DominionProbeRunner extends BlockJUnit4ClassRunner {
 
   private volatile Collection<org.junit.runners.model.FrameworkMethod> filteredChildren = null;
 
-  // creates a nice unique enough id for testing which makes it easier to find the exam directory
-  private final String id = new SimpleDateFormat("yyyyMMdd-hhmmss").format(new Date());
-
-  private final PaxExamDriverInterpolator interpolator;
-
-  @Nullable // will be set after staging
-  private volatile DominionConfigurationFactory config = null;
-
   public DominionProbeRunner(Class<?> testClass) throws InitializationError {
     super(testClass);
     LOGGER.debug("DominionProbeRunner({})", testClass.getName());
     LOGGER.info("Creating Dominion PaxExam runner for {}", testClass.getName());
-    try {
-      this.testClass = testClass;
-      this.manager = ReactorManager.getInstance();
-      this.testInstance = testClass.newInstance();
-      this.interpolator = new PaxExamDriverInterpolator(testClass, id);
-    } catch (InstantiationException | IllegalAccessException e) {
-      throw new DominionInitializationException(e);
-    }
-  }
-
-  public ReactorManager getManager() {
-    return manager;
-  }
-
-  public Object getTestInstance() {
-    return testInstance;
-  }
-
-  /** Prepares the reactor. */
-  public void prepare() {
-    LOGGER.debug("{}::prepare()", this);
-    LOGGER.info("Preparing Dominion PaxExam reactor for {}", testClass.getName());
-    try {
-      this.reactor = manager.prepareReactor(testClass, testInstance);
-      LOGGER.debug("{}::prepare() - reactor = {}", this, reactor);
-      addBeforeClassToReactor();
-      addAfterClassToReactor();
-      addTestsToReactor();
-    } catch (IOException | ExamConfigurationException e) {
-      throw new DominionInitializationException(e);
-    }
-  }
-
-  /** Stages the reactor for the current test class. */
-  public void stage() {
-    LOGGER.debug("{}::stage()", this);
-    LOGGER.info("Staging Dominion PaxExam reactor for {}", testClass.getName());
-    try {
-      DominionConfigurationFactory.setTestInfo(interpolator, testInstance);
-      this.stagedReactor = manager.stageReactor();
-      LOGGER.debug("{}::stage() - staged reactor = {}", this, stagedReactor);
-      this.config = DominionConfigurationFactory.getConfigInfo();
-    } finally {
-      DominionConfigurationFactory.clearTestInfo();
-    }
   }
 
   /**
@@ -199,26 +117,6 @@ public class DominionProbeRunner extends BlockJUnit4ClassRunner {
     return statement;
   }
 
-  @Override
-  protected Statement withBeforeClasses(Statement statement) {
-    final List<FrameworkMethod> befores = getTestClass().getAnnotatedMethods(BeforeClass.class);
-
-    LOGGER.debug("{}::withBeforeClasses({}) - count={}", this, statement, befores.size());
-    // register the @BeforeClass whether or not methods were annotated. This will give a chance
-    // to the probe runner to do prep work of its own
-    return new RunBeforeClasses(statement);
-  }
-
-  @Override
-  protected Statement withAfterClasses(Statement statement) {
-    final List<FrameworkMethod> afters = getTestClass().getAnnotatedMethods(AfterClass.class);
-
-    LOGGER.debug("{}::withAfterClasses({}) - count={}", this, statement, afters.size());
-    // register the @BeforeClass whether or not methods were annotated. This will give a chance
-    // to the probe runner to do cleanup work of its own
-    return new RunAfterClasses(statement);
-  }
-
   /**
    * Override to avoid running Before, After and Rule methods by the driver. They shall only be run
    * by the container when using a probe invoker.
@@ -275,22 +173,9 @@ public class DominionProbeRunner extends BlockJUnit4ClassRunner {
     }
   }
 
-  /**
-   * Adds test methods to the reactor, mapping method names to test addresses which are used by the
-   * probe invoker.
-   *
-   * <p>Note that when a collection of test classes is passed to an external JUnit runner like
-   * Eclipse or MavenUrl Surefire, this method is invoked (via the constructor of this runner) for
-   * each class <em>before</em> the {@link #run(RunNotifier)} method is invoked for any class.
-   *
-   * <p>This way, we can register all test methods in the reactor before the actual test execution
-   * starts.
-   *
-   * @throws IOException if an I/O error occurs
-   * @throws ExamConfigurationException if a configuration error occurs
-   */
+  @Override
   @SuppressWarnings("squid:CommentedOutCodeLine" /* left over from PaxExam's code */)
-  private void addTestsToReactor() throws IOException, ExamConfigurationException {
+  protected void addTestsToReactor() throws IOException, ExamConfigurationException {
     LOGGER.debug("{}::addTestsToReactor()", this);
     final TestProbeBuilder probe = manager.createProbeBuilder(testInstance);
 
@@ -323,22 +208,6 @@ public class DominionProbeRunner extends BlockJUnit4ClassRunner {
     } catch (Throwable t) {
       throw new TestContainerException("failed delegating to test: " + method, t);
     }
-  }
-
-  private void addBeforeClassToReactor() throws IOException, ExamConfigurationException {
-    LOGGER.debug("{}::addBeforeClassToReactor()", this);
-    final TestProbeBuilder probe = manager.createProbeBuilder(testInstance);
-
-    this.beforeClassAddress = probe.addTest(testClass, "@BeforeClass");
-    manager.storeTestMethod(beforeClassAddress, null);
-  }
-
-  private void addAfterClassToReactor() throws IOException, ExamConfigurationException {
-    LOGGER.debug("{}::addAfterClassToReactor()", this);
-    final TestProbeBuilder probe = manager.createProbeBuilder(testInstance);
-
-    this.afterClassAddress = probe.addTest(testClass, "@AfterClass");
-    manager.storeTestMethod(afterClassAddress, null);
   }
 
   private Stream<FrameworkMethod> filteredChildren() {
@@ -374,67 +243,6 @@ public class DominionProbeRunner extends BlockJUnit4ClassRunner {
 
         testDirectory.add(address, new TestInstantiationInstruction(className + ";" + methodName));
         addresses.put(method, address);
-      }
-    }
-  }
-
-  @Nullable
-  private TestAddress findStagedAddress(TestAddress preparedAddress) {
-    return stagedReactor
-        .getTargets()
-        .stream()
-        .filter(a -> preparedAddress.equals(a.root()))
-        .findFirst()
-        .orElse(null);
-  }
-
-  private class RunBeforeClasses extends Statement {
-    private final Statement next;
-
-    RunBeforeClasses(Statement next) {
-      this.next = next;
-    }
-
-    @Override
-    public void evaluate() throws Throwable {
-      LOGGER.debug(
-          "{}.RunBeforeClasses::evaluate() - running @BeforeClasses -> {}",
-          DominionProbeRunner.this,
-          beforeClassAddress);
-      try {
-        stagedReactor.invoke(findStagedAddress(beforeClassAddress));
-      } catch (Exception e) {
-        throw ExceptionHelper.unwind(e);
-      }
-      next.evaluate();
-    }
-  }
-
-  private class RunAfterClasses extends Statement {
-    private final Statement previous;
-
-    RunAfterClasses(Statement previous) {
-      this.previous = previous;
-    }
-
-    @SuppressWarnings({
-      "squid:S1163" /* per design where we want to unwind any exceptions thrown */,
-      "squid:S1143" /* per design where we want to unwind any exceptions thrown */
-    })
-    @Override
-    public void evaluate() throws Throwable {
-      try {
-        previous.evaluate();
-      } finally {
-        LOGGER.debug(
-            "{}.RunAfterClasses::evaluate() - running @AfterClasses -> {}",
-            DominionProbeRunner.this,
-            afterClassAddress);
-        try {
-          stagedReactor.invoke(findStagedAddress(afterClassAddress));
-        } catch (Exception e) {
-          throw ExceptionHelper.unwind(e);
-        }
       }
     }
   }
