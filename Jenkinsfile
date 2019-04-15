@@ -5,7 +5,6 @@ More information can be found on the Jenkins Documentation page https://jenkins.
 */
 
 library 'github-utils-shared-library@master'
-@Library('github.com/connexta/cx-pipeline-library@master') _
 
 pipeline {
     agent {
@@ -45,7 +44,7 @@ pipeline {
             steps {
                 slackSend color: 'good', message: "STARTED: ${JOB_NAME} ${BUILD_NUMBER} ${BUILD_URL}"
                 withCredentials([usernameColonPassword(credentialsId: 'cxbot', variable: 'GITHUB_TOKEN')]) {
-                    postCommentIfPR("Internal build has been started. Your results will be available at completion. See build progress in [legacy Jenkins UI](${BUILD_URL}) or in [Blue Ocean UI](${BUILD_URL}display/redirect).", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${GITHUB_TOKEN}")
+                    postStatusToHash("Internal build has been started. Your results will be available at completion. See build progress in [legacy Jenkins UI](${BUILD_URL}) or in [Blue Ocean UI](${BUILD_URL}display/redirect).", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${GITHUB_TOKEN}")
                     script {
                         //Check if the current HEAD is a Merge commit https://stackoverflow.com/questions/3824050/telling-if-a-git-commit-is-a-merge-revert-commit/3824122#3824122
                         try  {
@@ -58,12 +57,12 @@ pipeline {
                         }
                         //Clear existing status checks
                         def jsonBlob = getGithubStatusJsonBlob("pending", "${BUILD_URL}display/redirect", "Linux Build In Progress...", "jenkins/build/linux")
-                        postCommentIfPR("${jsonBlob}", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${env.PR_COMMIT}", "${GITHUB_TOKEN}")
+                        postStatusToHash("${jsonBlob}", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${env.PR_COMMIT}", "${GITHUB_TOKEN}")
                         // The post/comment steps only work during linux builds at the moment, will add this back in after the step is platform independent
                         //jsonBlob = getGithubStatusJsonBlob("pending", "${BUILD_URL}display/redirect", "Windows Build In Progress...", "jenkins/build/windows")
-                        //postCommentIfPR("${jsonBlob}", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${env.PR_COMMIT}", "${GITHUB_TOKEN}")
+                        //postStatusToHash("${jsonBlob}", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${env.PR_COMMIT}", "${GITHUB_TOKEN}")
                         jsonBlob = getGithubStatusJsonBlob("pending", "${BUILD_URL}display/redirect", "Sonar In Progress...", "jenkins/static-analysis/sonar")
-                        postCommentIfPR("${jsonBlob}", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${env.PR_COMMIT}", "${GITHUB_TOKEN}")
+                        postStatusToHash("${jsonBlob}", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${env.PR_COMMIT}", "${GITHUB_TOKEN}")
                         if (params.RELEASE == true) {
                             if (params.RELEASE_VERSION != 'NA'){
                                 env.RELEASE_VERSION = params.RELEASE_VERSION
@@ -112,7 +111,7 @@ pipeline {
                             withCredentials([usernameColonPassword(credentialsId: 'cxbot', variable: 'GITHUB_TOKEN')]) {
                                 script {
                                     def jsonBlob = getGithubStatusJsonBlob("success", "${BUILD_URL}display/redirect", "Linux Build Succeeded!", "jenkins/build/linux")
-                                    postCommentIfPR("${jsonBlob}", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${env.PR_COMMIT}", "${GITHUB_TOKEN}")
+                                    postStatusToHash("${jsonBlob}", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${env.PR_COMMIT}", "${GITHUB_TOKEN}")
                                 }
                             }
                         }
@@ -123,7 +122,7 @@ pipeline {
                             withCredentials([usernameColonPassword(credentialsId: 'cxbot', variable: 'GITHUB_TOKEN')]) {
                                 script {
                                     def jsonBlob = getGithubStatusJsonBlob("failure", "${BUILD_URL}display/redirect", "Linux Build Failed!", "jenkins/build/linux")
-                                    postCommentIfPR("${jsonBlob}", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${env.PR_COMMIT}", "${GITHUB_TOKEN}")
+                                    postStatusToHash("${jsonBlob}", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${env.PR_COMMIT}", "${GITHUB_TOKEN}")
                                 }
                             }
                         }
@@ -161,7 +160,7 @@ pipeline {
                             withCredentials([usernameColonPassword(credentialsId: 'cxbot', variable: 'GITHUB_TOKEN')]) {
                                 script {
                                     def jsonBlob = getGithubStatusJsonBlob("success", "${BUILD_URL}display/redirect", "Linux Build Succeeded!", "jenkins/build/linux")
-                                    postCommentIfPR("${jsonBlob}", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${env.PR_COMMIT}", "${GITHUB_TOKEN}")
+                                    postStatusToHash("${jsonBlob}", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${env.PR_COMMIT}", "${GITHUB_TOKEN}")
                                 }
                             }
                         }
@@ -172,7 +171,7 @@ pipeline {
                             withCredentials([usernameColonPassword(credentialsId: 'cxbot', variable: 'GITHUB_TOKEN')]) {
                                 script {
                                     def jsonBlob = getGithubStatusJsonBlob("failure", "${BUILD_URL}display/redirect", "Linux Build Failed!", "jenkins/build/linux")
-                                    postCommentIfPR("${jsonBlob}", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${env.PR_COMMIT}", "${GITHUB_TOKEN}")
+                                    postStatusToHash("${jsonBlob}", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${env.PR_COMMIT}", "${GITHUB_TOKEN}")
                                 }
                             }
                         }
@@ -213,7 +212,7 @@ pipeline {
                     script {
                         withCredentials([usernameColonPassword(credentialsId: 'cxbot', variable: 'GITHUB_TOKEN')]) {
                             def jsonBlob = getGithubStatusJsonBlob("success", "${BUILD_URL}display/redirect", "Sonar Succeeded!", "jenkins/static-analysis/sonar")
-                            postCommentIfPR("${jsonBlob}", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${env.PR_COMMIT}", "${GITHUB_TOKEN}")
+                            postStatusToHash("${jsonBlob}", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${env.PR_COMMIT}", "${GITHUB_TOKEN}")
                         }
                     }
                 }
@@ -221,7 +220,7 @@ pipeline {
                     script {
                         withCredentials([usernameColonPassword(credentialsId: 'cxbot', variable: 'GITHUB_TOKEN')]) {
                             def jsonBlob = getGithubStatusJsonBlob("failure", "${BUILD_URL}display/redirect", "Sonar Failed!", "jenkins/static-analysis/sonar")
-                            postCommentIfPR("${jsonBlob}", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${env.PR_COMMIT}", "${GITHUB_TOKEN}")
+                            postStatusToHash("${jsonBlob}", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${env.PR_COMMIT}", "${GITHUB_TOKEN}")
                         }
                     }
                 }
@@ -277,19 +276,19 @@ pipeline {
         success {
             slackSend color: 'good', message: "SUCCESS: ${JOB_NAME} ${BUILD_NUMBER}"
             withCredentials([usernameColonPassword(credentialsId: 'cxbot', variable: 'GITHUB_TOKEN')]) {
-                postCommentIfPR("Build success! See the job results in [legacy Jenkins UI](${BUILD_URL}) or in [Blue Ocean UI](${BUILD_URL}display/redirect).", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${GITHUB_TOKEN}")
+                postStatusToHash("Build success! See the job results in [legacy Jenkins UI](${BUILD_URL}) or in [Blue Ocean UI](${BUILD_URL}display/redirect).", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${GITHUB_TOKEN}")
             }
         }
         failure {
             slackSend color: '#ea0017', message: "FAILURE: ${JOB_NAME} ${BUILD_NUMBER}. See the results here: ${BUILD_URL}"
             withCredentials([usernameColonPassword(credentialsId: 'cxbot', variable: 'GITHUB_TOKEN')]) {
-                postCommentIfPR("Build failure. See the job results in [legacy Jenkins UI](${BUILD_URL}) or in [Blue Ocean UI](${BUILD_URL}display/redirect).", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${GITHUB_TOKEN}")
+                postStatusToHash("Build failure. See the job results in [legacy Jenkins UI](${BUILD_URL}) or in [Blue Ocean UI](${BUILD_URL}display/redirect).", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${GITHUB_TOKEN}")
             }
         }
         unstable {
             slackSend color: '#ffb600', message: "UNSTABLE: ${JOB_NAME} ${BUILD_NUMBER}. See the results here: ${BUILD_URL}"
             withCredentials([usernameColonPassword(credentialsId: 'cxbot', variable: 'GITHUB_TOKEN')]) {
-                postCommentIfPR("Build unstable. See the job results in [legacy Jenkins UI](${BUILD_URL}) or in [Blue Ocean UI](${BUILD_URL}display/redirect).", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${GITHUB_TOKEN}")
+                postStatusToHash("Build unstable. See the job results in [legacy Jenkins UI](${BUILD_URL}) or in [Blue Ocean UI](${BUILD_URL}display/redirect).", "${GITHUB_USERNAME}", "${GITHUB_REPONAME}", "${GITHUB_TOKEN}")
             }
         }
     }
