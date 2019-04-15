@@ -328,8 +328,9 @@ public class Interpolator implements Closeable, StringLookup {
   /**
    * {@inheritDoc}
    *
-   * <p>Lookups a replacement for the given key which first check known replacements, then system
-   * properties, and finally reserved ports.
+   * <p>Lookups a replacement for the given key which first check known replacements, then maven
+   * profile properties, then system properties, then environment variables, and finally reserved
+   * ports.
    *
    * @param key the key to search for
    * @return the corresponding replacement or <code>null</code> if none found
@@ -354,6 +355,9 @@ public class Interpolator implements Closeable, StringLookup {
 
     if (value == null) {
       value = System.getProperty(key);
+      if ((value == null) && key.startsWith("env.")) {
+        value = System.getenv(key.substring(4));
+      }
       if ((value == null) && key.startsWith("port.")) {
         value = Integer.toString(ports.getPort(key.substring(5)));
       }

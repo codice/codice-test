@@ -69,12 +69,14 @@ public class Options {
       UserRoles.SSH
     }
   )
-  @Options.PropagateOverriddenMavenLocalRepository
+  // the following provides support for Jenkins pipeline withMaven() block
+  @Options.OverrideAndPropagateMavenSettings("{env.MVN_SETTINGS:-}")
+  @Options.OverrideAndPropagateMavenLocalRepository("{maven.repo.local:-}")
   @Options.PropagateMavenRepositoriesFromActiveProfiles
   @Options.AddMavenRepository({
     // required to allow dominion and other libraries to include their own codice artifacts
-    "{snapshots.repository.url}@snapshots@noreleases@id=snapshots",
-    "{releases.repository.url}@id=releases"
+    "{snapshots.repository.url:-http://artifacts.codice.org/content/repositories/snapshots/}@snapshots@noreleases@id=snapshots",
+    "{releases.repository.url:-http://artifacts.codice.org/content/repositories/releases/}@id=releases"
   })
   @Option.Annotation
   @Target(ElementType.TYPE)
@@ -646,17 +648,41 @@ public class Options {
 
   /**
    * Option that ensures that information about the overridden location of the local Maven
-   * repository user using the <code>maven.repo.local</code> will be passed to the container and
-   * used by the driver when resolving maven artifacts.
+   * repository will be passed to the container and used by the driver when resolving maven
+   * artifacts.
    */
-  @Conditions.NotBlankSystemProperty("maven.repo.local")
   @Annotation
   @Target(ElementType.TYPE)
   @Retention(RetentionPolicy.RUNTIME)
   @Inherited
   @Documented
-  public @interface PropagateOverriddenMavenLocalRepository {
-    public static final String PROPERTY = "maven.repo.local";
+  public @interface OverrideAndPropagateMavenLocalRepository {
+    /**
+     * Specifies the overridden location of the local Maven repository.
+     *
+     * @return the overridden location of the local Maven repository
+     */
+    @Interpolate
+    String value();
+  }
+
+  /**
+   * Option that ensures that information about the overridden location of the Maven settings file
+   * will be passed to the container and used by the driver when resolving maven artifacts.
+   */
+  @Annotation
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Inherited
+  @Documented
+  public @interface OverrideAndPropagateMavenSettings {
+    /**
+     * Specifies the overridden location of the local Maven settings.
+     *
+     * @return the overridden location of the local Maven settings
+     */
+    @Interpolate
+    String value();
   }
 
   /**

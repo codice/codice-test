@@ -60,6 +60,10 @@ import java.lang.annotation.Target;
  *       provided by the JVM.
  *   <li><code>"maven-profile-property"</code> which represents the name of a Maven active profile
  *       property defined in Maven's settings.xml file.
+ *   <li><code>"env-<i>name</i>"</code> which represents an environment variable with the name
+ *       <code>name</code>. When used inside Dominion's driver, the environment variable must be
+ *       defined in Dominion. When used in a container, the environment variable must be defined
+ *       using Dominion's options or be already provided by the JVM.
  *   <li><code>"port.<i>name</i>"</code>. Where <code>name</code> is a unique name for a free port
  *       number to reserve. The interpolation will result in the same free reserved port whether the
  *       interpolation happens inside PaxExam driver or container.

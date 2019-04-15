@@ -94,13 +94,80 @@ public class Conditions {
     String value();
   }
 
+  /**
+   * A condition that evaluates to <code>true</code> only if the specified environment variable is
+   * defined with a value of <code>"true"</code> (case insensitive).
+   */
+  @Condition.Annotation
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Inherited
+  @Documented
+  @Repeatable(Repeatables.BooleanEnvironmentVariables.class)
+  public @interface BooleanEnvironmentVariable {
+    /**
+     * Specifies the name of the environment variable to evaluate as a boolean.
+     *
+     * @return the name of the environment variable to evaluate as a boolean
+     */
+    @Interpolate
+    String value();
+
+    /**
+     * Specifies the default if the environment variable is not defined (defaults to false).
+     *
+     * @return the default if the environment variable is not defined
+     */
+    boolean defaultsTo() default false;
+  }
+
+  /**
+   * A condition that evaluates to <code>true</code> only if the specified environment variable is
+   * defined and is not blank.
+   */
+  @Condition.Annotation
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Inherited
+  @Documented
+  @Repeatable(Repeatables.NotBlankEnvironmentVariables.class)
+  public @interface NotBlankEnvironmentVariable {
+    /**
+     * Specifies the name of the environment variable to check.
+     *
+     * @return the name of the environment variable to check
+     */
+    @Interpolate
+    String value();
+  }
+
+  /**
+   * A condition that evaluates to <code>true</code> only if the specified environment variable is
+   * defined and is not empty.
+   */
+  @Condition.Annotation
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Inherited
+  @Documented
+  @Repeatable(Repeatables.NotEmptyEnvironmentVariables.class)
+  public @interface NotEmptyEnvironmentVariable {
+    /**
+     * Specifies the name of the environment variable to check.
+     *
+     * @return the name of the environment variable to check
+     */
+    @Interpolate
+    String value();
+  }
+
   /** This interface is defined purely to provide scoping. */
   public interface Repeatables {
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.RUNTIME)
     @Inherited
     @Documented
-    /** Defines several {@link BooleanSystemPropertiy} annotations. */
+    /** Defines several {@link BooleanSystemProperty} annotations. */
     public @interface BooleanSystemProperties {
       BooleanSystemProperty[] value();
     }
@@ -109,7 +176,7 @@ public class Conditions {
     @Retention(RetentionPolicy.RUNTIME)
     @Inherited
     @Documented
-    /** Defines several {@link NotBlankSystemPropertiy} annotations. */
+    /** Defines several {@link NotBlankSystemProperty} annotations. */
     public @interface NotBlankSystemProperties {
       NotBlankSystemProperty[] value();
     }
@@ -118,9 +185,36 @@ public class Conditions {
     @Retention(RetentionPolicy.RUNTIME)
     @Inherited
     @Documented
-    /** Defines several {@link NotEmptySystemPropertiy} annotations. */
+    /** Defines several {@link NotEmptySystemProperty} annotations. */
     public @interface NotEmptySystemProperties {
       NotEmptySystemProperty[] value();
+    }
+
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Inherited
+    @Documented
+    /** Defines several {@link BooleanEnvironmentVariable} annotations. */
+    public @interface BooleanEnvironmentVariables {
+      BooleanEnvironmentVariable[] value();
+    }
+
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Inherited
+    @Documented
+    /** Defines several {@link NotBlankEnvironmentVariable} annotations. */
+    public @interface NotBlankEnvironmentVariables {
+      NotBlankEnvironmentVariable[] value();
+    }
+
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Inherited
+    @Documented
+    /** Defines several {@link NotEmptyEnvironmentVariable} annotations. */
+    public @interface NotEmptyEnvironmentVariables {
+      NotEmptyEnvironmentVariable[] value();
     }
   }
 

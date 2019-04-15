@@ -43,17 +43,17 @@ import org.ops4j.pax.exam.Option;
     @MavenUrl(
       groupId = MavenUrl.AS_PROJECT,
       artifactId = "dominion-pax-exam-invokers",
-      version = MavenUrl.AS_PROJECT
+      version = MavenUrl.AS_IN_PROJECT
     ),
     @MavenUrl(
       groupId = MavenUrl.AS_PROJECT,
       artifactId = "maven-extensions",
-      version = MavenUrl.AS_PROJECT
+      version = MavenUrl.AS_IN_PROJECT
     ),
     @MavenUrl(
       groupId = MavenUrl.AS_PROJECT,
       artifactId = "pax-exam-extensions",
-      version = MavenUrl.AS_PROJECT
+      version = MavenUrl.AS_IN_PROJECT
     )
   },
   codebase = {
