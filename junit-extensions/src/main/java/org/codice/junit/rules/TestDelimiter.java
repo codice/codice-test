@@ -76,9 +76,9 @@ public class TestDelimiter extends AbstractMethodRule {
               msg =
                   log(
                       null,
-                      "Test: %s(%s) <%s:%d>",
-                      getName(),
+                      "Test: %s.%s(%s:%d)",
                       target.getClass().getName(),
+                      getName(),
                       getSourceFile(),
                       getLineNumber());
               base.evaluate();

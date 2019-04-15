@@ -30,16 +30,17 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringSubstitutor;
 import org.codice.dominion.interpolate.ContainerNotStagedException;
 import org.codice.dominion.interpolate.InterpolationException;
 import org.codice.dominion.interpolate.Interpolator;
+import org.codice.dominion.options.OptionException;
 import org.codice.dominion.options.Options;
-import org.codice.dominion.options.Options.PropagateOverriddenMavenLocalRepository;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.PaxExamOption;
 import org.codice.maven.Utilities;
@@ -49,6 +50,7 @@ import org.ops4j.pax.exam.karaf.options.KarafDistributionBaseConfigurationOption
 import org.ops4j.pax.exam.options.SystemPropertyOption;
 import org.ops4j.pax.url.mvn.ServiceConstants;
 import org.ops4j.pax.url.mvn.internal.config.MavenConfigurationImpl;
+import org.ops4j.pax.url.mvn.internal.config.MavenRepositoryURL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import shaded.org.apache.maven.settings.Profile;
@@ -90,7 +92,7 @@ public class PaxExamDriverInterpolator extends PaxExamInterpolator {
   public PaxExamDriverInterpolator(Class<?> testClass, String id, String container) {
     super(testClass, id, container);
     LOGGER.debug("PaxExamDriverInterpolator({}, {}, {})", testClass, id, container);
-    initMavenProfilePropertiesAndProtocol(); // only do this in the driver
+    initMaven(); // only do this in the driver
   }
 
   /**
@@ -277,7 +279,34 @@ public class PaxExamDriverInterpolator extends PaxExamInterpolator {
     return value;
   }
 
-  private void initMavenProfilePropertiesAndProtocol() {
+  private void initMaven() {
+    initMavenRepositories(initMavenSettings());
+    // finally, initialize the mvn protocol handler
+    Utilities.initMavenUrlHandler();
+  }
+
+  private MavenConfigurationImpl initMavenSettings() {
+    // check if we have any OverrideAndPropagateMavenSettings annotations on the test
+    // class as this would be a source of customization for the maven settings for Aether
+    final String[] settingsLocations =
+        annotationsByType(Options.OverrideAndPropagateMavenSettings.class)
+            .map(AnnotationEntry::getAnnotation)
+            .map(this::interpolate)
+            .map(Options.OverrideAndPropagateMavenSettings::value)
+            .filter(StringUtils::isNotEmpty)
+            .distinct()
+            .map(FilenameUtils::separatorsToSystem)
+            .toArray(String[]::new);
+
+    if (settingsLocations.length > 1) {
+      throw new OptionException(
+          "too many overridden Maven settings configured; only one is supported");
+    } else if (settingsLocations.length == 1) {
+      LOGGER.info("Overridden Maven settings: {}", settingsLocations[0]);
+      System.setProperty(
+          ServiceConstants.PID + '.' + ServiceConstants.PROPERTY_SETTINGS_FILE,
+          settingsLocations[0]);
+    }
     // let's extract Maven settings' properties from all active profiles so we can complement
     // the interpolator's replacements
     final MavenConfigurationImpl config =
@@ -289,7 +318,7 @@ public class PaxExamDriverInterpolator extends PaxExamInterpolator {
     final URL url = config.getSettingsFileUrl();
 
     if (url != null) {
-      LOGGER.info("Processing maven settings: {}", url.getPath());
+      LOGGER.info("Processing Maven settings: {}", url.getPath());
       final Map<String, Profile> profiles = settings.getProfilesAsMap();
 
       Stream.concat(
@@ -300,13 +329,10 @@ public class PaxExamDriverInterpolator extends PaxExamInterpolator {
           .flatMap(Set::stream)
           .forEach(this::addReplacementFromMavenProfiles);
     }
-    // check if we have any PropagateOverriddenMavenLocalRepository annotations on the test
-    // class as this would be a source of customization for the local repository for Aether
-    if (annotationsByType(Options.PropagateOverriddenMavenLocalRepository.class).count() > 0) {
-      System.setProperty(
-          ServiceConstants.PID + '.' + ServiceConstants.PROPERTY_LOCAL_REPOSITORY,
-          System.getProperty(PropagateOverriddenMavenLocalRepository.PROPERTY, ""));
-    }
+    return config;
+  }
+
+  private void initMavenRepositories(MavenConfigurationImpl config) {
     // check if any Maven repositories are configured using the AddMavenRepository and
     // PropagateMavenRepositoriesFromActiveProfiles annotations and pass those onto Aether
     String repositories = "";
@@ -320,23 +346,47 @@ public class PaxExamDriverInterpolator extends PaxExamInterpolator {
             .map(this::interpolate)
             .map(Options.AddMavenRepository::value)
             .flatMap(Stream::of)
-            .filter(((Predicate<String>) String::isEmpty).negate())
+            .filter(PaxExamDriverInterpolator::isRepositoryUrlDefined)
             .distinct()
             .collect(Collectors.joining(","));
     if (!repositories.isEmpty()) {
-      System.setProperty("org.ops4j.pax.url.mvn.repositories", repositories);
+      System.setProperty(
+          ServiceConstants.PID + '.' + ServiceConstants.PROPERTY_REPOSITORIES, repositories);
       if (LOGGER.isInfoEnabled()) {
         try {
-          config.getRepositories().forEach(r -> LOGGER.info("Maven repository: {}", r));
-          settings
+          config
+              .getRepositories()
+              .stream()
+              .map(MavenRepositoryURL::toString)
+              .distinct()
+              .forEach(r -> LOGGER.info("Maven repository: {}", r));
+          config
+              .getSettings()
               .getMirrors()
               .forEach(m -> LOGGER.info("Maven mirror of \"{}\": {}", m.getMirrorOf(), m.getUrl()));
         } catch (MalformedURLException e) { // ignore
         }
       }
     }
-    // finally, initialize the mvn protocol handler
-    Utilities.initMavenUrlHandler();
+    // check if we have any OverrideAndPropagateMavenLocalRepository annotations on the test
+    // class as this would be a source of customization for the local repository for Aether
+    final String[] locations =
+        annotationsByType(Options.OverrideAndPropagateMavenLocalRepository.class)
+            .map(AnnotationEntry::getAnnotation)
+            .map(this::interpolate)
+            .map(Options.OverrideAndPropagateMavenLocalRepository::value)
+            .map(FilenameUtils::separatorsToSystem)
+            .filter(StringUtils::isNotEmpty)
+            .toArray(String[]::new);
+
+    if (locations.length > 1) {
+      throw new OptionException(
+          "too many overridden Maven local repositories configured; only one is supported");
+    } else if (locations.length == 1) {
+      LOGGER.info("Overridden Maven local repository: {}", locations[0]);
+      System.setProperty(
+          ServiceConstants.PID + '.' + ServiceConstants.PROPERTY_LOCAL_REPOSITORY, locations[0]);
+    }
   }
 
   private void addReplacementFromMavenProfiles(Map.Entry<?, ?> e) {
@@ -351,12 +401,14 @@ public class PaxExamDriverInterpolator extends PaxExamInterpolator {
         value = new StringSubstitutor(this).setEnableSubstitutionInVariables(true).replace(value);
       }
       final String k = key.toString();
+      final String old = replacements.get(k);
 
-      if (!replacements.containsKey(k)) {
+      if (old == null) {
         LOGGER.info("Maven profile property: {}=<{}>", k, value);
         replacements.put(k, value);
-      } else {
-        LOGGER.warn("Maven profile property: {}=<{}> (ignored)", k, value);
+      } else if (!old.equals(value)) {
+        LOGGER.warn(
+            "Maven profile property: {}=<{}> (ignored; already defined as <{}>)", k, value, old);
       }
     }
   }
@@ -373,6 +425,16 @@ public class PaxExamDriverInterpolator extends PaxExamInterpolator {
                 .map(Object::getClass),
             Stream.of(testClass))
         .flatMap(c -> AnnotationUtils.annotationsByType(this, c, clazz));
+  }
+
+  private static boolean isRepositoryUrlDefined(String url) {
+    if (StringUtils.isEmpty(url)) {
+      return false;
+    }
+    // ignore the markings portion of the URL
+    final int i = url.indexOf('@');
+
+    return (i == -1) || (i != 0);
   }
 
   private Stream<PaxExamOption.Extension<Annotation>> extensions(

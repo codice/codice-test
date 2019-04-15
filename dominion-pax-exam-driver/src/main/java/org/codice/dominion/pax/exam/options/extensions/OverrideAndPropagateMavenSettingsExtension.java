@@ -13,32 +13,33 @@
  */
 package org.codice.dominion.pax.exam.options.extensions;
 
-import org.codice.dominion.options.Options;
-import org.codice.dominion.options.Options.PropagateMavenRepositoriesFromActiveProfiles;
+import org.apache.commons.io.FilenameUtils;
+import org.codice.dominion.options.Options.OverrideAndPropagateMavenSettings;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 import org.ops4j.pax.url.mvn.ServiceConstants;
 
-/**
- * Extension point for the {@link PropagateMavenRepositoriesFromActiveProfiles} option annotation.
- */
-// assume the annotation was already processed by Dominion at startup which would have updated the
-// local system property with the same name; so just propagate that property into Pax Exam's maven
-// config file
-@Options.UpdateConfigProperty(
-  target = "etc/" + ServiceConstants.PID + ".cfg",
-  key = ServiceConstants.PID + '.' + ServiceConstants.PROPERTY_REPOSITORIES,
-  value = "{" + ServiceConstants.PID + '.' + ServiceConstants.PROPERTY_REPOSITORIES + ":-}"
-)
-public class PropagateMavenRepositoriesFromActiveProfilesExtension
-    implements Extension<PropagateMavenRepositoriesFromActiveProfiles> {
+/** Extension point for the {@link OverrideAndPropagateMavenSettings} option annotation. */
+public class OverrideAndPropagateMavenSettingsExtension
+    implements Extension<OverrideAndPropagateMavenSettings> {
   @Override
   public Option[] options(
-      PropagateMavenRepositoriesFromActiveProfiles annotation,
+      OverrideAndPropagateMavenSettings annotation,
       PaxExamInterpolator interpolator,
       ResourceLoader resourceLoader) {
-    return new Option[] {};
+    final String value = annotation.value();
+
+    if (value.isEmpty()) {
+      return new Option[0];
+    }
+    return new Option[] {
+      KarafDistributionOption.editConfigurationFilePut(
+          "etc/" + ServiceConstants.PID + ".cfg",
+          ServiceConstants.PID + '.' + ServiceConstants.PROPERTY_SETTINGS_FILE,
+          FilenameUtils.separatorsToSystem(value))
+    };
   }
 }

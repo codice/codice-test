@@ -13,27 +13,33 @@
  */
 package org.codice.dominion.pax.exam.options.extensions;
 
-import org.codice.dominion.options.Options;
-import org.codice.dominion.options.Options.PropagateOverriddenMavenLocalRepository;
+import org.apache.commons.io.FilenameUtils;
+import org.codice.dominion.options.Options.OverrideAndPropagateMavenLocalRepository;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.PaxExamOption.Extension;
 import org.codice.dominion.resources.ResourceLoader;
 import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 import org.ops4j.pax.url.mvn.ServiceConstants;
 
-/** Extension point for the {@link PropagateOverriddenMavenLocalRepository} option annotation. */
-@Options.UpdateConfigProperty(
-  target = "etc/" + ServiceConstants.PID + ".cfg",
-  key = ServiceConstants.PID + '.' + ServiceConstants.PROPERTY_LOCAL_REPOSITORY,
-  value = "{" + PropagateOverriddenMavenLocalRepository.PROPERTY + ":-}"
-)
-public class PropagateOverriddenMavenLocalRepositoryExtension
-    implements Extension<PropagateOverriddenMavenLocalRepository> {
+/** Extension point for the {@link OverrideAndPropagateMavenLocalRepository} option annotation. */
+public class OverrideAndPropagateMavenLocalRepositoryExtension
+    implements Extension<OverrideAndPropagateMavenLocalRepository> {
   @Override
   public Option[] options(
-      PropagateOverriddenMavenLocalRepository annotation,
+      OverrideAndPropagateMavenLocalRepository annotation,
       PaxExamInterpolator interpolator,
       ResourceLoader resourceLoader) {
-    return new Option[] {};
+    final String value = annotation.value();
+
+    if (value.isEmpty()) {
+      return new Option[0];
+    }
+    return new Option[] {
+      KarafDistributionOption.editConfigurationFilePut(
+          "etc/" + ServiceConstants.PID + ".cfg",
+          ServiceConstants.PID + '.' + ServiceConstants.PROPERTY_LOCAL_REPOSITORY,
+          FilenameUtils.separatorsToSystem(value))
+    };
   }
 }

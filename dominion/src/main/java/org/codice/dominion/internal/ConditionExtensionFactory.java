@@ -20,8 +20,11 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.codice.dominion.conditions.Condition;
 import org.codice.dominion.conditions.Conditions;
+import org.codice.dominion.conditions.extensions.BooleanEnvironmentVariableExtension;
 import org.codice.dominion.conditions.extensions.BooleanSystemPropertyExtension;
+import org.codice.dominion.conditions.extensions.NotBlankEnvironmentVariableExtension;
 import org.codice.dominion.conditions.extensions.NotBlankSystemPropertyExtension;
+import org.codice.dominion.conditions.extensions.NotEmptyEnvironmentVariableExtension;
 import org.codice.dominion.conditions.extensions.NotEmptySystemPropertyExtension;
 
 /** Factory implementation for the system Dominion condition extensions. */
@@ -31,8 +34,13 @@ public class ConditionExtensionFactory implements Condition.Factory {
   static {
     final Map<Class<? extends Annotation>, Condition.Extension<?>> map = new HashMap<>(8);
 
+    map.put(Conditions.BooleanEnvironmentVariable.class, new BooleanEnvironmentVariableExtension());
     map.put(Conditions.BooleanSystemProperty.class, new BooleanSystemPropertyExtension());
+    map.put(
+        Conditions.NotBlankEnvironmentVariable.class, new NotBlankEnvironmentVariableExtension());
     map.put(Conditions.NotBlankSystemProperty.class, new NotBlankSystemPropertyExtension());
+    map.put(
+        Conditions.NotEmptyEnvironmentVariable.class, new NotEmptyEnvironmentVariableExtension());
     map.put(Conditions.NotEmptySystemProperty.class, new NotEmptySystemPropertyExtension());
     EXTENSIONS = Collections.unmodifiableMap(map);
   }

@@ -30,8 +30,9 @@ import org.codice.dominion.pax.exam.options.extensions.KeepCachesExtension;
 import org.codice.dominion.pax.exam.options.extensions.KeepRuntimeFolderExtension;
 import org.codice.dominion.pax.exam.options.extensions.LocalGroupExtension;
 import org.codice.dominion.pax.exam.options.extensions.LocalUserExtension;
+import org.codice.dominion.pax.exam.options.extensions.OverrideAndPropagateMavenLocalRepositoryExtension;
+import org.codice.dominion.pax.exam.options.extensions.OverrideAndPropagateMavenSettingsExtension;
 import org.codice.dominion.pax.exam.options.extensions.PropagateMavenRepositoriesFromActiveProfilesExtension;
-import org.codice.dominion.pax.exam.options.extensions.PropagateOverriddenMavenLocalRepositoryExtension;
 import org.codice.dominion.pax.exam.options.extensions.PropagateSystemPropertyExtension;
 import org.codice.dominion.pax.exam.options.extensions.RemoveConfigPropertyExtension;
 import org.codice.dominion.pax.exam.options.extensions.ReplaceFileExtension;
@@ -68,11 +69,14 @@ public class OptionExtensionFactory implements Option.Factory {
     map.put(Options.KeepCaches.class, new KeepCachesExtension());
     map.put(Options.KeepRuntimeFolder.class, new KeepRuntimeFolderExtension());
     map.put(
+        Options.OverrideAndPropagateMavenLocalRepository.class,
+        new OverrideAndPropagateMavenLocalRepositoryExtension());
+    map.put(
+        Options.OverrideAndPropagateMavenSettings.class,
+        new OverrideAndPropagateMavenSettingsExtension());
+    map.put(
         Options.PropagateMavenRepositoriesFromActiveProfiles.class,
         new PropagateMavenRepositoriesFromActiveProfilesExtension());
-    map.put(
-        Options.PropagateOverriddenMavenLocalRepository.class,
-        new PropagateOverriddenMavenLocalRepositoryExtension());
     map.put(Options.PropagateSystemProperty.class, new PropagateSystemPropertyExtension());
     map.put(Options.RemoveConfigProperty.class, new RemoveConfigPropertyExtension());
     map.put(Options.ReplaceFile.class, new ReplaceFileExtension());
