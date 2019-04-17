@@ -123,13 +123,20 @@ public class KarafOptions {
     boolean boot() default true;
 
     /**
-     * Specifies the maximum amount of time to wait in milliseconds for the feature(s) to be
+     * Specifies the maximum amount of time to wait in the specified units for the feature(s) to be
      * installed via the SSH console.
      *
-     * @return the maximum amount of time in milliseconds to wait for the feature(s) to be installed
-     *     (defaults to 90 seconds per features)
+     * @return the maximum amount of time in the specified units to wait for the feature(s) to be
+     *     installed (defaults to 3 minutes per features specified)
      */
     long timeout() default -1L;
+
+    /**
+     * Specifies the units for the maximum amount of time to wait.
+     *
+     * @return the units for the maximum amount of time to wait (defaults to minutes)
+     */
+    TimeUnit units() default TimeUnit.MINUTES;
   }
 
   /**
@@ -426,11 +433,11 @@ public class KarafOptions {
 
     /**
      * Specifies the units for the maximum amount of time to wait for the command to complete
-     * (defaults to milliseconds).
+     * (defaults to seconds).
      *
      * @return the units for the maximum amount of time to wait
      */
-    TimeUnit units() default TimeUnit.MILLISECONDS;
+    TimeUnit units() default TimeUnit.SECONDS;
 
     /**
      * Specifies the maximum amount of time time to wait for the command to complete in the provided

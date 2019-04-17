@@ -71,8 +71,10 @@ public class InstallFeatureExtension implements Extension<InstallFeature> {
     }
     long timeout = annotation.timeout();
 
-    if (timeout == -1L) { // default to 90s per features
-      timeout = TimeUnit.SECONDS.toMillis(90) * names.length;
+    if (timeout != -1L) {
+      timeout = annotation.units().toMillis(timeout);
+    } else { // default to 3 minutes per features
+      timeout = TimeUnit.MINUTES.toMillis(3L) * names.length;
     }
     return new Option[] {
       new KarafDistributionConfigurationFileExtendOption(
