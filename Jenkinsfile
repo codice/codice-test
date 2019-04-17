@@ -36,7 +36,7 @@ pipeline {
         LINUX_MVN_RANDOM = '-Djava.security.egd=file:/dev/./urandom'
         COVERAGE_EXCLUSIONS = '**/test/**/*,**/itests/**/*,**/*Test*'
         SONAR_PROJECT_KEY = 'codice-test'
-        GITHUB_USERNAME = 'connexta'
+        GITHUB_USERNAME = 'codice'
         GITHUB_REPONAME = 'codice-test'
     }
     stages {
@@ -234,7 +234,7 @@ pipeline {
 
                     //sshagent doesn't seem to work in multi-branch pipelines so the following hack is needed
                     sh 'git remote add ssh-origin git@github.com:codice/codice-test.git'
-                    withCredentials([sshUserPrivateKey(credentialsId: 'Replication-Release-Key', keyFileVariable: 'GITHUB_KEY')]) {
+                    withCredentials([sshUserPrivateKey(credentialsId: 'codice-test-github-key', keyFileVariable: 'GITHUB_KEY')]) {
                         sh 'echo ssh -i $GITHUB_KEY -l git -o StrictHostKeyChecking=no \\"\\$@\\" > run_ssh.sh'
                         sh 'chmod +x run_ssh.sh'
                         withEnv(["GIT_SSH=${WORKSPACE}/run_ssh.sh"]) {
