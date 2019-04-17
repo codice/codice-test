@@ -36,7 +36,7 @@ pipeline {
         LINUX_MVN_RANDOM = '-Djava.security.egd=file:/dev/./urandom'
         COVERAGE_EXCLUSIONS = '**/test/**/*,**/itests/**/*,**/*Test*'
         SONAR_PROJECT_KEY = 'codice-test'
-        GITHUB_USERNAME = 'connexta'
+        GITHUB_USERNAME = 'codice'
         GITHUB_REPONAME = 'codice-test'
     }
     stages {
