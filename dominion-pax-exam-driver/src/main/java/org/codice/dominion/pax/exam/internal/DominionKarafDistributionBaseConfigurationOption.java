@@ -14,7 +14,6 @@
 package org.codice.dominion.pax.exam.internal;
 
 import java.io.File;
-import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionBaseConfigurationOption;
 
 /**
@@ -23,11 +22,11 @@ import org.ops4j.pax.exam.karaf.options.KarafDistributionBaseConfigurationOption
  */
 public class DominionKarafDistributionBaseConfigurationOption
     extends KarafDistributionBaseConfigurationOption {
-  private final PaxExamInterpolator interpolator;
+  private final PaxExamDriverInterpolator interpolator;
   private final KarafDistributionBaseConfigurationOption config;
 
   DominionKarafDistributionBaseConfigurationOption(
-      PaxExamInterpolator interpolator, KarafDistributionBaseConfigurationOption config) {
+      PaxExamDriverInterpolator interpolator, KarafDistributionBaseConfigurationOption config) {
     // make sure to set all super attributes in case this option is later cloned as the base class
     // copy constructor access those directly
     super(config);
