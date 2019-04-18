@@ -13,6 +13,7 @@
  */
 package org.codice.dominion.pax.exam.interpolate;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.annotation.Nullable;
@@ -79,7 +80,7 @@ public class PaxExamInterpolator extends Interpolator {
    * @param testClass the current test class
    */
   public PaxExamInterpolator(Class<?> testClass) {
-    super(testClass, System.getProperties());
+    super(testClass, PaxExamInterpolator.getFileFromSystemProperties());
     this.karafHome = Paths.get(initFromReplacements("karaf.home"));
     LOGGER.debug(
         "PaxExamInterpolator({}, {}, {}) - karaf.home = {}", testClass, id, container, karafHome);
@@ -149,5 +150,16 @@ public class PaxExamInterpolator extends Interpolator {
   public Path getKarafEtc() {
     getKarafHome();
     return karafEtc;
+  }
+
+  private static File getFileFromSystemProperties() {
+    final String filename = System.getProperty(Interpolator.INFO_FILE_KEY);
+
+    if (filename == null) {
+      throw new ContainerNotStagedException(
+          "Unable to retrieved interpolation file from system property: "
+              + Interpolator.INFO_FILE_KEY);
+    }
+    return new File(filename);
   }
 }

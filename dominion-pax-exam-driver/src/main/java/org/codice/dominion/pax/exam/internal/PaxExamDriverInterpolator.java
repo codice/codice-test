@@ -124,23 +124,19 @@ public class PaxExamDriverInterpolator extends PaxExamInterpolator {
    */
   public Option[] getOptions() {
     return new Option[] {
-      // create a subclass of the system property option to delay the evaluation of the replacement
-      // map in order to collect all registered values
-      new SystemPropertyOption(Interpolator.REPLACEMENTS_KEY) {
+      // create a subclass of the system property option to delay the evaluation of the
+      // interpolation information to the very last minute. This will allow us to catch all
+      // replacement information and port allocated via interpolation of all annotations as these
+      // would be resolved and evaluated before PaxExam gets this information
+      new SystemPropertyOption(Interpolator.INFO_FILE_KEY) {
         @Override
         public String getValue() {
           initKaraf(); // make sure {karaf.XXXX} were initialized
-          return getReplacementsInfo();
-        }
-      },
-      // create a subclass of the system property option to delay the evaluation of the system
-      // port information to the very last minute. This will allow us to catch all port allocated
-      // via interpolation of all annotations as these would be resolved and evaluated before
-      // PaxExam gets this information
-      new SystemPropertyOption(Interpolator.PORTS_KEY) {
-        @Override
-        public String getValue() {
-          return getPortsInfo();
+          try {
+            return save(distribution.getUnpackDirectory()).getAbsolutePath();
+          } catch (IOException e) {
+            throw new InterpolationException("unable to save the interpolation information", e);
+          }
         }
       }
     };
@@ -163,7 +159,7 @@ public class PaxExamDriverInterpolator extends PaxExamInterpolator {
       this.distribution = distro;
       LOGGER.info(
           "Target folder for containers: {}",
-          distro.getUnpackDirectory().toPath().toAbsolutePath());
+          distro.getUnpackDirectory().getParentFile().toPath().toAbsolutePath());
     }
   }
 

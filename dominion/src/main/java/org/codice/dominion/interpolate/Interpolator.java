@@ -15,13 +15,21 @@ package org.codice.dominion.interpolate;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.file.Paths;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -41,8 +49,9 @@ public class Interpolator implements Closeable, StringLookup {
 
   public static final String DEFAULT_CONTAINER = "default";
 
-  public static final String REPLACEMENTS_KEY = "dominion.interpolator.replacements";
-  public static final String PORTS_KEY = "dominion.interpolator.ports";
+  public static final String INFO_FILE_KEY = "dominion.interpolator.info";
+  public static final String REPLACEMENTS_KEY = "replacements";
+  public static final String PORTS_KEY = "ports";
 
   private static final int BASE_PORT = 20000;
   private static final int BLOCK_SIZE = 20;
@@ -126,15 +135,18 @@ public class Interpolator implements Closeable, StringLookup {
   }
 
   /**
-   * Initializes a new interpolator with all the specified information already computed (typically
-   * from inside a container).
+   * Initializes a new interpolator with all interpolation information already computed and saved to
+   * the specified file (typically from inside a container).
    *
    * @param testClass the current test class
-   * @param properties properties from which to retrieve the replacement and port info
+   * @param file file from which to retrieve the interpolation info
    */
-  public Interpolator(Class<?> testClass, Properties properties) {
-    LOGGER.debug("Interpolator({}, Properties)", testClass);
+  public Interpolator(Class<?> testClass, File file) {
+    LOGGER.debug("Interpolator({}, {})", testClass, file);
     this.testClass = testClass;
+    final Properties properties =
+        AccessController.doPrivileged((PrivilegedAction<Properties>) () -> Interpolator.load(file));
+
     try {
       this.replacements =
           new Gson().fromJson(properties.getProperty(Interpolator.REPLACEMENTS_KEY, ""), Map.class);
@@ -366,25 +378,28 @@ public class Interpolator implements Closeable, StringLookup {
   }
 
   /**
-   * Gets the current replacement information as a Json string suitable to rebuild an interpolator
-   * using the {@link #Interpolator(Class, Properties)} constructor.
+   * Saves the current interpolation information (i.e. replacement and port) to disk and get a file
+   * object where the information was saved. This is the same file that should be passed to the
+   * {@link #Interpolator(Class, File)} constructor inside the container to reload the information
+   * and initialize the interpolator.
    *
-   * @return a json string for the current set of replacement information
+   * @param root the root directory where to create the file
+   * @return the file where the information was saved
+   * @throws IOException if an I/O error occurs while saving the file
    */
-  public String getReplacementsInfo() {
-    return new Gson().toJson(replacements);
-  }
+  public File save(File root) throws IOException {
+    final File file = new File(root, "interpolation.json");
+    final Properties properties = new Properties();
+    final Gson gson = new Gson();
 
-  /**
-   * Gets the current port information as a Json string suitable to rebuild an interpolator using
-   * the {@link #Interpolator(Class, Properties)} constructor.
-   *
-   * @return a json string for the current set of port information
-   */
-  public String getPortsInfo() {
+    properties.put(Interpolator.REPLACEMENTS_KEY, gson.toJson(replacements));
     synchronized (ports) {
-      return new Gson().toJson(ports);
+      properties.put(Interpolator.PORTS_KEY, gson.toJson(ports));
     }
+    try (final Writer writer = new BufferedWriter((new FileWriter(file)))) {
+      properties.store(writer, "Created by dominion");
+    }
+    return file;
   }
 
   @Override
@@ -438,6 +453,17 @@ public class Interpolator implements Closeable, StringLookup {
     } catch (SecurityException e) {
       throw new InterpolationException("Unable to interpolate field: " + field, e);
     }
+  }
+
+  private static Properties load(File file) {
+    final Properties properties = new Properties();
+
+    try (final Reader r = new BufferedReader(new FileReader(file))) {
+      properties.load(r);
+    } catch (IOException e) {
+      throw new ContainerNotStagedException("Unable to read interpolation file: " + file, e);
+    }
+    return properties;
   }
 
   /** Matcher to match '{' as the prefix as long as it is not preceded with $. */
