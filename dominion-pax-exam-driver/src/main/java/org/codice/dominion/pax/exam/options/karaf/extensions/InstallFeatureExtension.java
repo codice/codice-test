@@ -32,9 +32,13 @@ import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 import org.ops4j.pax.exam.karaf.options.configs.FeaturesCfg;
 import org.ops4j.pax.exam.options.RawUrlReference;
 import org.ops4j.pax.exam.options.UrlReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Extension point for the {@link InstallFeature} option annotation. */
 public class InstallFeatureExtension implements Extension<InstallFeature> {
+  private static final Logger LOGGER = LoggerFactory.getLogger(InstallFeatureExtension.class);
+
   @Override
   public Option[] options(
       InstallFeature annotation, PaxExamInterpolator interpolator, ResourceLoader resourceLoader)
@@ -80,7 +84,17 @@ public class InstallFeatureExtension implements Extension<InstallFeature> {
       new KarafDistributionConfigurationFileExtendOption(
           FeaturesCfg.REPOSITORIES, repoUrl.getURL()),
       new KarafSshCommandOption(
-          "feature:install --no-auto-refresh " + StringUtils.join(names, " "), timeout)
+          "feature:install --no-auto-refresh " + StringUtils.join(names, " "), timeout) {
+        @Override
+        public String getCommand() {
+          if (names.length == 0) {
+            LOGGER.info("Installing '{}' feature", names[0]);
+          } else {
+            LOGGER.info("Installing features: {}", StringUtils.join(names, ", "));
+          }
+          return super.getCommand();
+        }
+      }
     };
   }
 
