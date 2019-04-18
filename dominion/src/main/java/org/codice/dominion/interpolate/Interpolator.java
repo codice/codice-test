@@ -28,6 +28,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.file.Paths;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -142,13 +144,9 @@ public class Interpolator implements Closeable, StringLookup {
   public Interpolator(Class<?> testClass, File file) {
     LOGGER.debug("Interpolator({}, {})", testClass, file);
     this.testClass = testClass;
-    final Properties properties = new Properties();
+    final Properties properties =
+        AccessController.doPrivileged((PrivilegedAction<Properties>) () -> Interpolator.load(file));
 
-    try (final Reader r = new BufferedReader(new FileReader(file))) {
-      properties.load(r);
-    } catch (IOException e) {
-      throw new ContainerNotStagedException("Unable to read interpolation file: " + file, e);
-    }
     try {
       this.replacements =
           new Gson().fromJson(properties.getProperty(Interpolator.REPLACEMENTS_KEY, ""), Map.class);
@@ -455,6 +453,17 @@ public class Interpolator implements Closeable, StringLookup {
     } catch (SecurityException e) {
       throw new InterpolationException("Unable to interpolate field: " + field, e);
     }
+  }
+
+  private static Properties load(File file) {
+    final Properties properties = new Properties();
+
+    try (final Reader r = new BufferedReader(new FileReader(file))) {
+      properties.load(r);
+    } catch (IOException e) {
+      throw new ContainerNotStagedException("Unable to read interpolation file: " + file, e);
+    }
+    return properties;
   }
 
   /** Matcher to match '{' as the prefix as long as it is not preceded with $. */

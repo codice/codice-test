@@ -42,6 +42,11 @@ import org.ops4j.pax.exam.Option;
   artifact = {
     @MavenUrl(
       groupId = MavenUrl.AS_PROJECT,
+      artifactId = "dominion",
+      version = MavenUrl.AS_IN_PROJECT
+    ),
+    @MavenUrl(
+      groupId = MavenUrl.AS_PROJECT,
       artifactId = "dominion-pax-exam-invokers",
       version = MavenUrl.AS_IN_PROJECT
     ),
