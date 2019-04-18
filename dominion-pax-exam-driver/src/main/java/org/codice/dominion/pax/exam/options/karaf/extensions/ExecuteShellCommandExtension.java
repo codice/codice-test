@@ -13,7 +13,6 @@
  */
 package org.codice.dominion.pax.exam.options.karaf.extensions;
 
-import java.io.IOException;
 import org.codice.dominion.options.karaf.KarafOptions.ExecuteShellCommand;
 import org.codice.dominion.pax.exam.interpolate.PaxExamInterpolator;
 import org.codice.dominion.pax.exam.options.KarafSshCommandOption;
@@ -27,8 +26,7 @@ public class ExecuteShellCommandExtension implements Extension<ExecuteShellComma
   public Option[] options(
       ExecuteShellCommand annotation,
       PaxExamInterpolator interpolator,
-      ResourceLoader resourceLoader)
-      throws IOException {
+      ResourceLoader resourceLoader) {
     return new Option[] {
       new KarafSshCommandOption(
           annotation.command(), annotation.units().toMillis(annotation.timeout()))
