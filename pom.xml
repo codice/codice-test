@@ -17,7 +17,7 @@
 
     <groupId>org.codice.test</groupId>
     <artifactId>codice-test</artifactId>
-    <version>0.9-SNAPSHOT</version>
+    <version>0.9</version>
     <packaging>pom</packaging>
     <name>Codice Test</name>
     <description>Codice Generic Test Utilities and Classes</description>
@@ -94,7 +94,7 @@
         <url>https://github.com/codice/codice-test</url>
         <connection>scm:git:https://github.com/codice/codice-test.git</connection>
         <developerConnection>scm:git:https://github.com/codice/codice-test.git</developerConnection>
-        <tag>codice-test-0.6</tag>
+        <tag>codice-test-0.9</tag>
     </scm>
 
     <distributionManagement>

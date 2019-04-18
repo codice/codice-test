@@ -17,7 +17,7 @@
     <parent>
         <groupId>org.codice.test</groupId>
         <artifactId>codice-test</artifactId>
-        <version>0.9-SNAPSHOT</version>
+        <version>0.9</version>
     </parent>
 
     <name>Codice Test :: Failsafe Controller</name>
