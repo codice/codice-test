@@ -177,14 +177,6 @@ pipeline {
                         }
                     }
                 }
-                stage ('Windows') {
-                    agent { label 'server-2016-small'}
-                    steps {
-                        withMaven(maven: 'Maven 3.5.4', jdk: 'jdk8-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings') {
-                              bat 'mvn clean install -B %DISABLE_DOWNLOAD_PROGRESS_OPTS%'
-                        }
-                    }
-                }
             }
         }
         stage ('SonarCloud') {
