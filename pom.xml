@@ -48,7 +48,7 @@
 
         <commons-lang.version>2.6</commons-lang.version>
         <commons-lang3.version>3.8</commons-lang3.version>
-        <commons-io.version>2.6</commons-io.version>
+        <commons-io.version>2.7</commons-io.version>
         <commons-text.version>1.6</commons-text.version>
         <commons-compress.version>1.18</commons-compress.version>
         <sshd-core.version>1.7.0</sshd-core.version>
