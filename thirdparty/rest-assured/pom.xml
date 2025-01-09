@@ -28,7 +28,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.jayway.restassured</groupId>
+            <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
             <version>${restassured.version}</version>
             <exclusions>
@@ -130,35 +130,7 @@
                             *;artifactId=!dominion|junit-extensions|maven-extensions|groovy-all|hamcrest-core|hamcrest-library|hamcrest-all|junit|mockito-core;scope=!test
                         </Embed-Dependency>
                         <Export-Package>
-                            com.jayway.restassured;version="${restassured.version}",
-                            com.jayway.restassured.assertion;version="${restassured.version}",
-                            com.jayway.restassured.authentication;version="${restassured.version}",
-                            com.jayway.restassured.builder;version="${restassured.version}",
-                            com.jayway.restassured.config;version="${restassured.version}",
-                            com.jayway.restassured.exception;version="${restassured.version}",
-                            com.jayway.restassured.filter;version="${restassured.version}",
-                            com.jayway.restassured.filter.log;version="${restassured.version}",
-                            com.jayway.restassured.http;version="${restassured.version}",
-                            com.jayway.restassured.internal;version="${restassured.version}",
-                            com.jayway.restassured.internal.filter;version="${restassured.version}",
-                            com.jayway.restassured.internal.http;version="${restassured.version}",
-                            com.jayway.restassured.internal.mapping;version="${restassured.version}",
-                            com.jayway.restassured.internal.matcher.xml;version="${restassured.version}",
-                            com.jayway.restassured.internal.path;version="${restassured.version}",
-                            com.jayway.restassured.internal.path.xml;version="${restassured.version}",
-                            com.jayway.restassured.internal.support;version="${restassured.version}",
-                            com.jayway.restassured.mapper;version="${restassured.version}",
-                            com.jayway.restassured.mapper.factory;version="${restassured.version}",
-                            com.jayway.restassured.mapper.resolver;version="${restassured.version}",
-                            com.jayway.restassured.matcher;version="${restassured.version}",
-                            com.jayway.restassured.parsing;version="${restassured.version}",
-                            com.jayway.restassured.path.json;version="${restassured.version}",
-                            com.jayway.restassured.path.xml;version="${restassured.version}",
-                            com.jayway.restassured.path.xml.element;version="${restassured.version}",
-                            com.jayway.restassured.path.xml.config;version="${restassured.version}",
-                            com.jayway.restassured.response;version="${restassured.version}",
-                            com.jayway.restassured.specification;version="${restassured.version}",
-                            com.jayway.restassured.spi;version="${restassured.version}"
+                            io.rest-assured;version="${restassured.version}"
                         </Export-Package>
                         <Import-Package>
                             org.hamcrest,

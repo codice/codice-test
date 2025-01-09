@@ -70,7 +70,9 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkListener;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceFactory;
 import org.osgi.framework.ServiceListener;
+import org.osgi.framework.ServiceObjects;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.framework.wiring.BundleRequirement;
@@ -222,6 +224,11 @@ public class ServiceAdmin extends MethodRuleChain
   @Override
   public boolean isRepositoryUriBlacklisted(URI uri) {
     return service(FeaturesService.class).isRepositoryUriBlacklisted(uri);
+  }
+
+  @Override
+  public Feature[] repositoryProvidedFeatures(URI uri) throws Exception {
+    return new Feature[0];
   }
 
   /**
@@ -977,6 +984,12 @@ public class ServiceAdmin extends MethodRuleChain
   }
 
   @Override
+  public <S> ServiceRegistration<S> registerService(
+      Class<S> aClass, ServiceFactory<S> serviceFactory, Dictionary<String, ?> dictionary) {
+    return null;
+  }
+
+  @Override
   public ServiceReference<?>[] getServiceReferences(String clazz, String filter)
       throws InvalidSyntaxException {
     return service(BundleContext.class).getServiceReferences(clazz, filter);
@@ -1012,6 +1025,11 @@ public class ServiceAdmin extends MethodRuleChain
   @Override
   public boolean ungetService(ServiceReference<?> reference) {
     return service(BundleContext.class).ungetService(reference);
+  }
+
+  @Override
+  public <S> ServiceObjects<S> getServiceObjects(ServiceReference<S> serviceReference) {
+    return service(BundleContext.class).getServiceObjects(serviceReference);
   }
 
   @Override

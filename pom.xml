@@ -41,14 +41,14 @@
         <snapshots.repository.url />
         <reports.repository.url />
 
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
 
-        <codice-maven.version>0.1</codice-maven.version>
+        <codice-maven.version>0.4-SNAPSHOT</codice-maven.version>
 
         <commons-lang.version>2.6</commons-lang.version>
         <commons-lang3.version>3.8</commons-lang3.version>
-        <commons-io.version>2.6</commons-io.version>
+        <commons-io.version>2.14.0</commons-io.version>
         <commons-text.version>1.6</commons-text.version>
         <commons-compress.version>1.18</commons-compress.version>
         <sshd-core.version>1.7.0</sshd-core.version>
@@ -62,22 +62,22 @@
         <httpclient.version>4.5.6</httpclient.version>
         <httpcore.version>4.4.10</httpcore.version>
 
-        <osgi.version>5.0.0</osgi.version>
-        <karaf.version>4.2.1</karaf.version>
-        <felix.configadmin.version>1.9.4</felix.configadmin.version>
+        <osgi.version>7.0.0</osgi.version>
+        <karaf.version>4.4.6</karaf.version>
+        <felix.configadmin.version>1.9.26</felix.configadmin.version>
         <pax.exam.version>4.12.0</pax.exam.version>
         <pax.swissbox.version>1.8.2</pax.swissbox.version>
         <pax.url.aether.version>2.5.4</pax.url.aether.version>
 
         <junit.version>4.12</junit.version>
-        <spock.version>1.1-groovy-2.4</spock.version>
-        <groovy.version>2.4.7</groovy.version>
+        <spock.version>2.3-groovy-4.0</spock.version>
+        <groovy.version>4.0.24</groovy.version>
         <mockito-core.version>2.8.47</mockito-core.version>
         <hamcrest-all.version>1.3</hamcrest-all.version>
         <hamcrest-all.servicemix.version>1.3_1</hamcrest-all.servicemix.version>
-        <restassured.version>2.9.0</restassured.version>
+        <restassured.version>5.5.0</restassured.version>
 
-        <javassist.version>3.22.0-GA</javassist.version>
+        <javassist.version>3.30.2-GA</javassist.version>
 
         <!-- Gitflow Incremental Builder Properties -->
         <gib.referenceBranch>refs/remotes/origin/master</gib.referenceBranch>
@@ -86,8 +86,8 @@
         <gib.failOnError>false</gib.failOnError>
 
         <!-- Maven Plugin Version Properties -->
-        <maven-jacoco-plugin.version>0.8.1</maven-jacoco-plugin.version>
-        <maven-servicemix-depends.version>1.4.0</maven-servicemix-depends.version>
+        <maven-jacoco-plugin.version>0.8.12</maven-jacoco-plugin.version>
+        <maven-servicemix-depends.version>1.5.0</maven-servicemix-depends.version>
     </properties>
 
     <scm>
@@ -221,13 +221,13 @@
 
             <dependency>
                 <groupId>org.osgi</groupId>
-                <artifactId>org.osgi.compendium</artifactId>
+                <artifactId>osgi.compendium</artifactId>
                 <version>${osgi.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.osgi</groupId>
-                <artifactId>org.osgi.core</artifactId>
+                <artifactId>osgi.core</artifactId>
                 <version>${osgi.version}</version>
                 <scope>provided</scope>
             </dependency>
@@ -319,26 +319,16 @@
                 <version>${mockito-core.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.codehaus.groovy</groupId>
+                <groupId>org.apache.groovy</groupId>
                 <artifactId>groovy-all</artifactId>
                 <version>${groovy.version}</version>
                 <type>pom</type>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.groovy</groupId>
-                <artifactId>groovy-all</artifactId>
-                <version>${groovy.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.spockframework</groupId>
                 <artifactId>spock-core</artifactId>
                 <version>${spock.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.codehaus.groovy</groupId>
-                        <artifactId>groovy-all</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -357,12 +347,12 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.0.2</version>
+                    <version>3.2.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
-                    <version>2.2.2</version>
+                    <version>3.2.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.jacoco</groupId>
@@ -387,9 +377,9 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.20.1</version>
+                    <version>3.5.2</version>
                     <configuration>
-                        <argLine>${argLine} -Djava.awt.headless=true -noverify</argLine>
+                        <argLine>${argLine} -Djava.awt.headless=true -noverify --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
                         <includes>
                             <include>**/*Test.java</include>
                             <include>**/*Spec.class</include>
@@ -416,17 +406,17 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.0.2</version>
+                <version>3.1.0</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.0.2</version>
+                <version>3.2.0</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>5.1.4</version>
                 <extensions>true</extensions>
                 <configuration>
                     <!-- Disabled OBR to increase build speed -->
@@ -439,7 +429,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.6.0</version>
             </plugin>
             <plugin>
                 <groupId>com.coveo</groupId>
@@ -457,12 +447,12 @@
             <plugin>
                 <groupId>org.codehaus.gmavenplus</groupId>
                 <artifactId>gmavenplus-plugin</artifactId>
-                <version>1.5</version>
+                <version>4.0.1</version>
                 <executions>
                     <execution>
                         <goals>
                             <goal>compile</goal>
-                            <goal>testCompile</goal>
+                            <goal>compileTests</goal>
                         </goals>
                     </execution>
                 </executions>
