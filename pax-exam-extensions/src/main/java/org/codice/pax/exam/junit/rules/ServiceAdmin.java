@@ -228,7 +228,7 @@ public class ServiceAdmin extends MethodRuleChain
 
   @Override
   public Feature[] repositoryProvidedFeatures(URI uri) throws Exception {
-    return new Feature[0];
+    return service(FeaturesService.class).repositoryProvidedFeatures(uri);
   }
 
   /**
@@ -985,8 +985,8 @@ public class ServiceAdmin extends MethodRuleChain
 
   @Override
   public <S> ServiceRegistration<S> registerService(
-      Class<S> aClass, ServiceFactory<S> serviceFactory, Dictionary<String, ?> dictionary) {
-    return null;
+      Class<S> clazz, ServiceFactory<S> serviceFactory, Dictionary<String, ?> properties) {
+    return service(BundleContext.class).registerService(clazz, serviceFactory, properties);
   }
 
   @Override
