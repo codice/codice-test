@@ -77,12 +77,6 @@
             <groupId>org.ops4j.pax.swissbox</groupId>
             <artifactId>pax-swissbox-tracker</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.codice.test</groupId>
             <artifactId>spock-all</artifactId>
