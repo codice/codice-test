@@ -38,7 +38,7 @@ public abstract class Action<R> {
   private static final Set<String> PACKAGE_PREFIXES =
       ImmutableSet.of(
           FailsafeController.class.getPackage().getName() + ".",
-          "org.codehaus.groovy.",
+          "org.apache.groovy.",
           "sun.",
           "com.sun.",
           "java.",

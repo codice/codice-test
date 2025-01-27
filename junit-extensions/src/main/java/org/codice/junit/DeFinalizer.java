@@ -17,6 +17,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 import org.codice.junit.impl.DeFinalizeClassLoader;
+import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.Describable;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
@@ -28,7 +29,6 @@ import org.junit.runner.manipulation.Sorter;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.JUnit4;
 import org.junit.runners.model.InitializationError;
-import org.spockframework.runtime.Sputnik;
 import spock.lang.Specification;
 
 /**
@@ -141,7 +141,7 @@ public class DeFinalizer extends Runner implements Describable, Filterable, Sort
     if (a != null) {
       runnerClass = a.value();
     } else if (Specification.class.isAssignableFrom(testClass)) {
-      runnerClass = Sputnik.class;
+      runnerClass = JUnitPlatform.class;
     } else {
       runnerClass = JUnit4.class;
     }

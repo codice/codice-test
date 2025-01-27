@@ -13,6 +13,8 @@
  */
 package org.codice.test.commons
 
+import org.junit.platform.runner.JUnitPlatform
+import org.junit.runner.RunWith
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -22,6 +24,7 @@ import java.lang.annotation.Retention
 import java.lang.annotation.Target
 import java.util.stream.Collectors
 
+@RunWith(JUnitPlatform.class)
 class ReflectionUtilsSpec extends Specification {
   @Unroll
   def "test annotationsByType() finds recursively from #from_what with no filters"() {
