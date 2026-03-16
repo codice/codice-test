@@ -86,7 +86,7 @@
         <gib.failOnError>false</gib.failOnError>
 
         <!-- Maven Plugin Version Properties -->
-        <maven-jacoco-plugin.version>0.8.1</maven-jacoco-plugin.version>
+        <maven-jacoco-plugin.version>0.8.12</maven-jacoco-plugin.version>
         <maven-servicemix-depends.version>1.4.0</maven-servicemix-depends.version>
     </properties>
 
@@ -389,7 +389,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>3.5.2</version>
                     <configuration>
-                        <argLine>${argLine} -Djava.awt.headless=true -noverify</argLine>
+                        <argLine>${argLine} -Djava.awt.headless=true</argLine>
                         <includes>
                             <include>**/*Test.java</include>
                             <include>**/*Spec.class</include>
